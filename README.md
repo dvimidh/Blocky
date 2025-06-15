@@ -7,6 +7,7 @@ A very simple and very vanilla shader
 
 Feature include:
 - Shadows
+- Colored Shadows
 - Distant Horizon Support
 - Basic PBR Support (RP Required, Normals and Specular)
 - Anti Aliasing (FXAA, Taken from Capt Tatsu's BSL)
