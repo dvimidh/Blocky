@@ -3,7 +3,7 @@
 
 # **Blocky**
 
-A very simple and very vanilla shader
+A very simple and very vanilla shader based on Samuel Gerkin's Tutorial
 
 Feature include:
 - Shadows
