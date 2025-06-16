@@ -31,7 +31,7 @@ in vec2 lightMapCoords;
 in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
-
+uniform vec4 entityColor;
 
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
@@ -41,7 +41,7 @@ layout(location = 0) out vec4 outColor0;
 void main() {
 
     vec4 outputColorData = texture(gtexture,texCoord);
-    vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
+    vec3 albedo = mix(pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2)), entityColor.rgb, entityColor.a);
     float transparency = outputColorData.a;
 
     if(transparency < 0.1) {
