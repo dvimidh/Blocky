@@ -1,0 +1,1 @@
+#include "/programs/lit_frag.glsl"
