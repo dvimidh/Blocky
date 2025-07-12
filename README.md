@@ -10,7 +10,7 @@ Feature include:
 - Colored Shadows
 - Distant Horizon Support
 - Basic PBR Support (RP Required, Normals and Specular)
-- Anti Aliasing (FXAA, Taken from Capt Tatsu's BSL)
+- Anti Aliasing (FXAA, Used with permission from Capt Tatsu's BSL)
 
 
 
