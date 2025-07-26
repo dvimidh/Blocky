@@ -1,5 +1,6 @@
 
-![2025-06-15_17 13 14](https://github.com/user-attachments/assets/f99e25a9-779a-47c1-8406-7908a5865739)
+<img width="1920" height="1009" alt="2025-07-26_09 02 32" src="https://github.com/user-attachments/assets/c57a8f62-e824-4d23-ab22-b52fa5158d77" />
+
 
 # **Blocky**
 
