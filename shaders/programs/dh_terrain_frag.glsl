@@ -54,7 +54,7 @@ void main() {
 
     float fogBlendValue = clamp((distanceFromCamera - minFogDistance) / (maxFogDistance - minFogDistance), 0, 1);
 
-    outputColor = mix(outputColor, pow(fogColor, vec3(2.2)), fogBlendValue);
+    //outputColor = mix(outputColor, pow(fogColor, vec3(2.2)), fogBlendValue);
 
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
 }

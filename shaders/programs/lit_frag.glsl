@@ -11,6 +11,7 @@ uniform sampler2D specular;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+uniform sampler2DShadow shadowtex0HW;
 
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;

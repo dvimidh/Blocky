@@ -91,7 +91,7 @@ vec3 lightingCalculations(vec3 albedo) {
     vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
 
     //shadow
-    float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0, fragShadowScreenSpace.xy).r);
+    float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0HW, fragShadowScreenSpace.xyz).r);
     float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture(shadowtex1, fragShadowScreenSpace.xy).r);
     vec3 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy).rgb;
 
@@ -99,7 +99,7 @@ vec3 lightingCalculations(vec3 albedo) {
 
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
-            shadowMultiplier = vec3(0);
+            shadowMultiplier = vec3(texture(shadowtex0HW, fragShadowScreenSpace.xyz));
         } else {
             shadowMultiplier = shadowColor;
         }

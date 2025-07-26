@@ -1,5 +1,6 @@
 screen.SHADOWS = Shadows
 screen.POST_PROCCESSING = Post Processing
+screen.FOG = Fog
 
 option.INFO = Blocky v0.1
 value.INFO.0 = by dvimidh
@@ -26,3 +27,6 @@ value.shadowMapResolution.16384=163842 (16k)
 
 option.SHADOW_INTENSITY = Shadow Intensity
 option.SHADOW_INTENSITY.comment = How intense the difference between sunlight and shadow
+
+option.FOG_INTENSITY=Fog Intensity
+option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)

@@ -1,9 +1,5 @@
 #version 460 compatibility
 
-
-#include "/programs/settings.glsl"
-
-uniform int renderStage;
 uniform float viewHeight;
 uniform float viewWidth;
 uniform mat4 gbufferModelView;
@@ -11,7 +7,9 @@ uniform mat4 gbufferProjectionInverse;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 
-in vec4 glcolor;
+varying vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
+
+const float sunPathRotation = 0.0;
 
 float fogify(float x, float w) {
 	return w / (x * x + w);
@@ -22,20 +20,17 @@ vec3 calcSkyColor(vec3 pos) {
 	return mix(skyColor, fogColor, fogify(max(upDot, 0.0), 0.25));
 }
 
-vec3 screenToView(vec3 screenPos) {
-	vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
-	vec4 tmp = gbufferProjectionInverse * ndcPos;
-	return tmp.xyz / tmp.w;
-}
-
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 color;
-
 void main() {
-	if (renderStage == MC_RENDER_STAGE_STARS) {
-		color = glcolor;
-	} else {
-		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-		color = vec4(calcSkyColor(normalize(pos)), 1.0);
+	vec3 color;
+	if (starData.a > 0.5) {
+		color = starData.rgb;
 	}
+	else {
+		vec4 pos = vec4(gl_FragCoord.xy / vec2(viewWidth, viewHeight) * 2.0 - 1.0, 1.0, 1.0);
+		pos = gbufferProjectionInverse * pos;
+		color = calcSkyColor(normalize(pos.xyz));
+	}
+
+/* DRAWBUFFERS:0 */
+	gl_FragData[0] = vec4(color, 1.0); //gcolor
 }
