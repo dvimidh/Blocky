@@ -62,7 +62,7 @@ void main() {
 	if (sunAngle > 0.00 && sunAngle < 0.055) {
 		myFogColor = mix(riseColor, dayColor, 1/0.055 * (sunAngle));
 	}
-	if (sunAngle > 0.055 && sunAngle < 0.445) {
+	if (sunAngle > 0.055 && sunAngle < 0.45) {
 		myFogColor = dayColor;
 	}
 	if (sunAngle > 0.45 && sunAngle < 0.5) {
@@ -71,7 +71,7 @@ void main() {
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
 		myFogColor = mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 1.0) ) {
+	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
 		myFogColor = nightColor;
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
