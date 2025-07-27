@@ -51,7 +51,7 @@ void main() {
 
     
     if (sunAngle < 0.5) {
-        vec3 sunColor = vec3(1.5, 0.5, 0.5);
+        vec3 sunColor = vec3(1.0, 0.5, 0.5);
     } else {
         vec3 sunColor = vec3(1);
     }
