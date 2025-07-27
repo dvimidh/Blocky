@@ -44,36 +44,38 @@ vec3 applyFog( in vec3  col,  // color of pixel
 			   in float a,
 			   in float b)
 {
-    float fogAmount = (a/b) * exp(-(ro.y+0.4)*b) * (1.0-exp(-t*(rd.y+0.4)*b))/(rd.y+0.4);
+    float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
 	float sunAmount = max( dot(rd, lig), 0.0 );
 	vec3  myFogColor  = mix(myFogColor, // blue
-                           vec3(1.0,0.6,0.5), // yellow
+                           vec3(1.0,0.6,0.5), // sun
                            pow(sunAmount,2.0)/2 * 0.5);
     return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
 }
 #include "/programs/fxaa.glsl"
 
 void main() {
-	myFogColor - vec3(0.9, 0.55, 0.3);
+	
+	vec3 riseColor = vec3(1.0, 0.45, 0.3);
+	vec3 dayColor = vec3(0.5, 0.7, 1.0);
+	vec3 nightColor = vec3(0.06, 0.06, 0.1);
 	
 	if (sunAngle > 0.00 && sunAngle < 0.055) {
-		myFogColor = mix(vec3(0.06, 0.06, 0.1), vec3(0.9, 0.55, 0.3), 1/0.055 * (sunAngle));
+		myFogColor = mix(riseColor, dayColor, 1/0.055 * (sunAngle));
 	}
-	
-	if (sunAngle > 0.055 && sunAngle < 0.155){
-		myFogColor = mix(vec3(0.9, 0.55, 0.3), vec3(0.5, 0.7, 1.0), 1/0.1 * (sunAngle-0.055));
+	if (sunAngle > 0.055 && sunAngle < 0.445) {
+		myFogColor = dayColor;
 	}
-	if (sunAngle > 0.155 && sunAngle < 0.445) {
-		myFogColor = vec3(0.5, 0.7, 1.0);
+	if (sunAngle > 0.45 && sunAngle < 0.5) {
+		myFogColor = mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.45));
 	}
-	if (sunAngle > 0.345 && sunAngle < 0.445) {
-		myFogColor = mix(vec3(0.5, 0.7, 1.0), vec3(0.9, 0.55, 0.3), 1/0.1 * (sunAngle-0.345));
+	if (sunAngle > 0.50 && sunAngle < 0.55) {
+		myFogColor = mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
 	}
-	if (sunAngle > 0.445 && sunAngle < 0.5) {
-		myFogColor = mix(vec3(0.9, 0.55, 0.3), vec3(0.06, 0.06, 0.1), 1/0.055 * (sunAngle-0.445));
+	if ((sunAngle > 0.55 && sunAngle < 1.0) ) {
+		myFogColor = nightColor;
 	}
-	if ((sunAngle > 0.50 && sunAngle < 1.0) ) {
-		myFogColor = vec3(0.06, 0.06, 0.1);
+	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
+		myFogColor = myFogColor = mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));;
 	}
 	myFogColor = mix(myFogColor, vec3(0.1), rainStrength);
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
@@ -97,7 +99,7 @@ void main() {
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
 	dhcameraToPoint = normalize(dhcameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.003);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.01);
 	}
 	}  else {
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
@@ -107,7 +109,7 @@ void main() {
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.003);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.01);
   }
     /*DRAWBUFFERS:0*/
 	 

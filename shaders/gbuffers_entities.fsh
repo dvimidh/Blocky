@@ -22,7 +22,7 @@ uniform float far;
 uniform float dhNearPlane;
 uniform vec3 shadowLightPosition;
 uniform vec3 cameraPosition;
-
+uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 //vertexToFragment
@@ -33,7 +33,7 @@ in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
 uniform vec4 entityColor;
-
+vec3 sunColor = vec3(1);
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 
@@ -50,8 +50,12 @@ void main() {
     }
 
     
-    
-    vec3 outputColor = lightingCalculations(albedo);
+    if (sunAngle < 0.5) {
+        vec3 sunColor = vec3(1.5, 0.5, 0.5);
+    } else {
+        vec3 sunColor = vec3(1);
+    }
+    vec3 outputColor = lightingCalculations(albedo, sunColor);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);

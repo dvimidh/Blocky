@@ -22,7 +22,7 @@ uniform float far;
 uniform float dhNearPlane;
 uniform vec3 shadowLightPosition;
 uniform vec3 cameraPosition;
-
+uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 //vertexToFragment
@@ -40,7 +40,7 @@ layout(location = 0) out vec4 outColor0;
 #include "/programs/functions.glsl"
 
 void main() {
-
+    vec3 sunColor = vec3(1);
     vec4 outputColorData = texture(gtexture,texCoord);
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     float transparency = outputColorData.a;
@@ -50,8 +50,14 @@ void main() {
     }
 
     
+    if (sunAngle < 0.5) {
+        sunColor = vec3(1.5, 0.5, 0.5);
+    } else {
+        sunColor = vec3(1);
+    }
+    vec3 outputColor = lightingCalculations(albedo, sunColor);
+
     
-    vec3 outputColor = lightingCalculations(albedo);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);

@@ -49,7 +49,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec3 lightingCalculations(vec3 albedo) {
+vec3 lightingCalculations(vec3 albedo, vec3 sunColor) {
     //light direction
     
     //normal calc
@@ -111,10 +111,10 @@ vec3 lightingCalculations(vec3 albedo) {
 
     //ambient lighting
     vec3 ambientLightDirection = worldGeoNormal;
-    vec3 ambientLight = (blockLight + 0.2*skyLight)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
+    vec3 ambientLight = (blockLight + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
     //brdf calculations
-    vec3 outputColor = (albedo * ambientLight*(1/SHADOW_INTENSITY) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    vec3 outputColor = (albedo * ambientLight*(1/SHADOW_INTENSITY) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
 
     
     return outputColor;

@@ -1,8 +1,8 @@
-screen.SHADOWS = Shadows
+screen.LIGHTING = Lighting
 screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
 
-option.INFO = Blocky v0.1
+option.INFO = Blocky v0.3
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -28,5 +28,9 @@ value.shadowMapResolution.16384=163842 (16k)
 option.SHADOW_INTENSITY = Shadow Intensity
 option.SHADOW_INTENSITY.comment = How intense the difference between sunlight and shadow
 
+option.SKYLIGHT_INTENSITY=Skylight Intensity
+option.FOG_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Can be esed in combination with Shadow Intensity to get a variety of different lightings.
+
 option.FOG_INTENSITY=Fog Intensity
 option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)
+
