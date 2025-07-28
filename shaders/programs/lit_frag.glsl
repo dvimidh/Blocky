@@ -25,6 +25,7 @@ uniform vec3 cameraPosition;
 uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
+uniform float rainStrength;
 //vertexToFragment
 in vec2 texCoord;
 in vec3 foliageColor;
@@ -33,6 +34,8 @@ in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
 
+vec3 sunColor = vec3(1);
+
 
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
@@ -40,7 +43,7 @@ layout(location = 0) out vec4 outColor0;
 #include "/programs/functions.glsl"
 
 void main() {
-    vec3 sunColor = vec3(1);
+    
     vec4 outputColorData = texture(gtexture,texCoord);
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     float transparency = outputColorData.a;
@@ -50,10 +53,13 @@ void main() {
     }
 
     
-    if (sunAngle < 0.5) {
-        sunColor = vec3(1.0, 0.5, 0.5);
-    } else {
-        sunColor = vec3(1);
+    if (sunAngle < 0.5) {// || sunAngle > 0.98) {
+        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
+            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.3, 0.2), 1/0.055 * (sunAngle));
+        } else {
+            sunColor = vec3(1.0, 0.4, 0.3);
+        }
+        sunColor = mix(sunColor, vec3(0.5, 0.5, 0.5), rainStrength);
     }
     vec3 outputColor = lightingCalculations(albedo, sunColor);
 

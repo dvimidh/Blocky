@@ -59,10 +59,13 @@ void main() {
 	vec3 dayColor = vec3(0.5, 0.7, 1.0);
 	vec3 nightColor = vec3(0.06, 0.06, 0.1);
 	
-	if (sunAngle > 0.00 && sunAngle < 0.055) {
-		myFogColor = mix(riseColor, dayColor, 1/0.055 * (sunAngle));
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
+		myFogColor = riseColor;
 	}
-	if (sunAngle > 0.055 && sunAngle < 0.45) {
+	if (sunAngle > 0.025 && sunAngle < 0.075) {
+		myFogColor = mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
+	}
+	if (sunAngle > 0.075 && sunAngle < 0.45) {
 		myFogColor = dayColor;
 	}
 	if (sunAngle > 0.45 && sunAngle < 0.5) {
