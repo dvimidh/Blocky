@@ -53,13 +53,15 @@ void main() {
     
     if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.3, 0.2), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
-            sunColor = vec3(1.0, 0.4, 0.3);
+            sunColor = vec3(1.0, 0.5, 0.3);
         }
         sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
+    } else {
+        sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor);
+    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);

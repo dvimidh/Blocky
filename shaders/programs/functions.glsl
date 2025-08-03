@@ -49,7 +49,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec3 lightingCalculations(vec3 albedo, vec3 sunColor) {
+vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID) {
     //light direction
     
     //normal calc
@@ -63,7 +63,9 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor) {
     //mat data
     vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
+    
     float metallic = 0.0;
+    
     vec3 reflectance = vec3(0);
     if (specularData.g*255 > 299) {
         metallic = 1.0;
@@ -73,7 +75,15 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor) {
     }
     float roughness = pow(1.0-perceptualSmoothness, 2.0);
     float smoothness = 1-roughness;
-    
+    #if WATER_STYLE == 1
+    if(abs(EntityID-10006) < 0.5) {
+        smoothness = 0.8;
+        metallic = 0.8;
+        roughness = 0.5;
+        reflectance = vec3(0.5);
+        albedo = vec3(albedo.r/100, albedo.g + 0.3, albedo.b+0.5);
+    }
+    #endif
     //space conversion
     vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
     vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.03 * worldGeoNormal;

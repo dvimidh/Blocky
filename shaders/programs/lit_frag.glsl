@@ -26,6 +26,7 @@ uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 uniform float rainStrength;
+
 //vertexToFragment
 in vec2 texCoord;
 in vec3 foliageColor;
@@ -33,7 +34,7 @@ in vec2 lightMapCoords;
 in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
-
+in float EntityID;
 vec3 sunColor = vec3(1);
 
 
@@ -55,15 +56,20 @@ void main() {
     
     if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.3, 0.2), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
-            sunColor = vec3(1.0, 0.4, 0.3);
+            sunColor = vec3(1.0, 0.5, 0.3);
         }
-        sunColor = mix(sunColor, vec3(0.5, 0.5, 0.5), rainStrength);
+        sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
+    } else {
+        sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor);
-
-    
+    vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID);
+    #if WATER_STYLE == 1
+    if (abs(EntityID-10006) < 0.5) {
+        transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
+    }
+    #endif
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);

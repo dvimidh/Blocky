@@ -19,8 +19,9 @@ uniform mat4 dhProjectionInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform float rainStrength;
+uniform float playerMood;
+uniform float constantMood;
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
-
 vec3 sunDirection = 0.01 * sunPosition;
 vec3 sunDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*sunDirection;
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
@@ -46,7 +47,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 {
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
 	float sunAmount = max( dot(rd, lig), 0.0 );
-	vec3  myFogColor  = mix(myFogColor, // blue
+	vec3  myFogColor  = mix(myFogColor, // fog
                            vec3(1.0,0.6,0.5), // sun
                            pow(sunAmount,2.0)/2 * 0.5);
     return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
@@ -102,7 +103,7 @@ void main() {
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
 	dhcameraToPoint = normalize(dhcameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.01);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01);
 	}
 	}  else {
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
@@ -112,7 +113,7 @@ void main() {
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, FOG_INTENSITY/1000, 0.01);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01);
   }
     /*DRAWBUFFERS:0*/
 	 

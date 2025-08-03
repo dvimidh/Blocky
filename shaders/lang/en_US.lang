@@ -1,8 +1,9 @@
 screen.LIGHTING = Lighting
 screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
+screen.WATER = Water
 
-option.INFO = Blocky v0.3
+option.INFO = Blocky v0.3.5
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -33,4 +34,9 @@ option.FOG_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Ca
 
 option.FOG_INTENSITY=Fog Intensity
 option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)
+
+option.WATER_STYLE=Water Style
+value.WATER_STYLE.1 = Shader
+value.WATER_STYLE.2 = Vanilla
+option.WATER_TRANSLUCENCY_MULTIPLIER=Shader Water Tranclucency 
 
