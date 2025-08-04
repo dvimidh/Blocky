@@ -46,10 +46,8 @@ vec3 applyFog( in vec3  col,  // color of pixel
 			   in float b)
 {
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
-	float sunAmount = max( dot(rd, lig), 0.0 );
-	vec3  myFogColor  = mix(myFogColor, // fog
-                           vec3(1.0,0.6,0.5), // sun
-                           pow(sunAmount,2.0)/2 * 0.5);
+	
+	
     return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
 }
 #include "/programs/fxaa.glsl"
@@ -79,7 +77,7 @@ void main() {
 		myFogColor = nightColor;
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		myFogColor = myFogColor = mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));;
+		myFogColor = mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));
 	}
 	myFogColor = mix(myFogColor, vec3(0.1), rainStrength);
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
@@ -94,7 +92,17 @@ void main() {
     
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
 	if(dhDepth == 1.0){
-
+		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
+  	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	float myDistance = length(viewPos);
+	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
+	vec3 cameraToPoint = worldPos - cameraPosition;
+	cameraToPoint = normalize(cameraToPoint);
+		float sunAmount = max( dot(cameraToPoint, sunDirectionEyePlayerPos), 0.0 );
+		vec3  myFogColor  = mix(myFogColor, // fog
+                           vec3(1.0,0.6,0.5), // sun
+                           pow(sunAmount,2.0)/2 * 0.5);
 	}{
 	vec3 dhNDCPos = vec3(texCoord.xy, dhDepth) * 2.0 - 1.0;
 	vec3 dhviewPos = projectAndDivide(dhProjectionInverse, dhNDCPos);

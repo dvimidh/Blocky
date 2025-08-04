@@ -49,7 +49,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID) {
+vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle) {
     //light direction
     
     //normal calc
@@ -118,10 +118,36 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID) {
     //block and sky lighting
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
+    vec3 riseColor = vec3(1.0, 0.45, 0.3);
+	vec3 dayColor = vec3(1.0);
+	vec3 nightColor = vec3(0.06, 0.06, 0.8);
+	
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
+		skyLight = skyLight*riseColor;
+	}
+	if (sunAngle > 0.025 && sunAngle < 0.075) {
+		skyLight = skyLight*mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
+	}
+	if (sunAngle > 0.075 && sunAngle < 0.45) {
+		skyLight = skyLight*dayColor;
+	}
+	if (sunAngle > 0.45 && sunAngle < 0.5) {
+		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.45));
+	}
+	if (sunAngle > 0.50 && sunAngle < 0.55) {
+		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
+	}
+	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
+		skyLight = skyLight*nightColor;
+	}
+	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));;
+	}
+
 
     //ambient lighting
     vec3 ambientLightDirection = worldGeoNormal;
-    vec3 ambientLight = (blockLight + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
+    vec3 ambientLight = (blockLight/2 + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
     //brdf calculations
     vec3 outputColor = (albedo * ambientLight*(1/SHADOW_INTENSITY) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));

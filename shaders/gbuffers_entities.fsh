@@ -61,7 +61,7 @@ void main() {
     } else {
         sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0);
+    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
