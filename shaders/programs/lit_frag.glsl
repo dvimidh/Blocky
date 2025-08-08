@@ -26,7 +26,7 @@ uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 uniform float rainStrength;
-
+uniform int worldTime;
 //vertexToFragment
 in vec2 texCoord;
 in vec3 foliageColor;
@@ -40,7 +40,7 @@ vec3 sunColor = vec3(1);
 
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
-
+#include "/programs/wave.glsl"
 #include "/programs/functions.glsl"
 
 void main() {
@@ -64,15 +64,18 @@ void main() {
     } else {
         sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle);
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     }
     #endif
+    vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime);
+    
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
     transparency = mix(0.0, transparency, pow((1-dhBlend), .6));
+    //outColor0 = gbufferModelViewInverse*tangent;
+    //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
 }

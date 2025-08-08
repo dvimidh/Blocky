@@ -17,7 +17,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
-
+uniform int worldTime;
 uniform float far;
 uniform float dhNearPlane;
 uniform vec3 shadowLightPosition;
@@ -37,7 +37,7 @@ uniform vec4 entityColor;
 vec3 sunColor = vec3(1);
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
-
+#include "/programs/wave.glsl"
 #include "/programs/functions.glsl"
 
 void main() {
@@ -61,7 +61,7 @@ void main() {
     } else {
         sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle);
+    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);

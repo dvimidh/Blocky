@@ -1,6 +1,9 @@
 
 #include "/programs/settings.glsl"
 
+
+uniform mat4 gbufferModelView;
+in vec4 at_tangent;
 //functions
 mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     //for DirectX normal mapping you want to switch the order of these
@@ -49,17 +52,37 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle) {
+vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle, int worldTime) {
     //light direction
     
     //normal calc
-    vec3 worldGeoNormal = mat3(gbufferModelViewInverse) * geoNormal;
-    vec3 worldTangent = mat3(gbufferModelViewInverse) * tangent.xyz;
+    vec3 worldGeoNormal = normalize(mat3(gbufferModelViewInverse) * geoNormal);
+    vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
+    
+
+    if (abs(EntityID-10006) < 0.5) {
+        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
+        worldPos = wave(worldPos, worldTime);
+        
+        vec3 beforebitangent = normalize(cross(worldTangent, worldGeoNormal));
+        vec3 worldPost = worldPos + normalize(worldTangent)*0.5;
+        vec3 worldPosb = worldPos + beforebitangent*0.5;
+        
+        vec3 neighbor1 = wave(worldPost, worldTime);
+        
+
+        vec3 neighbor2 = wave(worldPosb, worldTime);
+        
+        vec3 nonbitangent = neighbor1 - worldPos;
+        vec3 bitangent = neighbor2 - worldPos;
+        
+        worldGeoNormal = normalize(cross(bitangent, nonbitangent));
+        worldTangent = nonbitangent;
+    }
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
     mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
     vec3 normalWorldSpace = TBN * normalNormalSpace;
-
     //mat data
     vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
@@ -77,10 +100,10 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     float smoothness = 1-roughness;
     #if WATER_STYLE == 1
     if(abs(EntityID-10006) < 0.5) {
-        smoothness = 0.8;
-        metallic = 0.8;
-        roughness = 0.5;
-        reflectance = vec3(0.5);
+        smoothness = 0.3;
+        metallic = 0.01;
+        roughness = 0.2;
+        reflectance = vec3(0.03);
         albedo = vec3(albedo.r/100, albedo.g + 0.3, albedo.b+0.5);
     }
     #endif
@@ -151,7 +174,7 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 
     //brdf calculations
     vec3 outputColor = (albedo * ambientLight*(1/SHADOW_INTENSITY) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
-
+    //vec3 outputColor = worldGeoNormal;
     
     return outputColor;
 
