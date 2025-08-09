@@ -36,18 +36,26 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 
 
 vec3 myFogColor = vec3(0);
-
+float depth = texture(depthtex0, texCoord).r;
 vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
                in vec3  rd,   // camera to point vector
 			   in vec3  lig,  // sun direction
 			   in float a,
-			   in float b)
+			   in float b,
+			   in bool sky)
 {
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
 	
+	//if(sky) 
+	float sunAmount = max( dot(rd, lig), 0.0 );
+	if(sky) {
 	
+	myFogColor  = mix(myFogColor, // fog
+                           vec3(1.0,1.0,1.0), // sun
+                           pow(sunAmount,160.0));
+	}
     return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
 }
 #include "/programs/fxaa.glsl"
@@ -85,25 +93,20 @@ void main() {
 	#ifdef FXAA
 	color = FXAA311(color);	
 	#endif
-	float depth = texture(depthtex0, texCoord).r;
+	
 	
 	
   if(depth == 1.0){
     
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
-	if(dhDepth == 1.0){
-		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
-  	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-	float myDistance = length(viewPos);
-	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
-	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
-	vec3 cameraToPoint = worldPos - cameraPosition;
-	cameraToPoint = normalize(cameraToPoint);
-		float sunAmount = max( dot(cameraToPoint, sunDirectionEyePlayerPos), 0.0 );
-		vec3  myFogColor  = mix(myFogColor, // fog
-                           vec3(1.0,0.6,0.5), // sun
-                           pow(sunAmount,2.0)/2 * 0.5);
-	}{
+
+	bool ifsky;
+	if (dhDepth == 1.0) {
+		ifsky = true;
+	}
+	else{
+		ifsky = false;
+	}
 	vec3 dhNDCPos = vec3(texCoord.xy, dhDepth) * 2.0 - 1.0;
 	vec3 dhviewPos = projectAndDivide(dhProjectionInverse, dhNDCPos);
 	float myDistance = length(dhviewPos);
@@ -111,9 +114,11 @@ void main() {
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
 	dhcameraToPoint = normalize(dhcameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01);
-	}
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	
 	}  else {
+	float dhDepth = texture(dhDepthTex0, texCoord).r;
+	bool ifsky = false;
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
@@ -121,7 +126,7 @@ void main() {
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
   }
     /*DRAWBUFFERS:0*/
 	 

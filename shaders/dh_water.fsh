@@ -1,7 +1,49 @@
 #version 460 compatibility
 
 int dhMaterialId;
+#include "/programs/wave.glsl"
+#include "/programs/settings.glsl"
+vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
+    //for ease of use
+    float alpha = pow(roughness,2);
 
+    vec3 H = normalize(lightDir + viewDir);
+    
+
+    //dot products
+    float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
+    float NdotL = clamp(dot(normal, lightDir), 0.001,1.0);
+    float NdotH = clamp(dot(normal,H), 0.001,1.0);
+    float VdotH = clamp(dot(viewDir, H), 0.001,1.0);
+
+    // Fresnel
+    vec3 F0 = reflectance;
+    vec3 fresnelReflectance = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0); //Schlick's Approximation
+
+    //phong diffuse
+    vec3 rhoD = albedo;
+    rhoD *= (vec3(1.0)- fresnelReflectance); //energy conservation - light that doesn't reflect adds to diffuse
+
+    //rhoD *= (1-metallic); //diffuse is 0 for metals
+
+    // Geometric attenuation
+    float k = alpha/2;
+    float geometry = (NdotL / (NdotL*(1.0-k)+k)) * (NdotV / ((NdotV*(1.0-k)+k)));
+
+    // Distribution of Microfacets
+    float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
+    float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159 * pow(lowerTerm,2.0));
+
+    vec3 phongDiffuse = rhoD; //
+    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4*NdotL*NdotV);
+    
+    vec3 BRDF = (phongDiffuse+cookTorrance)*NdotL;
+   
+    vec3 diffFunction = BRDF;
+    
+    return BRDF;
+    
+}
 uniform sampler2D lightmap;
 uniform sampler2D depthtex0;
 
@@ -11,7 +53,7 @@ uniform float viewWidth;
 uniform vec3 fogColor;
 uniform float sunAngle;
 uniform mat4 gbufferModelViewInverse;
-
+uniform vec3 shadowLightDirection;
 uniform vec3 shadowLightPosition;
 
 /* DRAWBUFFERS:0 */
@@ -23,7 +65,6 @@ in vec3 viewSpacePosition;
 in vec3 geoNormal;
 
 void main() {
-    
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
@@ -63,7 +104,7 @@ void main() {
 
     
     vec4 outputColorData = pow(blockColor, vec4(2.2));
-    vec3 outputColor = outputColorData.rgb*(lightColor*vec3(0.1) + skyLight);
+    vec3 outputColor = outputColorData.rgb*(lightColor*vec3(0.2) + skyLight*vec3(1.0));
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;
@@ -82,7 +123,13 @@ void main() {
     float minFogDistance = 1500;
     
     outputColor*=lightBrightness;
+    #if WATER_STYLE == 1
+    
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.1;
+    outputColor = vec3(outputColor.r/100, outputColor.g + 0.3, outputColor.b+0.6);
+    #endif
 
+    //outputColor += brdf(shadowLightDirection, viewDirection, 0.2 *WATER_ROUGHNESS, normalWorldSpace, outputColor, WATER_SHININESS, WATER_SHININESS);
 
     //float fogBlendValue = clamp((distanceFromCamera - minFogDistance) / (maxFogDistance - minFogDistance), 0, 1);
 

@@ -72,9 +72,7 @@ void main() {
     vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime);
     
 
-    float distanceFromCamera = distance(viewSpacePosition, vec3(0));
-    float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
-    transparency = mix(0.0, transparency, pow((1-dhBlend), .6));
+    
     //outColor0 = gbufferModelViewInverse*tangent;
     //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);

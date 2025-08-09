@@ -29,7 +29,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 
     //phong diffuse
     vec3 rhoD = albedo;
-    rhoD *= (vec3(1.0)- fresnelReflectance); //energy conservation - light that doesn't reflect adds to diffuse
+    //rhoD *= (vec3(1.0)- fresnelReflectance); //energy conservation - light that doesn't reflect adds to diffuse
 
     //rhoD *= (1-metallic); //diffuse is 0 for metals
 
@@ -40,6 +40,8 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     // Distribution of Microfacets
     float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
     float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159 * pow(lowerTerm,2.0));
+
+    
 
     vec3 phongDiffuse = rhoD; //
     vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4*NdotL*NdotV);
@@ -100,10 +102,10 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     float smoothness = 1-roughness;
     #if WATER_STYLE == 1
     if(abs(EntityID-10006) < 0.5) {
-        smoothness = 0.3;
+        smoothness = 0.9;
         metallic = 0.01;
-        roughness = 0.2;
-        reflectance = vec3(0.03);
+        roughness = 0.24 * WATER_ROUGHNESS;
+        reflectance = vec3(WATER_SHININESS * 1.0);
         albedo = vec3(albedo.r/100, albedo.g + 0.3, albedo.b+0.5);
     }
     #endif
@@ -141,9 +143,9 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //block and sky lighting
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-    vec3 riseColor = vec3(1.0, 0.45, 0.3);
+    vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.06, 0.06, 0.8);
+	vec3 nightColor = vec3(0.06, 0.06, 0.6);
 	
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;
@@ -160,22 +162,31 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
 		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
+	if ((sunAngle > 0.55 && sunAngle < 0.90) ) {
 		skyLight = skyLight*nightColor;
 	}
-	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));;
+	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));;
 	}
 
 
     //ambient lighting
     vec3 ambientLightDirection = worldGeoNormal;
-    vec3 ambientLight = (blockLight/2 + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
-
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
+    vec3 outputColor =vec3(0);
     //brdf calculations
-    vec3 outputColor = (albedo * ambientLight*(1/SHADOW_INTENSITY) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
-    //vec3 outputColor = worldGeoNormal;
+    #if WATER_STYLE == 1
+    if(abs(EntityID-10006) < 0.5) {
+    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.5)*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    } else{
+        outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    }
+    #endif
+    #if WATER_STYLE != 1
     
+    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    
+    #endif
     return outputColor;
 
 }
