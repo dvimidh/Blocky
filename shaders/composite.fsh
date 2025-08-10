@@ -97,7 +97,7 @@ void main() {
 	
 	
   if(depth == 1.0){
-    
+    #ifdef DISTANT_HORIZONS
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
 
 	bool ifsky;
@@ -115,9 +115,21 @@ void main() {
 	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
 	dhcameraToPoint = normalize(dhcameraToPoint);
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	#endif
+	#ifndef DISTANT_HORIZONS
+	bool ifsky = true;
+	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
+  	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	float myDistance = length(viewPos);
+	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
+	vec3 cameraToPoint = worldPos - cameraPosition;
+	cameraToPoint = normalize(cameraToPoint);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	#endif
 	
 	}  else {
-	float dhDepth = texture(dhDepthTex0, texCoord).r;
+	//float dhDepth = texture(dhDepthTex0, texCoord).r;
 	bool ifsky = false;
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -128,6 +140,7 @@ void main() {
 	cameraToPoint = normalize(cameraToPoint);
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
   }
+  
     /*DRAWBUFFERS:0*/
 	 
 	
