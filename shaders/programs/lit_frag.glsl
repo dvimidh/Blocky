@@ -70,8 +70,9 @@ void main() {
     }
     #endif
     vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime);
-    
-
+    if (abs(EntityID-10005) < 0.5) {
+    outputColor += vec3(2.5, 2.5, 2.5)*albedo*1.8;
+    }
     
     //outColor0 = gbufferModelViewInverse*tangent;
     //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);

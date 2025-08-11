@@ -106,19 +106,22 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         metallic = 0.01;
         roughness = 0.24 * WATER_ROUGHNESS;
         reflectance = vec3(WATER_SHININESS * 1.0);
-        albedo = vec3(albedo.r/100, albedo.g + 0.3, albedo.b+0.5);
+        albedo = vec3(albedo.r/100, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
     }
     #endif
     //space conversion
     vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
-    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.03 * worldGeoNormal;
     vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
+    fragWorldSpace = floor(fragWorldSpace*16 + 0.09*worldGeoNormal)/16;
+    fragFeetPlayerSpace = fragWorldSpace - cameraPosition;
+    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.09 * worldGeoNormal;
     vec3 fragShadowViewSpace = (shadowModelView * vec4(adjustedFragFeetPlayerSpace, 1.0)).xyz;
     vec4 fragHomogenousSpace = shadowProjection * vec4(fragShadowViewSpace, 1.0);
     vec3 fragShadowNdcSpace = fragHomogenousSpace.xyz/fragHomogenousSpace.w;
     float distanceFromPlayerNDC = length(fragShadowNdcSpace.xy);
     vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / (0.1+distanceFromPlayerNDC), fragShadowNdcSpace.z);
-    vec3 fragShadowScreenSpace = distortedShadowNdcSpace*0.5 + 0.5; 
+    vec3 fragShadowScreenSpace =  distortedShadowNdcSpace*0.5 + 0.5; 
+    
 
     //directions
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
@@ -134,7 +137,7 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
-            shadowMultiplier = vec3(texture(shadowtex0HW, fragShadowScreenSpace.xyz));
+            shadowMultiplier = vec3(0);
         } else {
             shadowMultiplier = shadowColor;
         }
