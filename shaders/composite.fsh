@@ -12,6 +12,7 @@ uniform float aspectRatio;
 uniform vec3 cameraPosition;
 uniform vec3 fogColor;
 uniform vec3 sunPosition;
+uniform vec3 moonPosition;
 uniform sampler2D colortex0;
 uniform sampler2D depthtex0;
 uniform sampler2D dhDepthTex0;
@@ -23,7 +24,9 @@ uniform float playerMood;
 uniform float constantMood;
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
 vec3 sunDirection = 0.01 * sunPosition;
+vec3 moonDirection = 0.01 * moonPosition;
 vec3 sunDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*sunDirection;
+vec3 moonDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*moonDirection;
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 float mixAmount = 1;
 float GetLuminance(vec3 color) {
@@ -42,29 +45,46 @@ vec3 applyFog( in vec3  col,  // color of pixel
                in vec3  ro,   // camera position
                in vec3  rd,   // camera to point vector
 			   in vec3  lig,  // sun direction
-			   in float a,
-			   in float b,
-			   in bool sky)
+			   in vec3 ligm,  // moon direction
+			   in float a,    // constant
+			   in float b,    // constant
+			   in bool sky)   // if pixel is part of the sky
 {
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
 	
 	//if(sky) 
 	float sunAmount = max( dot(rd, lig), 0.0 );
 	if(sky) {
-	
+		fogAmount = 1005 + fogAmount;
+	if ((col.r + col.g + col.b)/3 < 0.99) {
+		if((col.r + col.g + col.b)/3 > 0.94) {
+		myFogColor  = mix(myFogColor, // fog
+                           mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-0.94)*20), // sun
+                           pow(sunAmount,160.0));
+	} else {
 	myFogColor  = mix(myFogColor, // fog
+                           vec3(1.0,0.7,0.4), // sun
+                           pow(sunAmount,75.0));
+	}
+	} else {
+		myFogColor  = mix(myFogColor, // fog
                            vec3(1.0,1.0,1.0), // sun
                            pow(sunAmount,160.0));
+	}
+	float moonAmount = max( dot(rd, ligm), 0.0 );
+	myFogColor  = mix(myFogColor, // fog
+                           vec3(1.0,1.0,1.0), // sun
+                           pow(moonAmount,400.0)*0.7);
 	}
     return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
 }
 #include "/programs/fxaa.glsl"
 
 void main() {
-	
+	vec3 SunFogColor;
 	vec3 riseColor = vec3(1.0, 0.45, 0.3);
 	vec3 dayColor = vec3(0.5, 0.7, 1.0);
-	vec3 nightColor = vec3(0.06, 0.06, 0.1);
+	vec3 nightColor = vec3(0.06, 0.1, 0.15);
 	
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		myFogColor = riseColor;
@@ -87,7 +107,8 @@ void main() {
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		myFogColor = mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));
 	}
-	myFogColor = mix(myFogColor, vec3(0.1), rainStrength);
+	
+	myFogColor = mix(myFogColor, vec3(0.04), max(rainStrength-0.3, 0.0));
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
 	
 	#ifdef FXAA
@@ -114,7 +135,7 @@ void main() {
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
 	dhcameraToPoint = normalize(dhcameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	#endif
 	#ifndef DISTANT_HORIZONS
 	bool ifsky = true;
@@ -125,7 +146,7 @@ void main() {
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	#endif
 	
 	}  else {
@@ -138,7 +159,7 @@ void main() {
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
   }
   
     /*DRAWBUFFERS:0*/

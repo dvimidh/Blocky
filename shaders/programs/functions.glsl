@@ -54,7 +54,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle, int worldTime) {
+vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle, int worldTime, float transparency) {
     //light direction
     
     //normal calc
@@ -112,8 +112,10 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //space conversion
     vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
     vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
+    #ifdef PIXEL_LOCKED_SHADOWS
     fragWorldSpace = floor(fragWorldSpace*16 + 0.09*worldGeoNormal)/16;
     fragFeetPlayerSpace = fragWorldSpace - cameraPosition;
+    #endif
     vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.09 * worldGeoNormal;
     vec3 fragShadowViewSpace = (shadowModelView * vec4(adjustedFragFeetPlayerSpace, 1.0)).xyz;
     vec4 fragHomogenousSpace = shadowProjection * vec4(fragShadowViewSpace, 1.0);
@@ -137,7 +139,12 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
+            #ifndef SHADOW_FILTERING
             shadowMultiplier = vec3(0);
+            #endif
+            #ifdef SHADOW_FILTERING
+            shadowMultiplier = vec3(texture(shadowtex0HW, fragShadowScreenSpace.xyz));
+            #endif
         } else {
             shadowMultiplier = shadowColor;
         }
@@ -148,7 +155,7 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.06, 0.06, 0.6);
+	vec3 nightColor = vec3(0.2, 0.3, 0.3);
 	
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;
@@ -180,16 +187,20 @@ vec3 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //brdf calculations
     #if WATER_STYLE == 1
     if(abs(EntityID-10006) < 0.5) {
-    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.5)*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    vec3 brdf = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
+    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.1)*brdf);
+    if ((brdf.r + brdf.g + brdf.b)/3 > 0.3) {
+    transparency += (brdf.r + brdf.g + brdf.b)*0.05*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3;
+    }
     } else{
         outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
     }
     #endif
     #if WATER_STYLE != 1
     
-    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf);
     
     #endif
-    return outputColor;
+    return vec4(outputColor, transparency);
 
 }

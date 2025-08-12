@@ -61,10 +61,12 @@ void main() {
     } else {
         sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec3 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime);
+    vec4 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime, transparency);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
-    transparency = mix(0.0, transparency, pow((1-dhBlend), .6));
-    outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
+    transparency = outputColor.a;
+    //outColor0 = gbufferModelViewInverse*tangent;
+    //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
+    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency);
 }

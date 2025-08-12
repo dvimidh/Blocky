@@ -62,19 +62,20 @@ void main() {
         }
         sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
     } else {
-        sunColor = vec3(0.3, 0.3, 0.3);
+        sunColor = vec3(0.6, 0.6, 0.6);
+        
     }
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     }
     #endif
-    vec3 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime);
+    vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
     if (abs(EntityID-10005) < 0.5) {
-    outputColor += vec3(2.5, 2.5, 2.5)*albedo*1.8;
+    outputColor.rgb += vec3(2.5, 2.5, 2.5)*albedo*1.8;
     }
-    
+    transparency = outputColor.a;
     //outColor0 = gbufferModelViewInverse*tangent;
     //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
-    outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
+    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency);
 }

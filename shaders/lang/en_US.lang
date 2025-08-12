@@ -3,7 +3,7 @@ screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
 screen.WATER = Water
 
-option.INFO = Blocky v0.4.5
+option.INFO = Blocky v0.4.9
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -33,7 +33,13 @@ option.AMBIENT_INTENSITY = Ambient Light
 option.AMBIENT_INTENSITY.comment = Brightness of Ambient Light (Blocklight)
 
 option.SKYLIGHT_INTENSITY=Skylight Intensity
-option.FOG_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Can be esed in combination with Shadow Intensity to get a variety of different lightings.
+option.SKYLIGHT_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Can be esed in combination with Sunlight/Moonlight Intensity Intensity to get a variety of different lightings.
+
+option.PIXEL_LOCKED_SHADOWS=Pixellated Lighting
+option.PIXEL_LOCKED_SHADOWS.comment = Locks the shadows to minecrafts 16 x 16 grid (like vibrant visuals)
+
+option.SHADOW_FILTERING=Shadow Filtering
+option.SHADOW_FILTERING.comment = Slightly softens the shadows
 
 option.FOG_INTENSITY=Fog Intensity
 option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)
