@@ -59,8 +59,8 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	if ((col.r + col.g + col.b)/3 < 0.99) {
 		if((col.r + col.g + col.b)/3 > 0.94) {
 		myFogColor  = mix(myFogColor, // fog
-                           mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-0.94)*20), // sun
-                           pow(sunAmount,160.0));
+                           mix(vec3(1.0,0.7,0.4), vec3(1.7,1.7,1.7), ((col.r + col.g + col.b)/3-0.94)*20), // sun
+                           pow(sunAmount,1.0));
 	} else {
 	myFogColor  = mix(myFogColor, // fog
                            vec3(1.0,0.7,0.4), // sun
@@ -68,15 +68,15 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	}
 	} else {
 		myFogColor  = mix(myFogColor, // fog
-                           vec3(1.0,1.0,1.0), // sun
-                           pow(sunAmount,160.0));
+                           vec3(1.7,1.7,1.7), // sun
+                           pow(sunAmount,1.0));
 	}
 	float moonAmount = max( dot(rd, ligm), 0.0 );
 	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.0,1.0,1.0), // sun
-                           pow(moonAmount,400.0)*0.7);
+                           vec3(1.0,1.0, 1.0), // sun
+                           pow(moonAmount,300.0)*0.7);
 	}
-    return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.7));
+    return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.6));
 }
 #include "/programs/fxaa.glsl"
 
@@ -162,10 +162,19 @@ void main() {
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
   }
   
-    /*DRAWBUFFERS:0*/
-	 
+    vec3 baseColor = color;
+	if (color.r > 0.05) { 
+		color.r *= 5.0;
+	}
+	float Brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
+	if (Brightness <0.0) { 
+		color = vec3(0);
+	}
+	 if (color.r > 0.05) {
+	 color.r /= 5;
+	}
 	
-	
-	
-	gl_FragData[0] = vec4(color, 1.0);
+	/*DRAWBUFFERS:01 */
+	gl_FragData[0] = vec4(baseColor, 1.0);
+	gl_FragData[1] = vec4(color, 1.0);
 }

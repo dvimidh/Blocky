@@ -104,8 +104,8 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     if(abs(EntityID-10006) < 0.5) {
         smoothness = 0.9;
         metallic = 0.01;
-        roughness = 0.24 * WATER_ROUGHNESS;
-        reflectance = vec3(WATER_SHININESS * 1.0);
+        roughness = 0.44 * WATER_ROUGHNESS;
+        reflectance = vec3(WATER_SHININESS * 0.05);
         albedo = vec3(albedo.r/100, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
     }
     #endif
@@ -113,15 +113,15 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
     vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
     #ifdef PIXEL_LOCKED_SHADOWS
-    fragWorldSpace = floor(fragWorldSpace*16 + 0.09*worldGeoNormal)/16;
+    fragWorldSpace = (floor(fragWorldSpace * 16.0 + 0.01) + 0.5) / 16.0;
     fragFeetPlayerSpace = fragWorldSpace - cameraPosition;
     #endif
-    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.09 * worldGeoNormal;
+    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.06*worldGeoNormal;
     vec3 fragShadowViewSpace = (shadowModelView * vec4(adjustedFragFeetPlayerSpace, 1.0)).xyz;
     vec4 fragHomogenousSpace = shadowProjection * vec4(fragShadowViewSpace, 1.0);
     vec3 fragShadowNdcSpace = fragHomogenousSpace.xyz/fragHomogenousSpace.w;
     float distanceFromPlayerNDC = length(fragShadowNdcSpace.xy);
-    vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / (0.1+distanceFromPlayerNDC), fragShadowNdcSpace.z);
+    vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / ((0.1+distanceFromPlayerNDC)), fragShadowNdcSpace.z);
     vec3 fragShadowScreenSpace =  distortedShadowNdcSpace*0.5 + 0.5; 
     
 

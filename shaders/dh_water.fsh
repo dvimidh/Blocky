@@ -125,7 +125,7 @@ void main() {
     outputColor*=lightBrightness;
     #if WATER_STYLE == 1
     
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.1;
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     outputColor = vec3(outputColor.r/100, outputColor.g + 0.3, outputColor.b+0.6);
     #endif
 

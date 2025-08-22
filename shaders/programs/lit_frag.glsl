@@ -65,6 +65,7 @@ void main() {
         sunColor = vec3(0.6, 0.6, 0.6);
         
     }
+    sunColor = sunColor*1;
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
@@ -72,7 +73,7 @@ void main() {
     #endif
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
     if (abs(EntityID-10005) < 0.5) {
-    outputColor.rgb += vec3(2.5, 2.5, 2.5)*albedo*1.8;
+    outputColor.rgb += vec3(2.5, 2.5, 2.5)*albedo*1.8 + 5.5*albedo.b;
     }
     transparency = outputColor.a;
     //outColor0 = gbufferModelViewInverse*tangent;

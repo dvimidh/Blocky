@@ -2,6 +2,11 @@
 Blocky Shaders v0.1 Series by dvimidh 
 https://dvimidh.com 
 */ 
+/* 
+const int colortex0Format = RGBA32F;
+const int colortex1Format = RGBA32F;
+const int colortex2Format = RGBA32F; 
+*/
 
 #define INFO 0 //[0]
 
@@ -27,3 +32,7 @@ https://dvimidh.com
 
 //PostProcessing//
   #define FXAA
+  #define BLOOM
+  #define BLOOM_STRENGTH 1.0 //[0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+  #define BLOOM_STEPS 50 //[5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+  #define BLOOM_SPREAD 1.0 //[0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
