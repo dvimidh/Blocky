@@ -1,32 +1,39 @@
 #version 460 compatibility
-in vec2 texCoord;
-vec4 fragColor;
 
 #include "/programs/settings.glsl"
-uniform sampler2D colortex3;
+
+in vec2 texCoord;
 uniform sampler2D colortex4;
 uniform float viewWidth;
 uniform float viewHeight;
+vec2 srcResolution = vec2(viewWidth, viewHeight);
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+vec2 srcTexelSize = 1.0 / srcResolution;
+    float x = srcTexelSize.x;
+    float y = srcTexelSize.y;
 
-    // texel relative to the smaller (colortex4) to sample neighbors properly
-    vec2 smallTexel = 1.0 / vec2(textureSize(colortex4, 0));
-    float offset = 2.0; // matches downsample deepness
+    // 13-tap kernel
+    vec3 a = texture(colortex4, texCoord + vec2(-2*x,  2*y)).rgb;
+    vec3 b = texture(colortex4, texCoord + vec2(   0,  2*y)).rgb;
+    vec3 c = texture(colortex4, texCoord + vec2( 2*x,  2*y)).rgb;
+    vec3 d = texture(colortex4, texCoord + vec2(-2*x,    0)).rgb;
+    vec3 e = texture(colortex4, texCoord).rgb;
+    vec3 f = texture(colortex4, texCoord + vec2( 2*x,    0)).rgb;
+    vec3 g = texture(colortex4, texCoord + vec2(-2*x, -2*y)).rgb;
+    vec3 h = texture(colortex4, texCoord + vec2(   0, -2*y)).rgb;
+    vec3 i = texture(colortex4, texCoord + vec2( 2*x, -2*y)).rgb;
+    vec3 j = texture(colortex4, texCoord + vec2(-x, y)).rgb;
+    vec3 k = texture(colortex4, texCoord + vec2( x, y)).rgb;
+    vec3 l = texture(colortex4, texCoord + vec2(-x, -y)).rgb;
+    vec3 m = texture(colortex4, texCoord + vec2( x, -y)).rgb;
 
-    vec3 smallBlur = vec3(0.0);
-    smallBlur += texture(colortex4, uv + smallTexel * vec2( offset,  offset)).rgb;
-    smallBlur += texture(colortex4, uv + smallTexel * vec2(-offset,  offset)).rgb;
-    smallBlur += texture(colortex4, uv + smallTexel * vec2( offset, -offset)).rgb;
-    smallBlur += texture(colortex4, uv + smallTexel * vec2(-offset, -offset)).rgb;
-    smallBlur *= 0.25;
+    vec3 downsample = e * 0.125;
+    downsample += (a + c + g + i) * 0.03125;
+    downsample += (b + d + f + h) * 0.0625;
+    downsample += (j + k + l + m) * 0.125;
 
-    // read current (larger) level so we can blend in the upsampled blur
-   
 
- 
-    fragColor = vec4(smallBlur, 1.0);
-    /*DRAWBUFFERS:3 */
-    gl_FragData[0] = fragColor;
+	/*DRAWBUFFERS:5 */
+	gl_FragData[0] = vec4(downsample, 1.0);
 }

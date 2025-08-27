@@ -29,5 +29,5 @@ void main() {
     }
     //output color
 
-    outColor0 =vec4(pow(albedo, vec3(1/2.2)), transparency);
+    outColor0 =vec4(pow(albedo*2, vec3(1/2.2)), transparency);
 }

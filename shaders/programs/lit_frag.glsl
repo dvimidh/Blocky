@@ -1,6 +1,6 @@
 #version 460
 
-
+#include "/programs/fogColorCalc.glsl"
 
 
 //uniforms
@@ -11,17 +11,18 @@ uniform sampler2D specular;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+uniform sampler2D depthtex0;
 uniform sampler2DShadow shadowtex0HW;
-
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
-
+uniform mat4 gbufferProjectionInverse;
 uniform float far;
 uniform float dhNearPlane;
 uniform vec3 shadowLightPosition;
 uniform vec3 cameraPosition;
+uniform vec3 skyColor;
 uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
@@ -37,7 +38,10 @@ in vec4 tangent;
 in float EntityID;
 vec3 sunColor = vec3(1);
 
-
+ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+    vec4 homPos = projectionMatrix * vec4(position, 1.0);
+    return homPos.xyz / homPos.w;
+}
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 #include "/programs/wave.glsl"
@@ -73,10 +77,16 @@ void main() {
     #endif
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
     if (abs(EntityID-10005) < 0.5) {
-    outputColor.rgb += vec3(2.5, 2.5, 2.5)*albedo*1.8 + 5.5*albedo.b;
+    outputColor.rgb += vec3(2.0, 2.0, 2.0)*albedo*1.8 + 5.5*albedo.b;
     }
     transparency = outputColor.a;
-    //outColor0 = gbufferModelViewInverse*tangent;
-    //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
-    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency);
+    #if WATER_STYLE == 1
+    if (abs(EntityID-10006) < 0.5) {
+        outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.2);
+    }
+    #endif
+    
+    outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
+
+
 }

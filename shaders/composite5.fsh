@@ -1,28 +1,34 @@
 #version 460 compatibility
-in vec2 texCoord;
-vec4 fragColor;
 
 #include "/programs/settings.glsl"
-uniform sampler2D colortex2;
-uniform sampler2D colortex3;
+
+in vec2 texCoord;
+uniform sampler2D colortex5;
 uniform float viewWidth;
 uniform float viewHeight;
+vec2 srcResolution = vec2(viewWidth, viewHeight);
+float filterRadius = BLOOM_SPREAD/srcResolution.x; // e.g. 1.0 / mipResolution.x
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+    float x = filterRadius;
+    float y = filterRadius;
 
-    vec2 smallTexel = 1.0 / vec2(textureSize(colortex3, 0));
-    float offset = 1.5;
+    // 3x3 tent filter
+    vec3 a = texture(colortex5, texCoord + vec2(-x,  y)).rgb;
+    vec3 b = texture(colortex5, texCoord + vec2( 0,  y)).rgb;
+    vec3 c = texture(colortex5, texCoord + vec2( x,  y)).rgb;
+    vec3 d = texture(colortex5, texCoord + vec2(-x,  0)).rgb;
+    vec3 e = texture(colortex5, texCoord).rgb;
+    vec3 f = texture(colortex5, texCoord + vec2( x,  0)).rgb;
+    vec3 g = texture(colortex5, texCoord + vec2(-x, -y)).rgb;
+    vec3 h = texture(colortex5, texCoord + vec2( 0, -y)).rgb;
+    vec3 i = texture(colortex5, texCoord + vec2( x, -y)).rgb;
 
-    vec3 smallBlur = vec3(0.0);
-    smallBlur += texture(colortex3, uv + smallTexel * vec2( offset,  offset)).rgb;
-    smallBlur += texture(colortex3, uv + smallTexel * vec2(-offset,  offset)).rgb;
-    smallBlur += texture(colortex3, uv + smallTexel * vec2( offset, -offset)).rgb;
-    smallBlur += texture(colortex3, uv + smallTexel * vec2(-offset, -offset)).rgb;
+    vec3 upsample = e * 4.0;
+    upsample += (b + d + f + h) * 2.0;
+    upsample += (a + c + g + i);
+    upsample *= 1.0 / 16.0;
 
-
- 
-    fragColor = vec4(smallBlur, 1.0);
-    /*DRAWBUFFERS:2 */
-    gl_FragData[0] = fragColor;
+    /*DRAWBUFFERS:4 */
+    gl_FragData[0] = vec4(upsample, 1.0);
 }

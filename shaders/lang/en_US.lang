@@ -3,11 +3,14 @@ screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
 screen.WATER = Water
 
-option.INFO = Blocky v0.4.9
+option.INFO = Blocky v0.5
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
 option.shadowDistance.comment=Adjusts shadow distance.
+value.shadowDistance.32.0=2 chunks
+value.shadowDistance.64.0=4 chunks
+value.shadowDistance.96.0=6 chunks
 value.shadowDistance.128.0=8 chunks
 value.shadowDistance.192.0=12 chunks
 value.shadowDistance.256.0=16 chunks
@@ -44,6 +47,9 @@ option.SHADOW_FILTERING.comment = Slightly softens the shadows
 option.FOG_INTENSITY=Fog Intensity
 option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)
 
+option.CHUNK_FADE=Border Fog
+option.CHUNK_FADE.comment = Adds border fog to conceal chunk pop in when distant horizons isn't present
+
 option.WATER_STYLE=Water Style
 value.WATER_STYLE.1 = Shader
 value.WATER_STYLE.2 = Vanilla
@@ -51,4 +57,8 @@ option.WATER_TRANSLUCENCY_MULTIPLIER=Shader Water Tranclucency
 option.WATER_ROUGHNESS=Water Roughness
 option.WATER_ROUGHNESS.comment = The spread of the sun/moon reflection on the water
 
+option.BLOOM_STRENGTH=Bloom Bloom Strength
+option.BLOOM_STRENGTH.comment = Adjusts the intensity bloom
 
+option.BLOOM_SPREAD = Bloom Radius
+option.BLOOM_SPREAD.comment = Adjusts how far the bloom spreads

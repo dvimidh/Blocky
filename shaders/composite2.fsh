@@ -1,26 +1,38 @@
 #version 460 compatibility
 
 #include "/programs/settings.glsl"
-in vec2 texCoord;
-vec4 fragColor;
 
+in vec2 texCoord;
 uniform sampler2D colortex2;
 uniform float viewWidth;
 uniform float viewHeight;
-
+vec2 srcResolution = vec2(viewWidth, viewHeight);
 void main() {
-    vec2 uv = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
-    vec2 srcTexel = 1.0 / vec2(textureSize(colortex2, 0));
+vec2 srcTexelSize = 1.0 / srcResolution;
+    float x = srcTexelSize.x;
+    float y = srcTexelSize.y;
 
-float offset = 4.0 * BLOOM_SPREAD; // Larger radius
-    vec3 sum = vec3(0.0);
-    sum += texture(colortex2, uv + srcTexel * vec2( offset,  offset)).rgb;
-    sum += texture(colortex2, uv + srcTexel * vec2(-offset,  offset)).rgb;
-    sum += texture(colortex2, uv + srcTexel * vec2( offset, -offset)).rgb;
-    sum += texture(colortex2, uv + srcTexel * vec2(-offset, -offset)).rgb;
+    // 13-tap kernel
+    vec3 a = texture(colortex2, texCoord + vec2(-2*x,  2*y)).rgb;
+    vec3 b = texture(colortex2, texCoord + vec2(   0,  2*y)).rgb;
+    vec3 c = texture(colortex2, texCoord + vec2( 2*x,  2*y)).rgb;
+    vec3 d = texture(colortex2, texCoord + vec2(-2*x,    0)).rgb;
+    vec3 e = texture(colortex2, texCoord).rgb;
+    vec3 f = texture(colortex2, texCoord + vec2( 2*x,    0)).rgb;
+    vec3 g = texture(colortex2, texCoord + vec2(-2*x, -2*y)).rgb;
+    vec3 h = texture(colortex2, texCoord + vec2(   0, -2*y)).rgb;
+    vec3 i = texture(colortex2, texCoord + vec2( 2*x, -2*y)).rgb;
+    vec3 j = texture(colortex2, texCoord + vec2(-x, y)).rgb;
+    vec3 k = texture(colortex2, texCoord + vec2( x, y)).rgb;
+    vec3 l = texture(colortex2, texCoord + vec2(-x, -y)).rgb;
+    vec3 m = texture(colortex2, texCoord + vec2( x, -y)).rgb;
 
-    fragColor = vec4(sum * 0.25, 1.0);
+    vec3 downsample = e * 0.125;
+    downsample += (a + c + g + i) * 0.03125;
+    downsample += (b + d + f + h) * 0.0625;
+    downsample += (j + k + l + m) * 0.125;
 
-    /*DRAWBUFFERS:3 */
-    gl_FragData[0] = fragColor;
+
+	/*DRAWBUFFERS:3 */
+	gl_FragData[0] = vec4(downsample, 1.0);
 }

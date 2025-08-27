@@ -4,6 +4,7 @@
 
 uniform mat4 gbufferModelView;
 in vec4 at_tangent;
+
 //functions
 mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     //for DirectX normal mapping you want to switch the order of these
@@ -104,8 +105,8 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     if(abs(EntityID-10006) < 0.5) {
         smoothness = 0.9;
         metallic = 0.01;
-        roughness = 0.44 * WATER_ROUGHNESS;
-        reflectance = vec3(WATER_SHININESS * 0.05);
+        roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
+        reflectance = vec3(WATER_SHININESS * 0.25);
         albedo = vec3(albedo.r/100, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
     }
     #endif
@@ -178,26 +179,39 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
 		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));;
 	}
-
+    
 
     //ambient lighting
     vec3 ambientLightDirection = worldGeoNormal;
     vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
     vec3 outputColor =vec3(0);
+    vec3 brdf = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
     //brdf calculations
     #if WATER_STYLE == 1
     if(abs(EntityID-10006) < 0.5) {
-    vec3 brdf = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
-    outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.1)*brdf);
-    if ((brdf.r + brdf.g + brdf.b)/3 > 0.3) {
-    transparency += (brdf.r + brdf.g + brdf.b)*0.05*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3;
-    }
+    
+    
+    brdf = clamp(brdf, vec3(0.0), vec3(1.5));
+
+    
+
+     if ((brdf.r + brdf.g + brdf.b)/3 < 1.0) {
+        //brdf = min(brdf, brdf/5000);
+     } 
+     if ((brdf.r + brdf.g + brdf.b)/3 > 0.5) {
+        //if (sunAngle > 0.5) 
+        sunColor=sunColor*15;
+        //}
+     }
+     transparency += min((brdf.r + brdf.g + brdf.b)/2, 0.3) + (max((brdf.r + brdf.g + brdf.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3;
+     
+     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.8)*brdf);
     } else{
         outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
     }
-    #endif
+    #endif 
     #if WATER_STYLE != 1
-    
+    s
     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf);
     
     #endif
