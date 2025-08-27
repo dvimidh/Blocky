@@ -211,7 +211,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     }
     #endif 
     #if WATER_STYLE != 1
-    s
+    
     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf);
     
     #endif
