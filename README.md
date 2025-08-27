@@ -16,6 +16,8 @@ Feature include:
 - Anti Aliasing (FXAA, Used with permission from Capt Tatsu's BSL)
 - Height Based Analytical Fog (from Inigo Quilez's article on fog)
 - Waving Tree Leaves and Water
+- Bloom
+- Hardcoded Emmissives (Coming Soon)
 
 
 
