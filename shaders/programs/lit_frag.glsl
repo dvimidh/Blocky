@@ -2,7 +2,6 @@
 
 #include "/programs/fogColorCalc.glsl"
 
-
 //uniforms
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
