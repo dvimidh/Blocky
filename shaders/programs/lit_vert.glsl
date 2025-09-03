@@ -42,7 +42,7 @@ void main() {
     tangent = vec4(normalize(normalMatrix * at_tangent.rgb), at_tangent.a);
     if(abs(mc_Entity.x-10001) < 0.5) {
         vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
-        worldPos = vec3(worldPos.x + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x), worldPos.y + 0.005*sin(0.1*worldTime + worldPos.z + worldPos.x + 10), worldPos.z + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x + 15));
+        worldPos = vec3(worldPos.x + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x + 0.3*worldPos.y), worldPos.y + 0.005*sin(0.1*worldTime + worldPos.z + worldPos.x + 10), worldPos.z + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x + 15));
         viewSpacePositionVec4 = gbufferModelView*vec4(worldPos-cameraPosition, 1.0);
     }
     if(abs(EntityID-10006) < 0.5) {

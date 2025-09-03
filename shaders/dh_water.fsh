@@ -1,6 +1,7 @@
 #version 460 compatibility
 
 int dhMaterialId;
+uniform vec3 cameraPosition;
 #include "/programs/wave.glsl"
 #include "/programs/settings.glsl"
 vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
@@ -124,12 +125,19 @@ void main() {
     
     outputColor*=lightBrightness;
     #if WATER_STYLE == 1
+    float smoothness = 0.9;
+    float metallic = 0.01;
+    float roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
+    vec3 reflectance = vec3(WATER_SHININESS * 0.25);
+    outputColor = vec3(outputColor.r/100, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
     
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER;
-    outputColor = vec3(outputColor.r/100, outputColor.g + 0.3, outputColor.b+0.6);
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.3;
     #endif
 
-    //outputColor += brdf(shadowLightDirection, viewDirection, 0.2 *WATER_ROUGHNESS, normalWorldSpace, outputColor, WATER_SHININESS, WATER_SHININESS);
+    vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
+    vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
+    vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
+    //outputColor += brdf(shadowLightDirection, viewDirection, 0.2 *WATER_ROUGHNESS, worldGeoNormal, outputColor, WATER_SHININESS, WATER_SHININESS);
 
     //float fogBlendValue = clamp((distanceFromCamera - minFogDistance) / (maxFogDistance - minFogDistance), 0, 1);
 
