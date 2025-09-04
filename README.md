@@ -1,6 +1,7 @@
 
 
-![good 2](https://github.com/user-attachments/assets/b80b9f64-2d0b-48f7-9f8e-70e852084898)
+
+<img width="1920" height="1111" alt="2025-09-03_15 41 03" src="https://github.com/user-attachments/assets/802a3c43-3df7-4d0e-bac3-5393fdad1c81" />
 
 
 
