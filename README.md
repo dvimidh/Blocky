@@ -1,7 +1,7 @@
 
 
+<img width="1920" height="1111" alt="2025-09-03_15 39 09" src="https://github.com/user-attachments/assets/24ac9502-eaed-4497-90ec-fe7fea702824" />
 
-<img width="1920" height="1111" alt="2025-09-03_15 41 03" src="https://github.com/user-attachments/assets/802a3c43-3df7-4d0e-bac3-5393fdad1c81" />
 
 
 
