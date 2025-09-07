@@ -18,7 +18,7 @@ Feature include:
 - Height Based Analytical Fog (from Inigo Quilez's article on fog)
 - Waving Tree Leaves and Water
 - Bloom
-- Hardcoded Emmissives (Coming Soon)
+- Hardcoded Emmissives (More Coming Soon)
 
 
 
