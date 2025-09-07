@@ -66,7 +66,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 		if((col.r + col.g + col.b)/3 > 0.96) {
 		myFogColor  = mix(myFogColor, // fog
                            mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-0.96)*20), // sun
-                           pow(sunAmount,1.0));
+                           pow(sunAmount,1.0)/100.5);
 	} else {
 	myFogColor  = mix(myFogColor, // fog
                            vec3(1.0,0.7,0.4), // sun
@@ -75,7 +75,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	} else {
 		myFogColor  = mix(myFogColor, // fog
                            vec3(1.0,1.0,1.0), // sun
-                           pow(sunAmount,1.0));
+                           pow(sunAmount,1.0)/100.5);
 	}
 	float moonAmount = max( dot(rd, ligm), 0.0 );
 	myFogColor  = mix(myFogColor, // fog

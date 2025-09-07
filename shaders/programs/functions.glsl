@@ -107,7 +107,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         metallic = 0.01;
         roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
-        albedo = vec3(albedo.r/100, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
+        albedo = vec3(albedo.r/10, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
     }
     #endif
     //space conversion
@@ -201,11 +201,12 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      if ((brdfv.r + brdfv.g + brdfv.b)/3 > 0.5) {
         //if (sunAngle > 0.5) 
         sunColor=sunColor*15;
+        transparency += clamp((max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
         //}
      }
-     transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
-
-     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.8)*brdfv);
+     //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
+    outputColor = worldTangent;
+     //outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.8)*brdfv);
     } else{
         outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
     }

@@ -47,15 +47,15 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 }
 uniform sampler2D lightmap;
 uniform sampler2D depthtex0;
-
+uniform sampler2D normals;
 uniform float viewHeight;
 uniform float viewWidth;
-
+uniform float rainStrength;
 uniform vec3 fogColor;
 uniform float sunAngle;
 uniform mat4 gbufferModelViewInverse;
-uniform vec3 shadowLightDirection;
 uniform vec3 shadowLightPosition;
+uniform sampler2D specular;
 
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
@@ -64,19 +64,48 @@ in vec4 blockColor;
 in vec2 lightMapCoords;
 in vec3 viewSpacePosition;
 in vec3 geoNormal;
-
+in vec2 texCoord;
+in vec4 tangent;
+mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
+    //for DirectX normal mapping you want to switch the order of these
+    vec3 bitangent = cross(tangent, normal);
+    return mat3(tangent, bitangent, normal);
+}
 void main() {
+    vec4 outputColorData = pow(blockColor, vec4(2.2));
+    vec3 outputColor = outputColorData.rgb;
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
     vec3 worldGeoNormal = mat3(gbufferModelViewInverse) * geoNormal;
+    
+    vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
+    vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
+    vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
+    mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
+    vec3 normalWorldSpace = TBN * normalNormalSpace;
+     vec4 specularData = texture(specular, texCoord);
+    float perceptualSmoothness = specularData.r;
+    
+    float metallic = 0.0;
+    
+    vec3 reflectance = vec3(0);
+    if (specularData.g*255 > 299) {
+        metallic = 1.0;
+        reflectance = outputColorData.rgb;
+    } else {
+        reflectance = vec3(specularData.g);
+    }
+    float roughness = pow(1.0-perceptualSmoothness, 2.0);
+    float smoothness = 1-roughness;
 
     float lightBrightness = clamp(dot(shadowLightDirection,worldGeoNormal), 0.2, 1.0);
 
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
 
-    vec3 lightColor = pow(texture(lightmap, lightMapCoords).rgb, vec3(2.2));
-
+    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
+    vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
+    vec3 viewDirection = normalize(cameraPosition - worldPos);
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
 	vec3 nightColor = vec3(0.06, 0.06, 0.6);
@@ -100,16 +129,49 @@ void main() {
 		skyLight = skyLight*nightColor;
 	}
 	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));;
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));
 	}
 
     
-    vec4 outputColorData = pow(blockColor, vec4(2.2));
-    vec3 outputColor = outputColorData.rgb*(lightColor*vec3(0.2) + skyLight*vec3(1.0));
+    vec3 sunColor = vec3(1.0);
+if (sunAngle < 0.5) {// || sunAngle > 0.98) {
+        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
+            sunColor = mix(vec3(1.0, 0.5, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
+        } else {
+            sunColor = vec3(1.0, 0.5, 0.3);
+        }
+        sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
+    } else {
+        sunColor = vec3(0.6, 0.6, 0.6);
+        
+    }
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;
     }
+#if WATER_STYLE == 1
+    smoothness = 0.9;
+        metallic = 0.01;
+        roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
+        reflectance = vec3(WATER_SHININESS * 0.25);
+    outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
+    
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER;
+    #endif
+
+    vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColor, metallic, reflectance);
+     brdfv = clamp(brdfv, vec3(0.0), vec3(1.5));
+     if ((brdfv.r + brdfv.g + brdfv.b)/3 > 0.5) {
+        //if (sunAngle > 0.5) 
+        sunColor=sunColor*15;
+        transparency += clamp((max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(skyLight.r + skyLight.g + skyLight.b)/3, 0.0, 1.0);
+        //}
+     }
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY);
+
+    //outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight.r*sunColor*lightBrightness*brdfv;
+    
+    outputColor = worldTangent;
 
     vec2 texCoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     float depth = texture(depthtex0, texCoord).r;
@@ -123,25 +185,8 @@ void main() {
 
     float minFogDistance = 1500;
     
-    outputColor*=lightBrightness;
-    #if WATER_STYLE == 1
-    float smoothness = 0.9;
-    float metallic = 0.01;
-    float roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
-    vec3 reflectance = vec3(WATER_SHININESS * 0.25);
-    outputColor = vec3(outputColor.r/100, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
+
     
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.3;
-    #endif
-
-    vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
-    vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
-    vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
-    //outputColor += brdf(shadowLightDirection, viewDirection, 0.2 *WATER_ROUGHNESS, worldGeoNormal, outputColor, WATER_SHININESS, WATER_SHININESS);
-
-    //float fogBlendValue = clamp((distanceFromCamera - minFogDistance) / (maxFogDistance - minFogDistance), 0, 1);
-
-    //outputColor = mix(outputColor, pow(fogColor, vec3(2.2)), fogBlendValue);
 
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
 }

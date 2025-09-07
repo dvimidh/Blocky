@@ -51,7 +51,7 @@ void main() {
     vec4 outputColorData = texture(gtexture,texCoord);
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     float transparency = outputColorData.a;
-
+    
     if(transparency < 0.1) {
         discard;
     }
