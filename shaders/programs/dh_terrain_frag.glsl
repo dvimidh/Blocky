@@ -3,7 +3,24 @@
 #include "/programs/settings.glsl"
 
 int dhMaterialId;
-
+mat3 generateSimpleTBN(vec3 normal) {
+    // Create an arbitrary tangent vector
+    vec3 tangent;
+    vec3 c1 = cross(normal, vec3(0.0, 0.0, 1.0));
+    vec3 c2 = cross(normal, vec3(0.0, 1.0, 0.0));
+    
+    // Choose the cross product that gives the longer vector
+    if (length(c1) > length(c2)) {
+        tangent = c1;
+    } else {
+        tangent = c2;
+    }
+    
+    tangent = normalize(tangent);
+    vec3 bitangent = normalize(cross(normal, tangent));
+    
+    return mat3(tangent, bitangent, normal);
+}
 uniform sampler2D lightmap;
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
@@ -84,7 +101,7 @@ void main() {
     vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
-    mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
+    mat3 TBN = generateSimpleTBN(worldGeoNormal);
     vec3 normalWorldSpace = TBN * normalNormalSpace;
      vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
@@ -148,9 +165,10 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         
     }
      vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColorData.rgb, metallic, reflectance);
-    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY);
+     vec3 ambientLightDirection = worldGeoNormal;
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
-    vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight.r*sunColor*lightBrightness*brdfv;
+    vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;

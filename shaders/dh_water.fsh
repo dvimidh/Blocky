@@ -71,9 +71,32 @@ mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     vec3 bitangent = cross(tangent, normal);
     return mat3(tangent, bitangent, normal);
 }
+mat3 generateSimpleTBN(vec3 normal) {
+    // Create an arbitrary tangent vector
+    vec3 tangent;
+    vec3 c1 = cross(normal, vec3(0.0, 0.0, 1.0));
+    vec3 c2 = cross(normal, vec3(0.0, 1.0, 0.0));
+    
+    // Choose the cross product that gives the longer vector
+    if (length(c1) > length(c2)) {
+        tangent = c1;
+    } else {
+        tangent = c2;
+    }
+    
+    tangent = normalize(tangent);
+    vec3 bitangent = normalize(cross(normal, tangent));
+    
+    return mat3(tangent, bitangent, normal);
+}
 void main() {
     vec4 outputColorData = pow(blockColor, vec4(2.2));
     vec3 outputColor = outputColorData.rgb;
+    float transparency = outputColorData.a;
+    if(outputColorData.a < 0.1) {
+        discard;
+    }
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.2;
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
@@ -82,7 +105,7 @@ void main() {
     vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
-    mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
+    mat3 TBN = generateSimpleTBN(worldGeoNormal);
     vec3 normalWorldSpace = TBN * normalNormalSpace;
      vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
@@ -145,18 +168,16 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         sunColor = vec3(0.6, 0.6, 0.6);
         
     }
-    float transparency = outputColorData.a;
-    if(outputColorData.a < 0.1) {
-        discard;
-    }
+    
 #if WATER_STYLE == 1
+
     smoothness = 0.9;
         metallic = 0.01;
         roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
     outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
     
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER;
+    
     #endif
 
     vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColor, metallic, reflectance);
@@ -167,11 +188,13 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         transparency += clamp((max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(skyLight.r + skyLight.g + skyLight.b)/3, 0.0, 1.0);
         //}
      }
-    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY);
+     vec3 ambientLightDirection = worldGeoNormal;
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
-    //outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight.r*sunColor*lightBrightness*brdfv;
-    
-    outputColor = worldTangent;
+    outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
+    #if WATER_STYLE == 1
+  outputColor=outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv*mix(sunColor, vec3(1), 0.8);
+      #endif
 
     vec2 texCoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     float depth = texture(depthtex0, texCoord).r;
