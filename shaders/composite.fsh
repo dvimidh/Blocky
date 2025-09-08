@@ -2,7 +2,6 @@
 
 #include "/programs/settings.glsl"
 #include "/programs/fogColorCalc.glsl"
-
 in vec2 texCoord;
 in vec3 viewSpacePosition;
 uniform float frameTimeCounter;
@@ -82,6 +81,27 @@ vec3 applyFog( in vec3  col,  // color of pixel
                            vec3(1.0,1.0, 1.0), // sun
                            pow(moonAmount,300.0)*0.7);
 	}
+	vec3 riseColorMore = vec3(0.8, 0.35, 0.2);
+	vec3 SunRiseColor = myFogColor;
+	if ((col.r + col.g + col.b)/3 < 1.01) {
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
+		SunRiseColor = riseColorMore;
+	}
+	if (sunAngle > 0.025 && sunAngle < 0.075) {
+		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
+	} 
+	if (sunAngle > 0.45 && sunAngle < 0.5) {
+		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.45));
+	}
+	if (sunAngle > 0.50 && sunAngle < 0.55) {
+		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
+	}
+	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
+		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
+	}
+	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.0)/1.5);
+	}
+
 	if (isEyeInWater == 1) {
 		fogAmount = t * 0.02;
 		myFogColor = mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5);
@@ -134,8 +154,8 @@ void main() {
 	float myDistance = length(dhviewPos);
 	vec3 dheyePlayerPos = mat3(gbufferModelViewInverse)*dhviewPos;
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
-	vec3 dhcameraToPoint = dhworldPos - cameraPosition;
-	dhcameraToPoint = normalize(dhcameraToPoint);
+	vec3 cameraToPoint = dhworldPos - cameraPosition;
+	cameraToPoint = normalize(dhcameraToPoint);
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	#endif
 	#ifndef DISTANT_HORIZONS
@@ -169,13 +189,44 @@ void main() {
 
 #ifdef CHUNK_FADE
 if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) < 0.1) {
-vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
-vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-float myDistance = length(viewPos);
-//float fogFactor = smoothstep(0.7, 1.0, myDistance / far);
+	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
+  	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	float myDistance = length(viewPos);
+	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
+	vec3 cameraToPoint = worldPos - cameraPosition;
+	cameraToPoint = normalize(cameraToPoint);
+
+float sunAmount = max( dot(cameraToPoint, sunDirectionEyePlayerPos), 0.0 );
+float moonAmount = max( dot(cameraToPoint, moonDirectionEyePlayerPos), 0.0 );
+vec3 riseColorMore = vec3(0.8, 0.35, 0.2);
+myFogColor = fogColorCalc(sunAngle, rainStrength);
+	vec3 SunRiseColor = myFogColor;
+if ((color.r + color.g + color.b)/3 < 1.01) {
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
+		SunRiseColor = riseColorMore;
+	}
+	if (sunAngle > 0.025 && sunAngle < 0.075) {
+		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
+	} 
+	if (sunAngle > 0.45 && sunAngle < 0.5) {
+		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.45));
+	}
+	if (sunAngle > 0.50 && sunAngle < 0.55) {
+		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
+	}
+	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
+		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
+	}
+	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.0)/1.5);
+	}
+
+
+
 float fogFactor = clamp(exp(-5.0 * (1.0 - myDistance / far)), 0.0, 1.0);
+
 if (isEyeInWater == 0) {
-color.rgb = mix(color.rgb, mix(fogColor, fogColorCalc(sunAngle, rainStrength), 0.6), fogFactor);
+color.rgb = mix(color.rgb, mix(fogColor, myFogColor, 0.6), fogFactor);
 }
 if (isEyeInWater == 1) {
 color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5), 0.9), fogFactor);

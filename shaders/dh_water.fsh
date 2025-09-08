@@ -96,7 +96,7 @@ void main() {
     if(outputColorData.a < 0.1) {
         discard;
     }
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.2;
+    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.3;
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
