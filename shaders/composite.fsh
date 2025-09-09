@@ -155,8 +155,8 @@ void main() {
 	vec3 dheyePlayerPos = mat3(gbufferModelViewInverse)*dhviewPos;
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = dhworldPos - cameraPosition;
-	cameraToPoint = normalize(dhcameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, dhcameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+	cameraToPoint = normalize(cameraToPoint);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	#endif
 	#ifndef DISTANT_HORIZONS
 	bool ifsky = true;
