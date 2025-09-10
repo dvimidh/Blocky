@@ -127,7 +127,7 @@ void main() {
     vec3 viewDirection = normalize(cameraPosition - worldPos);
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.06, 0.06, 0.6);
+	vec3 nightColor = vec3(0.2, 0.3, 0.3);
 
     if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;

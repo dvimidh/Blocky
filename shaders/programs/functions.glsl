@@ -198,7 +198,8 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      if ((brdfv.r + brdfv.g + brdfv.b)/3 < 1.0) {
         //brdf = min(brdf, brdf/5000);
      } 
-     if ((brdfv.r + brdfv.g + brdfv.b)/3 > 0.5) {
+     if ((brdfv.r + brdfv.g + brdfv.b)/3 > 0.5 && transparency > 0.1) {
+         //brdf = brdf*2;
         //if (sunAngle > 0.5) 
         sunColor=sunColor*15;
         transparency += clamp((max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);

@@ -176,7 +176,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
     outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
-    
+
     
     #endif
 
@@ -193,7 +193,9 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
 
     outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
     #if WATER_STYLE == 1
+ 
   outputColor=outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv*mix(sunColor, vec3(1), 0.8);
+    
       #endif
 
     vec2 texCoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
@@ -202,6 +204,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     if (depth != 1.0) {
     discard;
     }
+
     float distanceFromCamera = distance(vec3(0), viewSpacePosition);
 
     float maxFogDistance = 2800;

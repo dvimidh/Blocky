@@ -61,10 +61,10 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	float sunAmount = max( dot(rd, lig), 0.0 );
 	if(sky) {
 		fogAmount = 1005 + fogAmount;
-	if ((col.r + col.g + col.b)/3 < 1.01) {
-		if((col.r + col.g + col.b)/3 > 0.96) {
+	if ((col.r + col.g + col.b)/3 < 1.05) {
+		if((col.r + col.g + col.b)/3 > 1.0) {
 		myFogColor  = mix(myFogColor, // fog
-                           mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-0.96)*20), // sun
+                           mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-1.0)*20), // sun
                            pow(sunAmount,1.0)/100.5);
 	} else {
 	myFogColor  = mix(myFogColor, // fog
@@ -83,7 +83,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	}
 	vec3 riseColorMore = vec3(0.8, 0.35, 0.2);
 	vec3 SunRiseColor = myFogColor;
-	if ((col.r + col.g + col.b)/3 < 1.01) {
+	if ((col.r + col.g + col.b)/3 < 1.05) {
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		SunRiseColor = riseColorMore;
 	}
