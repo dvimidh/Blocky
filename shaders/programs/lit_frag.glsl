@@ -59,7 +59,7 @@ void main() {
     
     if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.5, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.3, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
         }

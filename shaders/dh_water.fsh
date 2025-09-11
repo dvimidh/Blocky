@@ -1,6 +1,5 @@
 #version 460 compatibility
 
-int dhMaterialId;
 uniform vec3 cameraPosition;
 #include "/programs/wave.glsl"
 #include "/programs/settings.glsl"
@@ -56,7 +55,6 @@ uniform float sunAngle;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 shadowLightPosition;
 uniform sampler2D specular;
-
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 
@@ -90,13 +88,13 @@ mat3 generateSimpleTBN(vec3 normal) {
     return mat3(tangent, bitangent, normal);
 }
 void main() {
-    vec4 outputColorData = pow(blockColor, vec4(2.2));
+    vec4 outputColorData = vec4(pow(blockColor.rgb, vec3(2.2)), blockColor.a);
     vec3 outputColor = outputColorData.rgb;
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;
     }
-    transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER + 0.3;
+    //transparency = transparency * (outputColor.x + outputColor.y + outputColor.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
@@ -108,17 +106,11 @@ void main() {
     mat3 TBN = generateSimpleTBN(worldGeoNormal);
     vec3 normalWorldSpace = TBN * normalNormalSpace;
      vec4 specularData = texture(specular, texCoord);
-    float perceptualSmoothness = specularData.r;
+    float perceptualSmoothness = 0.0001;
     
-    float metallic = 0.0;
+    float metallic = 0.001;
+    vec3 reflectance = vec3(0.1);
     
-    vec3 reflectance = vec3(0);
-    if (specularData.g*255 > 299) {
-        metallic = 1.0;
-        reflectance = outputColorData.rgb;
-    } else {
-        reflectance = vec3(specularData.g);
-    }
     float roughness = pow(1.0-perceptualSmoothness, 2.0);
     float smoothness = 1-roughness;
 
@@ -131,7 +123,7 @@ void main() {
     vec3 viewDirection = normalize(cameraPosition - worldPos);
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.06, 0.06, 0.6);
+	vec3 nightColor = vec3(0.2, 0.3, 0.3);
 
     if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;
@@ -170,13 +162,13 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     }
     
 #if WATER_STYLE == 1
-
-    smoothness = 0.9;
+    //if (dhMaterialId == DH_BLOCK_WATER) {
+        //water
+        smoothness = 0.9;
         metallic = 0.01;
-        roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
+        roughness = 0.01 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
-    outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
-
+        //outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
     
     #endif
 
@@ -191,12 +183,8 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
      vec3 ambientLightDirection = worldGeoNormal;
     vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
-    outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
-    #if WATER_STYLE == 1
- 
-  outputColor=outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv*mix(sunColor, vec3(1), 0.8);
-    
-      #endif
+    outputColor = outputColor*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
+
 
     vec2 texCoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     float depth = texture(depthtex0, texCoord).r;

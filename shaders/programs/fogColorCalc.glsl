@@ -1,7 +1,7 @@
 vec3 fogColorCalc(float sunAngle, float rainStrength) {
 
     vec3 myFogColor;
-	vec3 riseColor = vec3(0.8, 0.55, 0.4);
+	vec3 riseColor = vec3(0.7, 0.4, 0.4);
 	vec3 dayColor = vec3(0.5, 0.7, 1.0);
 	vec3 nightColor = vec3(0.06, 0.1, 0.15);
 	

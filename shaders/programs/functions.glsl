@@ -199,7 +199,6 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         //brdf = min(brdf, brdf/5000);
      } 
      if ((brdfv.r + brdfv.g + brdfv.b)/3 > 0.5 && transparency > 0.1) {
-         //brdf = brdf*2;
         //if (sunAngle > 0.5) 
         sunColor=sunColor*15;
         transparency += clamp((max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
@@ -209,7 +208,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 
      outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.8)*brdfv);
     } else{
-        outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance));
+        outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdfv);
     }
     #endif 
     #if WATER_STYLE != 1

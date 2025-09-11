@@ -81,9 +81,10 @@ vec3 applyFog( in vec3  col,  // color of pixel
                            vec3(1.0,1.0, 1.0), // sun
                            pow(moonAmount,300.0)*0.7);
 	}
-	vec3 riseColorMore = vec3(0.8, 0.35, 0.2);
+	vec3 riseColorMore = vec3(0.8, 0.4, 0.2);
+
 	vec3 SunRiseColor = myFogColor;
-	if ((col.r + col.g + col.b)/3 < 1.05) {
+if ((col.r + col.g + col.b)/3 < 1.01) {
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		SunRiseColor = riseColorMore;
 	}
@@ -99,7 +100,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
 	}
-	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.0)/1.5);
+	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.50)/1.1);
 	}
 
 	if (isEyeInWater == 1) {
@@ -199,7 +200,7 @@ if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) < 0.1) {
 
 float sunAmount = max( dot(cameraToPoint, sunDirectionEyePlayerPos), 0.0 );
 float moonAmount = max( dot(cameraToPoint, moonDirectionEyePlayerPos), 0.0 );
-vec3 riseColorMore = vec3(0.8, 0.35, 0.2);
+vec3 riseColorMore = vec3(0.8, 0.4, 0.2);
 myFogColor = fogColorCalc(sunAngle, rainStrength);
 	vec3 SunRiseColor = myFogColor;
 if ((color.r + color.g + color.b)/3 < 1.01) {
@@ -218,7 +219,7 @@ if ((color.r + color.g + color.b)/3 < 1.01) {
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
 	}
-	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.0)/1.5);
+	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.50)/1.1);
 	}
 
 

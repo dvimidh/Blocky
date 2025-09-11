@@ -92,7 +92,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 }
 
 void main() {
-        vec4 outputColorData = pow(blockColor, vec4(2.2));
+        vec4 outputColorData = vec4(pow(blockColor.rgb, vec3(2.2)), blockColor.a);
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
@@ -155,7 +155,7 @@ void main() {
     vec3 sunColor = vec3(1.0);
 if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.5, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.3, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
         }
