@@ -58,6 +58,7 @@ uniform sampler2D specular;
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 
+
 in vec4 blockColor;
 in vec2 lightMapCoords;
 in vec3 viewSpacePosition;
@@ -151,7 +152,7 @@ void main() {
     vec3 sunColor = vec3(1.0);
 if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.5, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
         }
@@ -169,7 +170,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         roughness = 0.01 * WATER_ROUGHNESS*(0.1 + 5 * pow((outputColor.r + outputColor.g + outputColor.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
         //outputColor = vec3(outputColor.r/10, clamp(outputColor.g*1.3, 0.0, 0.2), clamp(outputColor.b*1.5, 0.0, 0.4));
-    
+    //}
     #endif
 
     vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColor, metallic, reflectance);

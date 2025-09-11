@@ -59,7 +59,7 @@ void main() {
     
     if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.3, 0.3), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
         }
@@ -67,8 +67,20 @@ void main() {
     } else {
         sunColor = vec3(0.6, 0.6, 0.6);
         
+    }   
+    if (sunAngle > 0.0 && sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle));
     }
-    sunColor = sunColor*1;
+    if (sunAngle-0.5 > 0.0 && sunAngle-0.5 < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle-0.5));
+    }
+    if (0.5-sunAngle > 0.0 && 0.5-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (0.5-sunAngle));
+    }
+    if (1.0-sunAngle > 0.0 && 1.0-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (1.0-sunAngle));
+    }
+    
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;

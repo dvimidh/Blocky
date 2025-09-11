@@ -2,7 +2,6 @@
 
 #include "/programs/settings.glsl"
 
-int dhMaterialId;
 mat3 generateSimpleTBN(vec3 normal) {
     // Create an arbitrary tangent vector
     vec3 tangent;
@@ -155,7 +154,7 @@ void main() {
     vec3 sunColor = vec3(1.0);
 if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.3, 0.3), 1/0.055 * (sunAngle));
+            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
         }
@@ -163,6 +162,19 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     } else {
         sunColor = vec3(0.6, 0.6, 0.6);
         
+    }
+      
+    if (sunAngle > 0.0 && sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle));
+    }
+    if (sunAngle-0.5 > 0.0 && sunAngle-0.5 < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle-0.5));
+    }
+    if (0.5-sunAngle > 0.0 && 0.5-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (0.5-sunAngle));
+    }
+    if (1.0-sunAngle > 0.0 && 1.0-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (1.0-sunAngle));
     }
      vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColorData.rgb, metallic, reflectance);
      vec3 ambientLightDirection = worldGeoNormal;
