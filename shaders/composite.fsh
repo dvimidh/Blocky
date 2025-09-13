@@ -187,8 +187,8 @@ void main() {
 	cameraToPoint = normalize(cameraToPoint);
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	
-	if (depth < depthT) {
-		if(colorWater.r + colorWater.g + colorWater.b < 0.1) {
+	//if (depth < depthT) {
+	if (1>2) {
 			if(depthT != 1.0) {
 				
 			vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
@@ -225,7 +225,7 @@ void main() {
 
 				}
 			}
-		} else {
+		if(colorWater.r + colorWater.g + colorWater.b > 0.1) {
 			if (isEyeInWater == 0) {
 				vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  			vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
