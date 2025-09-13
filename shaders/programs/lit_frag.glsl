@@ -36,13 +36,14 @@ in vec3 geoNormal;
 in vec4 tangent;
 in float EntityID;
 vec3 sunColor = vec3(1);
-
+vec3 storeWater;
  vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);
     return homPos.xyz / homPos.w;
 }
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:07 */
 layout(location = 0) out vec4 outColor0;
+layout(location = 1) out vec4 outColor1;
 #include "/programs/wave.glsl"
 #include "/programs/functions.glsl"
 
@@ -96,8 +97,13 @@ void main() {
         outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.2);
     }
     #endif
-    
+    if (abs(EntityID-10006) < 0.5) {
+         vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
+        storeWater = albedo.rgb * (skyLight+0.1);
+    } else {
+        storeWater = vec3(0.0);
+    }
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
-
+    outColor1 = vec4(storeWater, 1.0);
 
 }
