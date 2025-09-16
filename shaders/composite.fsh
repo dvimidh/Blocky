@@ -47,6 +47,7 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 vec3 myFogColor = vec3(0);
 float depth = texture(depthtex0, texCoord).r;
 float depthT = texture(depthtex1, texCoord).r;
+float depthW = texture(colortex7, texCoord).a;
 vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
@@ -187,24 +188,25 @@ void main() {
 	cameraToPoint = normalize(cameraToPoint);
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 	
-	//if (depth < depthT) {
-	if (1>2) {
+	if (depth < depthT) {
+	//if (1<2) {
 			if(depthT != 1.0) {
 				
 			vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  		vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
+			float myDistanceT = length(viewPosT) - myDistance;
 			vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
 			vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 			vec3 cameraToPointT = worldPosT - worldPos;
-			float myDistanceT = length(viewPosT) - length(viewPos);
 			cameraToPointT = normalize(cameraToPointT);
-			color.rgb = applyFog(color.rgb, myDistanceT, cameraPosition, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+			color.rgb = applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 			} else {
+				#ifdef DISTANT_HORIZONS
 				float dhDepth = texture(dhDepthTex0, texCoord).r;
 				if (dhDepth == 1.0) {
 					ifsky = true;
 					vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
-	  				vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
+	  				vec3 viewPosT = projectAndDivide(dhProjectionInverse, NDCPosT);
 					vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
 					vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 					vec3 cameraToPointT = worldPosT - worldPos;
@@ -221,11 +223,22 @@ void main() {
 					vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 					vec3 cameraToPoint = dhworldPos - worldPos;
 					cameraToPoint = normalize(cameraToPoint);
-					color.rgb = applyFog(color.rgb, myDistanceD/2, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+					color.rgb = applyFog(color.rgb, myDistanceD, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
 
 				}
-			}
-		if(colorWater.r + colorWater.g + colorWater.b > 0.1) {
+				#endif
+				#ifndef DISTANT_HORIZONS
+					vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
+			  		vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
+					vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
+					vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
+					vec3 cameraToPointT = worldPosT - worldPos;
+					float myDistanceT = length(viewPosT) - length(viewPos);
+					cameraToPointT = normalize(cameraToPointT);
+					color.rgb = applyFog(color.rgb, myDistanceT, cameraPosition, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+				#endif
+			}/*
+		if(colorWater.r + colorWater.g + colorWater.b > 0.01 && depthT<(depthW-0.3)) {
 			if (isEyeInWater == 0) {
 				vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  			vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
@@ -235,12 +248,12 @@ void main() {
 				float myDistanceT = length(viewPosT) - length(viewPos);
 				cameraToPointT = normalize(cameraToPointT);
 				float fogAmount = myDistanceT * 0.02;
-				myFogColor = mix(colorWater.rgb, vec3(0.0, 0.3, 0.5), 0.3);
-				//color.r /= 1.5;
-				//color.g /= 1.25;
-				color.rgb = mix(color.rgb, myFogColor, clamp(fogAmount, 0.0, 0.3));
+				myFogColor = mix(colorWater.rgb, vec3(0.0, 0.3, 0.5), 0.5);
+				color.r /= 1.5;
+				color.g /= 1.25;
+				color.rgb = mix(color.rgb, myFogColor, clamp(fogAmount, 0.0, 0.9));
 			}	
-		}
+		} */
 	}
 	
   }

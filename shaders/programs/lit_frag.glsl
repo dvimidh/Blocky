@@ -52,7 +52,7 @@ void main() {
     vec4 outputColorData = texture(gtexture,texCoord);
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     float transparency = outputColorData.a;
-    
+    float depth = texture(depthtex0, texCoord).r;
     if(transparency < 0.1) {
         discard;
     }
@@ -99,11 +99,12 @@ void main() {
     #endif
     if (abs(EntityID-10006) < 0.5) {
          vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-        storeWater = albedo.rgb * (skyLight+0.1);
+        storeWater = outputColor.rgb.rgb * (skyLight+0.1);
+        
     } else {
         storeWater = vec3(0.0);
     }
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
-    outColor1 = vec4(storeWater, 1.0);
+    outColor1 = vec4(storeWater, depth);
 
 }

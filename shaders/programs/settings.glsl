@@ -9,6 +9,8 @@ const int colortex2Format = RGBA16F;
 const int colortex3Format = RGBA16F; 
 const int colortex4Format = RGBA16F;
 const int colortex5Format = RGBA16F; 
+const int colortex6Format = RGBA16F; 
+const int colortex7Format = RGBA16F; 
 */
 
 #define INFO 0 //[0]
