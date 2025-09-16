@@ -7,7 +7,7 @@
 
 # **Blocky**
 
-A very simple and very vanilla shader based on Samuel Gerkin's tutorial
+A vanilla inspired shader for Minecraft Java
 
 Feature include:
 - Shadows
