@@ -84,7 +84,7 @@ void main() {
     
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
-        transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
+        transparency = transparency * (albedo.x + albedo.y*10.4 + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER/2;
     }
     #endif
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
