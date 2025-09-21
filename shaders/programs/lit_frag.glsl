@@ -84,7 +84,7 @@ void main() {
     
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
-        transparency = transparency * (albedo.x + albedo.y*10.4 + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER/2;
+        transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     }
     #endif
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
@@ -97,14 +97,14 @@ void main() {
         outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.2);
     }
     #endif
-    if (abs(EntityID-10006) < 0.5) {
-         vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-        storeWater = outputColor.rgb.rgb * (skyLight+0.1);
+    if (transparency<0.9) {
+        
+        storeWater = outputColor.rgb;
         
     } else {
         storeWater = vec3(0.0);
     }
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
-    outColor1 = vec4(storeWater, depth);
+    outColor1 = vec4(storeWater, transparency);
 
 }

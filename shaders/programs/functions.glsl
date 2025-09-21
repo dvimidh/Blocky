@@ -154,7 +154,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //block and sky lighting
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-    vec3 riseColor = vec3(1.2, 0.65, 0.5);
+    vec3 riseColor = vec3(1.6, 0.35, 0.3);
 	vec3 dayColor = vec3(1.0);
 	vec3 nightColor = vec3(0.2, 0.3, 0.3);
 	

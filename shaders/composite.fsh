@@ -83,7 +83,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
                            vec3(1.0,1.0, 1.0), // sun
                            pow(moonAmount,300.0)*0.7);
 	}
-	vec3 riseColorMore = vec3(0.8, 0.4, 0.2);
+	vec3 riseColorMore = vec3(1.0, 0.3, 0.1);
 
 	vec3 SunRiseColor = myFogColor;
 if ((col.r + col.g + col.b)/3 < 1.01) {
@@ -135,6 +135,7 @@ void main() {
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
 	vec3 colorCloud = texture2DLod(colortex6, texCoord, 0.0).rgb;
 	vec3 colorWater = texture2DLod(colortex7, texCoord, 0.0).rgb;
+	float transparency = texture2DLod(colortex7, texCoord, 0.0).a;
 	
 	#ifdef FXAA
 	color = FXAA311(color);	
@@ -212,7 +213,7 @@ void main() {
 					vec3 cameraToPointT = worldPosT - worldPos;
 					float myDistanceT = length(viewPosT) - length(viewPos);
 					cameraToPointT = normalize(cameraToPointT);
-					color.rgb = applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+					color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky), color.rgb, transparency);
 				}
 				else{
 					ifsky = false;
@@ -223,7 +224,7 @@ void main() {
 					vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 					vec3 cameraToPoint = dhworldPos - worldPos;
 					cameraToPoint = normalize(cameraToPoint);
-					color.rgb = applyFog(color.rgb, myDistanceD, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+					color.rgb = mix(applyFog(color.rgb, myDistanceD, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky), color.rgb, transparency);
 
 				}
 				#endif
@@ -274,7 +275,7 @@ if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) < 0.1) {
 
 float sunAmount = max( dot(cameraToPoint, sunDirectionEyePlayerPos), 0.0 );
 float moonAmount = max( dot(cameraToPoint, moonDirectionEyePlayerPos), 0.0 );
-vec3 riseColorMore = vec3(0.8, 0.4, 0.2);
+vec3 riseColorMore = vec3(1.0, 0.3, 0.1);
 myFogColor = fogColorCalc(sunAngle, rainStrength);
 	vec3 SunRiseColor = myFogColor;
 if ((color.r + color.g + color.b)/3 < 1.01) {
