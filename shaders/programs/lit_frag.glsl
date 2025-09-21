@@ -83,11 +83,35 @@ void main() {
     sunColor = sunColor*mix(0, 1, 100 * (1.0-sunAngle));
     }
     
+    
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     }
     #endif
+
+
+    if (abs(EntityID-10010) < 0.5) {
+    
+
+
+
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.4 && max(max(albedo.r, albedo.g), albedo.b) < 0.5) {
+       albedo.rgb = mix(albedo.rgb, albedo.rgb*2.0, (max(max(albedo.r, albedo.g), albedo.b)-0.4)*(1/0.1));
+    } else {
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.5) {
+       albedo.rgb = albedo.rgb*2.0;
+    }else {
+    
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.9) {
+       albedo.rgb = albedo.rgb*2.5;
+    }
+    }
+    }
+        
+}
+
+
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
     if (abs(EntityID-10005) < 0.5) {
     outputColor.rgb += vec3(2.0, 2.0, 2.0)*albedo*1.8 + 5.5*albedo.b;
@@ -105,6 +129,14 @@ void main() {
     } else {
         storeWater = vec3(0.0);
     }
+    if (abs(EntityID-10010) < 0.5) {
+        if ((outputColor.r + outputColor.g + outputColor.b) > 0.9) {
+       outputColor.rgb = outputColor.rgb*1.4;
+        }
+    }
+
+
+
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
     //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater, transparency);
