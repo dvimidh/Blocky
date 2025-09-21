@@ -35,6 +35,7 @@ in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
 in float EntityID;
+in float ao;
 vec3 sunColor = vec3(1);
 vec3 storeWater;
  vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
@@ -87,7 +88,7 @@ void main() {
         transparency = transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER;
     }
     #endif
-    vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency);
+    vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
     if (abs(EntityID-10005) < 0.5) {
     outputColor.rgb += vec3(2.0, 2.0, 2.0)*albedo*1.8 + 5.5*albedo.b;
     }
@@ -105,6 +106,7 @@ void main() {
         storeWater = vec3(0.0);
     }
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
+    //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater, transparency);
 
 }

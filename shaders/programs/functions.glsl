@@ -55,7 +55,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     
 }
 
-vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle, int worldTime, float transparency) {
+vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunAngle, int worldTime, float transparency, float ao) {
     //light direction
     
     //normal calc
@@ -216,6 +216,6 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdfv);
     
     #endif
-    return vec4(outputColor, transparency);
+    return vec4(outputColor*pow(ao, 2.0), transparency);
 
 }

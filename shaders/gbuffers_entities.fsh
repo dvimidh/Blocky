@@ -33,6 +33,7 @@ in vec2 lightMapCoords;
 in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
+in float ao;
 uniform vec4 entityColor;
 vec3 sunColor = vec3(1);
 /* DRAWBUFFERS:0 */
@@ -61,12 +62,12 @@ void main() {
     } else {
         sunColor = vec3(0.3, 0.3, 0.3);
     }
-    vec4 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime, transparency);
+    vec4 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime, transparency, ao);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
     transparency = outputColor.a;
     //outColor0 = gbufferModelViewInverse*tangent;
     //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
-    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency);
+    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency*ao);
 }

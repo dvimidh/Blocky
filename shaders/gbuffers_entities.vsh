@@ -26,7 +26,7 @@ out vec2 lightMapCoords;
 out vec3 viewSpacePosition;
 out vec3 geoNormal;
 out vec4 tangent;
-
+out float ao;
 
 void main() {
 
@@ -36,6 +36,7 @@ void main() {
 
     texCoord = vaUV0;
     foliageColor = vaColor.rgb;
+    ao = vaColor.a;
     lightMapCoords = vaUV2 * (1.0 / 256.0) + (1.0 / 32.0);
     vec4 viewSpacePositionVec4 = modelViewMatrix * vec4(vaPosition+chunkOffset,1);
     viewSpacePosition = viewSpacePositionVec4.xyz;

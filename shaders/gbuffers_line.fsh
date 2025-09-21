@@ -12,5 +12,5 @@ void main() {
 	vec4 color = tint;
 	if (color.a < alphaTestRef) discard;
 
-	colortex0Out = color;
+	//colortex0Out = color;
 }
