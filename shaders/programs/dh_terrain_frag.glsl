@@ -20,8 +20,14 @@ mat3 generateSimpleTBN(vec3 normal) {
     
     return mat3(tangent, bitangent, normal);
 }
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+	vec4 homPos = projectionMatrix * vec4(position, 1.0);
+	return homPos.xyz / homPos.w;
+}
+uniform float far;
 uniform sampler2D lightmap;
 uniform sampler2D depthtex0;
+uniform sampler2D dhDepthTex0;
 uniform sampler2D normals;
 uniform float viewHeight;
 uniform float viewWidth;
@@ -29,9 +35,11 @@ uniform float rainStrength;
 uniform vec3 fogColor;
 uniform float sunAngle;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 dhProjectionInverse;
 uniform vec3 cameraPosition;
 uniform vec3 shadowLightPosition;
 uniform sampler2D specular;
+
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 
@@ -121,8 +129,15 @@ void main() {
 
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
 
+
+	
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
+    vec3 dhviewPos = worldPos-cameraPosition;
+	float myDistance = length(dhviewPos);
+    if (myDistance < far+1) {
+        discard;
+    }
     vec3 viewDirection = normalize(cameraPosition - worldPos);
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
 	vec3 dayColor = vec3(1.0);
