@@ -1,8 +1,9 @@
-#version 460
+#version 460 compatibility
 
 #include "/programs/fogColorCalc.glsl"
 
-//uniforms
+//uniforms  
+uniform usampler3D cSampler1;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D normals;
@@ -94,7 +95,7 @@ void main() {
     if (abs(EntityID-10010) < 0.5) {
     
 
-
+/*
 
     if (max(max(albedo.r, albedo.g), albedo.b) > 0.4 && max(max(albedo.r, albedo.g), albedo.b) < 0.5) {
        albedo.rgb = mix(albedo.rgb, albedo.rgb*2.0, (max(max(albedo.r, albedo.g), albedo.b)-0.4)*(1/0.1));
@@ -108,7 +109,9 @@ void main() {
     }
     }
     }
-        
+    
+    */
+    albedo.rgb = albedo.rgb*3;
 }
 
 

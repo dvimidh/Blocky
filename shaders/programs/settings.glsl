@@ -23,6 +23,9 @@ const int colortex7Format = RGBA16F;
   const int shadowMapResolution       = 2048; // [1024 1536 2048 3072 4096 6144 8192 16384]
   const float shadowDistance = 256.0; //[32.0 64.0 96.0 128.0 192.0 256.0 384.0 512.0 768.0 1024.0]
   const bool shadowHardwareFiltering = true;
+  #define VOXEL_AREA 128; // [32 64 128 256]
+  #define VOXEL_RADIUS (VOXEL_AREA/2)
+  const float voxelDistance = VOXEL_AREA;
   #define FXAA_SUBPIXEL 0.50 //[0.00 0.25 0.50 0.75 1.00
   //#define SHADOW_FILTERING
   #define PIXEL_LOCKED_SHADOWS
