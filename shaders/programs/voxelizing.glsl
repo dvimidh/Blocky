@@ -43,11 +43,11 @@
 		voxel_data = vec4(at_midBlock.a);
 		
 		//pack data
-		uint integerValue = packUnorm4x8( voxel_data );
+		uvec4 integerValue = uvec4(voxel_data);
 		
 		//write to 3d image	 
 		//          //imageStore(  //imageAtomicMax(   are some options for writing, look up on khronos.org (opengl documentation)
-		imageAtomicMax(cimage1, voxel_pos, integerValue);	
+		//imageStore(cimage1, voxel_pos, integerValue);	
 			
 		
 		

@@ -1,5 +1,4 @@
 //#include "/programs/lit_frag.glsl"
-
 #version 460 compatibility
 
 #include "/programs/settings.glsl"

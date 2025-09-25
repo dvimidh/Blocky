@@ -1,9 +1,9 @@
 #version 460 compatibility
 
-layout (r32ui) uniform uimage3D cimage1;
+layout (rgba16f) uniform image3D cimage1;
 
 uniform sampler2D gtexture;
-in vec4 at_midBlock;
+attribute vec4 at_midBlock;
 uniform vec3 cameraPosition;
 uniform mat4 gbufferModelViewInverse;
 attribute vec4 mc_Entity;

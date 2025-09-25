@@ -1,4 +1,4 @@
-#version 460
+#version 460 compatibility
 
 
 
@@ -19,7 +19,7 @@ uniform mat3 normalMatrix;
 uniform vec3 chunkOffset;
 uniform vec3 cameraPosition;
 
-
+attribute vec4 at_midBlock;
 out vec2 texCoord;
 out vec3 foliageColor;
 out vec2 lightMapCoords;
@@ -27,8 +27,17 @@ out vec3 viewSpacePosition;
 out vec3 geoNormal;
 out vec4 tangent;
 out float ao;
-
+out vec3 block_centered_relative_pos;
 void main() {
+
+    vec3 view_pos = vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
+	vec3 foot_pos = (gbufferModelViewInverse * vec4( view_pos ,1.) ).xyz;
+	vec3 world_pos = foot_pos + cameraPosition;
+    
+	vec3 normals_face_world = normalize(gl_NormalMatrix * gl_Normal);
+	normals_face_world = (gbufferModelViewInverse * vec4( normals_face_world ,1.) ).xyz;
+	block_centered_relative_pos = foot_pos + at_midBlock.xyz/64.0 +fract(cameraPosition);
+
 
     tangent = vec4(normalize(normalMatrix * at_tangent.rgb), at_tangent.a);
 
