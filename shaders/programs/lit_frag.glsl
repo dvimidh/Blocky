@@ -37,6 +37,7 @@ in vec3 geoNormal;
 in vec4 tangent;
 in float EntityID;
 in float ao;
+flat in int lightLevel;
 vec3 sunColor = vec3(1);
 vec3 storeWater;
  vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
@@ -133,9 +134,16 @@ void main() {
         storeWater = vec3(0.0);
     }
     if (abs(EntityID-10010) < 0.5) {
-        
-       outputColor.rgb = outputColor.rgb*1.2;
-        
+float albedoMax = max(albedo.r, max(albedo.g, albedo.b));
+
+vec3 nomax = outputColor.rgb = outputColor.rgb * (0.7 + (abs(0.4 - pow(albedoMax, 0.5)))/4)*0.3;
+vec3 yesmax = outputColor.rgb * max((0.7 + (abs(0.4 - pow(max(albedo.r, max(albedo.g, albedo.b)), 0.5)))/2)*0.8, 1.0);
+
+        if (albedoMax > 0.8) {
+          outputColor.rgb = mix(nomax, yesmax, albedoMax*5 - 4);
+        }else {
+       outputColor.rgb = yesmax;
+        }
     }
 
 

@@ -10,6 +10,7 @@ in ivec2 vaUV2;
 in vec3 vaNormal;
 in vec4 at_tangent;
 in vec4 mc_Entity;
+in int at_midBlock;
 //uniforms
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -29,10 +30,11 @@ out vec3 geoNormal;
 out vec4 tangent;
 out float EntityID;
 out float ao;
+out int lightLevel;
 #include "/programs/wave.glsl"
 void main() {
 
-    
+    lightLevel = at_midBlock;
     EntityID = mc_Entity.x;
     texCoord = vaUV0;
     foliageColor = vaColor.rgb;
