@@ -139,13 +139,13 @@ float albedoMax = max(albedo.r, max(albedo.g, albedo.b));
 vec3 nomax = outputColor.rgb = outputColor.rgb * (0.7 + (abs(0.4 - pow(albedoMax, 0.5)))/4)*0.3;
 vec3 yesmax = outputColor.rgb * max((0.7 + (abs(0.4 - pow(max(albedo.r, max(albedo.g, albedo.b)), 0.5)))/2)*0.8, 1.0);
 
-        if (albedoMax > 0.8) {
-          outputColor.rgb = mix(nomax, yesmax, albedoMax*5 - 4);
+        if (albedoMax > 0.9) {
+          outputColor.rgb = mix(nomax, yesmax, albedoMax*10 - 9);
         }else {
        outputColor.rgb = yesmax;
         }
     }
-
+    outputColor.rgb = clamp(outputColor.rgb * (1.5-(lightLevel/10)), vec3(0.0), vec3(1.0));
 
 
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
