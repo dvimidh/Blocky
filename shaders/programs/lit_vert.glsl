@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 460
 
 
 
@@ -19,7 +19,7 @@ uniform mat3 normalMatrix;
 uniform int worldTime;
 uniform vec3 chunkOffset;
 uniform vec3 cameraPosition;
-attribute vec4 at_midBlock;
+
 
 out vec2 texCoord;
 out vec3 foliageColor;
@@ -29,17 +29,9 @@ out vec3 geoNormal;
 out vec4 tangent;
 out float EntityID;
 out float ao;
-out vec3 block_centered_relative_pos;
 #include "/programs/wave.glsl"
 void main() {
-    
-    vec3 view_pos = vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
-	vec3 foot_pos = (gbufferModelViewInverse * vec4( view_pos ,1.) ).xyz;
-	vec3 world_pos = foot_pos + cameraPosition;
-    
-	vec3 normals_face_world = normalize(gl_NormalMatrix * gl_Normal);
-	normals_face_world = (gbufferModelViewInverse * vec4( normals_face_world ,1.) ).xyz;
-	block_centered_relative_pos = foot_pos + at_midBlock.xyz/64.0 +fract(cameraPosition);
+
     
     EntityID = mc_Entity.x;
     texCoord = vaUV0;
@@ -67,7 +59,7 @@ void main() {
     
 
     
-    //gl_Position = projectionMatrix*viewSpacePositionVec4;
+    gl_Position = projectionMatrix*viewSpacePositionVec4;
     
 
 }

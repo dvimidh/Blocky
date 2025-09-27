@@ -124,9 +124,8 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     float distanceFromPlayerNDC = length(fragShadowNdcSpace.xy);
     vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / ((0.1+distanceFromPlayerNDC)), fragShadowNdcSpace.z);
     vec3 fragShadowScreenSpace = distortedShadowNdcSpace*0.5 + 0.5; 
-    
-    //ivec3 voxel_pos = ivec3(block_centered_relative_pos+voxelDistance/2);
-    //vec4 bytes = texture3D(cSampler1, vec3(voxel_pos)/vec3(voxelDistance));
+    ivec3 voxel_pos = ivec3(fragFeetPlayerSpace-normalWorldSpace*0.1+fract(cameraPosition)+voxelDistance/2);
+    vec4 bytes = unpackUnorm4x8(texture3D(cSampler1, vec3(voxel_pos)/vec3(voxelDistance)).r);
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
     vec3 reflectionDirection = reflect(-shadowLightDirection, normalWorldSpace);
@@ -218,12 +217,6 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     
     #endif
     //return vec4(outputColor*pow(ao, 2.0), transparency);
-
-    //if (clamp(voxel_pos,0,voxelDistance) == voxel_pos) {
-        //return vec4(bytes.rgb, transparency);
-    //} else {
-        return vec4(outputColor*pow(ao, 2.0), transparency);
-    //}
-
+return vec4(bytes.rgb, transparency);
 
 }

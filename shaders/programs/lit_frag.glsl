@@ -29,7 +29,6 @@ uniform float viewWidth;
 uniform float rainStrength;
 uniform int worldTime;
 //vertexToFragment
-in vec3 block_centered_relative_pos;
 in vec2 texCoord;
 in vec3 foliageColor;
 in vec2 lightMapCoords;
@@ -61,8 +60,8 @@ void main() {
     }
 
     
-    if (sunAngle < 0.5) {
-        if (sunAngle > 0.00 && sunAngle < 0.055) {
+    if (sunAngle < 0.5) {// || sunAngle > 0.98) {
+        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
             sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
         } else {
             sunColor = vec3(1.0, 0.5, 0.3);
@@ -96,7 +95,22 @@ void main() {
     if (abs(EntityID-10010) < 0.5) {
     
 
+/*
 
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.4 && max(max(albedo.r, albedo.g), albedo.b) < 0.5) {
+       albedo.rgb = mix(albedo.rgb, albedo.rgb*2.0, (max(max(albedo.r, albedo.g), albedo.b)-0.4)*(1/0.1));
+    } else {
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.5) {
+       albedo.rgb = albedo.rgb*2.0;
+    }else {
+    
+    if (max(max(albedo.r, albedo.g), albedo.b) > 0.9) {
+       albedo.rgb = albedo.rgb*2.5;
+    }
+    }
+    }
+    
+    */
     albedo.rgb = albedo.rgb*3;
 }
 
@@ -126,8 +140,8 @@ void main() {
 
 
 
-    //outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
-    outColor0 = vec4(1.0);
+    outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
+    //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater, transparency);
 
 }

@@ -1,6 +1,6 @@
-#version 460 compatibility
+#version 430
 
-layout (rgba16f) uniform image3D cimage1;
+layout (r32ui) uniform uimage3D cimage1;
 
 //attributes
 uniform sampler2D gtexture;
@@ -30,15 +30,8 @@ out vec3 geoNormal;
 out vec4 tangent;
 out float EntityID;
 out float ao;
-out vec3 block_centered_relative_pos;
 #include "/programs/wave.glsl"
 void main() {
-    vec3 view_pos = vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
-	vec3 foot_pos = (gbufferModelViewInverse * vec4( view_pos ,1.) ).xyz;
-	vec3 world_pos = foot_pos + cameraPosition;
-    
-	
-	block_centered_relative_pos = foot_pos + at_midBlock.xyz/64.0 +fract(cameraPosition);
 
     
     EntityID = mc_Entity.x;
@@ -67,11 +60,12 @@ void main() {
     
         
         
-	    
+	    vec3 foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition, 1.0) ).xyz;
+	    vec3 world_pos = foot_pos + cameraPosition;
 	
         #define VOXEL_AREA 128 //[32 64 128]
 
-        
+        vec3 block_centered_relative_pos = foot_pos + at_midBlock.xyz/64.0 +fract(cameraPosition);
 	    ivec3 voxel_pos = ivec3(block_centered_relative_pos + VOXEL_AREA/2);
 		//write voxel data
 		if(mod(gl_VertexID,4)==0  //only write for 1 vertex
@@ -84,17 +78,17 @@ void main() {
             //voxel_data = vec4(0.0, 0.0, 0.0, -1.0);
         }
         
-		if (abs(mc_Entity.x - 10010) < 0.5) {
-            voxel_data = vec4(0.0, 0.4, 1.0, 160.0);
-        }   
-		//voxel_data = vec4(0, 0.0001, 0, 0);
+		if (abs(mc_Entity.x - 10007) < 0.5) {
+            voxel_data = vec4(0.0, 0.4, 1.0, 160);
+        }
+		voxel_data = vec4(at_midBlock.a);
 		
-		
-		
+		//pack data
+		uint integerValue = packUnorm4x8( voxel_data );
 		
 		//write to 3d image	 
 		//          //imageStore(  //imageAtomicMax(   are some options for writing, look up on khronos.org (opengl documentation)
-		imageStore(cimage1, voxel_pos, voxel_data);	
+		imageAtomicMax(cimage1, voxel_pos, integerValue);	
 			
 		
 		

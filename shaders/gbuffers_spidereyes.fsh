@@ -27,7 +27,6 @@ uniform float viewHeight;
 uniform float viewWidth;
 uniform float rainStrength;
 //vertexToFragment
-in vec3 block_centered_relative_pos;
 in vec2 texCoord;
 in vec3 foliageColor;
 in vec2 lightMapCoords;
