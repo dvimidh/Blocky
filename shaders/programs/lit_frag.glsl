@@ -133,9 +133,9 @@ void main() {
         storeWater = vec3(0.0);
     }
     if (abs(EntityID-10010) < 0.5) {
-        if ((outputColor.r + outputColor.g + outputColor.b) > 0.9) {
-       outputColor.rgb = outputColor.rgb*1.4;
-        }
+        
+       outputColor.rgb = outputColor.rgb*1.2;
+        
     }
 
 
