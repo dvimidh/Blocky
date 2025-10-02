@@ -1,5 +1,5 @@
 //#include "/programs/lit_vert.glsl"
-#version 460 compatibility
+#version 430 compatibility
 
 out vec2 lmcoord;
 out vec4 glcolor;

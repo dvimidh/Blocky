@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 uniform vec3 cameraPosition;
 #include "/programs/wave.glsl"

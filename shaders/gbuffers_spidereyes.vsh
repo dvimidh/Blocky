@@ -1,4 +1,4 @@
-#version 460
+#version 430
 
 
 
@@ -27,7 +27,7 @@ out vec3 viewSpacePosition;
 out vec3 geoNormal;
 out vec4 tangent;
 out float ao;
-
+out vec3 foot_pos;
 void main() {
 
     tangent = vec4(normalize(normalMatrix * at_tangent.rgb), at_tangent.a);
@@ -40,6 +40,7 @@ void main() {
     lightMapCoords = vaUV2 * (1.0 / 256.0) + (1.0 / 32.0);
     vec4 viewSpacePositionVec4 = modelViewMatrix * vec4(vaPosition+chunkOffset,1);
     viewSpacePosition = viewSpacePositionVec4.xyz;
+    foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition ,1.) ).xyz;
     gl_Position = projectionMatrix*modelViewMatrix*vec4(vaPosition + chunkOffset, 1);
 
     

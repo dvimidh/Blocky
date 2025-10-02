@@ -1,9 +1,9 @@
-#version 460 compatibility
+#version 430 compatibility
 
 #include "/programs/fogColorCalc.glsl"
 
 //uniforms  
-uniform usampler3D cSampler1;
+uniform usampler3D cSampler2;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D normals;
@@ -37,7 +37,8 @@ in vec3 geoNormal;
 in vec4 tangent;
 in float EntityID;
 in float ao;
-flat in int lightLevel;
+in float lightLevel;
+in vec3 foot_pos;
 vec3 sunColor = vec3(1);
 vec3 storeWater;
  vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
@@ -145,10 +146,11 @@ vec3 yesmax = outputColor.rgb * max((0.7 + (abs(0.4 - pow(max(albedo.r, max(albe
        outputColor.rgb = yesmax;
         }
     }
-    outputColor.rgb = clamp(outputColor.rgb * (1.5-(lightLevel/10)), vec3(0.0), vec3(1.0));
+    outputColor.rgb = clamp(outputColor.rgb * (1.5-(15/10)), vec3(0.0), vec3(1.0));
 
-
+    outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
     outColor0 = vec4(pow(outputColor.rgb, vec3(1/2.2)), transparency);
+    
     //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater, transparency);
 

@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 /*
 layout (r32ui) uniform uimage3D cimage1;

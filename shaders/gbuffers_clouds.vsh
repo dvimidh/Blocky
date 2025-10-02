@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 
 varying vec2 texcoord;

@@ -3,7 +3,7 @@
 
 
 uniform mat4 gbufferModelView;
-in vec4 at_tangent;
+
 
 //functions
 mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
@@ -113,6 +113,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //space conversion
     vec3 fragFeetPlayerSpace = (gbufferModelViewInverse * vec4(viewSpacePosition, 1.0)).xyz;
     vec3 fragWorldSpace = fragFeetPlayerSpace + cameraPosition;
+    vec3 fragFeetPlayerSpaceBackup = fragFeetPlayerSpace;
     #ifdef PIXEL_LOCKED_SHADOWS
     fragWorldSpace = (floor(fragWorldSpace * 16.0 + 0.01) + 0.5) / 16.0;
     fragFeetPlayerSpace = fragWorldSpace - cameraPosition;
@@ -124,10 +125,8 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     float distanceFromPlayerNDC = length(fragShadowNdcSpace.xy);
     vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / ((0.1+distanceFromPlayerNDC)), fragShadowNdcSpace.z);
     vec3 fragShadowScreenSpace = distortedShadowNdcSpace*0.5 + 0.5; 
-    /*
-    ivec3 voxel_pos = ivec3(fragFeetPlayerSpace-normalWorldSpace*0.1+fract(cameraPosition)+voxelDistance/2);
-    vec4 bytes = unpackUnorm4x8(texture3D(cSampler1, vec3(voxel_pos)/vec3(voxelDistance)).r);
-    */
+    
+    
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
     vec3 reflectionDirection = reflect(-shadowLightDirection, normalWorldSpace);
     vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
@@ -179,9 +178,15 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 	}
 	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
 		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));
-	}
+	}   
+    //Voxel Data (I hope)
+    vec3 voxel_pos_unrounded = fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.1 + fract(cameraPosition) + VOXEL_AREA/2;
+    ivec3 voxel_pos = ivec3(fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.1 + fract(cameraPosition) + VOXEL_AREA/2);
+    //if(fract(voxel_pos_unrounded.x) < 0.05 || fract(voxel_pos_unrounded.x) > 0.95) {
+        //voxel_pos.x = /*int(voxel_pos.x - normalize(normalWorldSpace).x);*/ int(voxel_pos.x+1);
+    //}
+    vec4 bytes = unpackUnorm4x8(texture3D(cSampler2, vec3(voxel_pos)/vec3(VOXEL_AREA)).r);
     
-
     //ambient lighting
     vec3 ambientLightDirection = worldGeoNormal;
     vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
@@ -217,7 +222,11 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     outputColor = (albedo * ambientLight + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdfv);
     
     #endif
-    return vec4(outputColor*pow(ao, 2.0), transparency);
-//return vec4(bytes.rgb, transparency);
-
+    //return vec4(outputColor*pow(ao, 2.0), transparency);
+    if (clamp(voxel_pos, ivec3(0), ivec3(VOXEL_AREA)) == voxel_pos) {  
+        return vec4(bytes.rgb, transparency);
+    } else {
+        return vec4(outputColor*pow(ao, 2.0), transparency);
+    }
 }
+

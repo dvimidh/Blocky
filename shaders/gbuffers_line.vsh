@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 //all the messy code in this file is mostly a port of vanilla line rendering.
 

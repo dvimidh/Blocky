@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 #extension GL_ARB_explicit_attrib_location : enable
 
 uniform float alphaTestRef;

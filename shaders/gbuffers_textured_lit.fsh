@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;

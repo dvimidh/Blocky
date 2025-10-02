@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 430 compatibility
 
 #include "/programs/settings.glsl"
 in vec2 texCoord;
