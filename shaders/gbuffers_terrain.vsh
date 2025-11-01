@@ -59,7 +59,7 @@ void main() {
         
 	    vec3 view_pos = vec4(gl_ModelViewMatrix * gl_Vertex).xyz;
         foot_pos = (gbufferModelViewInverse * vec4( view_pos ,1.) ).xyz;
-      
+      /*
         
 
 	
@@ -92,7 +92,7 @@ void main() {
 		
 		
 	}
-			
+			*/
 			
     
     gl_Position = gl_ProjectionMatrix*viewSpacePositionVec4;

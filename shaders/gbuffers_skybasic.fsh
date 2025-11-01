@@ -6,13 +6,13 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
-
+uniform vec3 sunAngle;
 varying vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
 
 const float sunPathRotation = 0.0;
 
 float fogify(float x, float w) {
-	return w / (x * x + w);
+	return clamp(w / (x * x + w), 0.0, 1.0);
 }
 
 vec3 calcSkyColor(vec3 pos) {

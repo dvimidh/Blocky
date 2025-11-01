@@ -1,7 +1,8 @@
 #version 430 compatibility
 
-/*
+
 layout (r32ui) uniform uimage3D cimage1;
+layout (r32ui) uniform uimage3D cimage2;
 
 uniform sampler2D gtexture;
 attribute vec4 at_midBlock;
@@ -11,7 +12,7 @@ attribute vec4 mc_Entity;
 uniform float frameTimeCounter;
 uniform mat4 shadowModelViewInverse;
 uniform int entityId;
-*/
+uniform int renderStage;
 out vec2 lmcoord;
 out vec2 texCoord;
 out vec3 foliageColor;
@@ -30,6 +31,8 @@ void main() {
     gl_Position = ftransform();
 
     float distanceFromPlayer = length(gl_Position.xy);
+
+    #include "/programs/voxelizing.glsl"
 
     gl_Position.xy = gl_Position.xy / (0.1+distanceFromPlayer);
 

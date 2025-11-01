@@ -1,17 +1,18 @@
 #version 430
 
 
-
+#include "/programs/settings.glsl"
 
 //uniforms
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D normals;
-uniform sampler2D specular;
+uniform sampler2D specular; 
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
 uniform sampler2DShadow shadowtex0HW;
+uniform usampler3D cSampler1;
 uniform usampler3D cSampler2;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;
@@ -41,7 +42,7 @@ vec3 sunColor = vec3(1);
 layout(location = 0) out vec4 outColor0;
 #include "/programs/wave.glsl"
 #include "/programs/functions.glsl"
-
+#include "/programs/SunColorCalc.glsl"
 void main() {
 
     vec4 outputColorData = texture(gtexture,texCoord);
@@ -53,16 +54,7 @@ void main() {
     }
 
     
-    if (sunAngle < 0.5) {// || sunAngle > 0.98) {
-        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.2, 0.01), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
-        } else {
-            sunColor = vec3(1.0, 0.5, 0.3);
-        }
-        sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
-    } else {
-        sunColor = vec3(0.3, 0.3, 0.3);
-    }
+    sunColor = SunColor(sunAngle, rainStrength);
     vec4 outputColor = lightingCalculations(albedo, sunColor, -1.0, sunAngle, worldTime, transparency, ao);
 
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
