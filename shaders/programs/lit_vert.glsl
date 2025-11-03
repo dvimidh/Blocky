@@ -7,15 +7,12 @@ in vec4 at_tangent;
 in vec4 mc_Entity;
 in vec4 at_midBlock;
 //uniforms
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
 uniform mat3 normalMatrix;
 uniform int worldTime;
 uniform vec3 chunkOffset;
 uniform vec3 cameraPosition;
-
 
 out vec2 texCoord;
 out vec3 foliageColor;
@@ -27,6 +24,8 @@ out float EntityID;
 out float ao;
 out float lightLevel;
 out vec3 foot_pos;
+
+
 #include "/programs/wave.glsl"
 void main() {
 
@@ -36,11 +35,11 @@ void main() {
     foliageColor = gl_Color.rgb;
     ao = gl_Color.a;
     lightMapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    vec4 viewSpacePositionVec4 = modelViewMatrix * vec4(gl_ModelViewMatrix * gl_Vertex);;
+    vec4 viewSpacePositionVec4 = gl_ModelViewMatrix * gl_Vertex;
     viewSpacePosition = viewSpacePositionVec4.xyz;
     geoNormal = gl_NormalMatrix * gl_Normal;
     tangent = vec4(normalize(normalMatrix * at_tangent.rgb), at_tangent.a);
-    foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition ,1.) ).xyz;
+    foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition, 1.) ).xyz;
 
     if(abs(mc_Entity.x-10001) < 0.5) {
         vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
@@ -59,7 +58,7 @@ void main() {
     
 
     
-    gl_Position = projectionMatrix*viewSpacePositionVec4;
+    gl_Position = gl_ProjectionMatrix*viewSpacePositionVec4;
     
 
 }

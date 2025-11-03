@@ -60,7 +60,7 @@ void main() {
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     #ifndef WATER_TEXTURE
     if (abs(EntityID-10006) < 0.5) {
-        albedo = foliageColor/2 - 0.05;
+        albedo = foliageColor/4.4 + vec3(0.1, 0.0, 0.1);
     }
     #endif
     float transparency = outputColorData.a;

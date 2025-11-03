@@ -36,6 +36,7 @@ in vec3 geoNormal;
 in vec4 tangent;
 in float ao;
 in vec3 foot_pos;
+in float EntityID;
 uniform vec4 entityColor;
 vec3 sunColor = vec3(1);
 /* DRAWBUFFERS:0 */

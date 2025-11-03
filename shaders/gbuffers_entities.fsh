@@ -1,4 +1,4 @@
-#version 430
+#version 430 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -11,6 +11,7 @@ uniform sampler2D specular;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+uniform sampler2D depthtex0;
 uniform sampler2DShadow shadowtex0HW;
 uniform usampler3D cSampler1;
 uniform usampler3D cSampler2;
@@ -18,6 +19,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
+uniform mat4 gbufferProjectionInverse;
 uniform int worldTime;
 uniform float far;
 uniform float dhNearPlane;
@@ -35,6 +37,7 @@ in vec3 viewSpacePosition;
 in vec3 geoNormal;
 in vec4 tangent;
 in float ao;
+in float EntityID;
 uniform vec4 entityColor;
 in vec3 foot_pos;
 vec3 sunColor = vec3(1);
@@ -60,7 +63,5 @@ void main() {
     float distanceFromCamera = distance(viewSpacePosition, vec3(0));
     float dhBlend = smoothstep(far-.5*far, far, distanceFromCamera);
     transparency = outputColor.a;
-    //outColor0 = gbufferModelViewInverse*tangent;
-    //outColor0 = gbufferModelViewInverse*vec4(geoNormal, 1.0);
-    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency*ao);
+    outColor0 =vec4(pow(outputColor.rgb,vec3(1/2.2)), transparency);
 }

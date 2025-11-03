@@ -51,6 +51,57 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
    
     vec3 diffFunction = BRDF;
     
+        
+
+    return BRDF;
+    
+}
+
+vec3 brdfg(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
+    //for ease of use
+    float alpha = pow(roughness,2);
+
+    vec3 H = normalize(lightDir + viewDir);
+    
+
+    //dot products
+    float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
+    float NdotL = clamp(dot(normal, lightDir), 0.001,1.0);
+    if (abs(EntityID - 10008) < 0.5) {
+        NdotL = clamp(NdotL, 0.6,1.0);
+    }
+    float NdotH = clamp(dot(normal,H), 0.001,1.0);
+    float VdotH = clamp(dot(viewDir, H), 0.001,1.0);
+
+    // Fresnel
+    vec3 F0 = reflectance;
+    vec3 fresnelReflectance = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0); //Schlick's Approximation
+
+    //phong diffuse
+    vec3 rhoD = albedo;
+    //rhoD *= (vec3(1.0)- fresnelReflectance); //energy conservation - light that doesn't reflect adds to diffuse
+
+    //rhoD *= (1-metallic); //diffuse is 0 for metals
+
+    // Geometric attenuation
+    float k = alpha/2;
+    float geometry = (NdotL / (NdotL*(1.0-k)+k)) * (NdotV / ((NdotV*(1.0-k)+k)));
+
+    // Distribution of Microfacets
+    float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
+    float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159 * pow(lowerTerm,2.0));
+
+    
+
+    vec3 phongDiffuse = rhoD; //
+    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4*NdotL*NdotV);
+    
+    vec3 BRDF = (phongDiffuse+cookTorrance)*NdotL;
+   
+    vec3 diffFunction = BRDF;
+    
+        
+
     return BRDF;
     
 }
@@ -132,13 +183,16 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
     vec3 reflectionDirection = reflect(-shadowLightDirection, normalWorldSpace);
     vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
-
+   
+    
     //shadow
     float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0HW, fragShadowScreenSpace.xyz).r);
     float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture(shadowtex1, fragShadowScreenSpace.xy).r);
     vec3 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy).rgb;
 
     vec3 shadowMultiplier = vec3(1.0);
+
+   
 
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
@@ -152,6 +206,10 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
             shadowMultiplier = shadowColor;
         }
 
+    }
+
+    if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.005) {
+        shadowMultiplier = vec3(1.0);
     }
     //block and sky lighting
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
@@ -193,13 +251,17 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //ambient lighting
     vec3 ambientLightDirection = vec3(0.0, 1.0, 0.0);
     vec3 ambientLight;
-    vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
-    
-    if (abs(EntityID-10008) < 0.5) {
-    ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.9, 1.0);
+    vec3 brdfv;
+    if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.5) {
+        brdfv = brdfg(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
     } else {
-    ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.7, 1.0);
+        brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
     }
+    
+   
+    
+    ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.7, 1.0);
+    
     vec3 outputColor =vec3(0);
 
     #if WATER_STYLE == 1
@@ -221,7 +283,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      }
      //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
 
-     outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.4)*brdfv*pow(ao, 4.0));
+     outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*mix(sunColor, vec3(1), 0.4)*brdfv*pow(ao, 2.0));
     } else{
         outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*skyLight*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
     }
@@ -235,7 +297,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //if (clamp(voxel_pos, ivec3(0), ivec3(VOXEL_AREA)) == voxel_pos) {  
     //    return vec4(bytes.rgb, transparency);
     //} else {
-        return vec4(outputColor, transparency);
+        return vec4(vec3(outputColor), transparency);
     //}
 }
 
