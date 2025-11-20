@@ -26,7 +26,7 @@ out float lightLevel;
 out vec3 foot_pos;
 
 
-#include "/programs/wave.glsl"
+#include "/programs/include/wave.glsl"
 void main() {
 
     lightLevel = at_midBlock.a;

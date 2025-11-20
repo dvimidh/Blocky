@@ -1,7 +1,7 @@
 #version 430 compatibility
 
 uniform vec3 cameraPosition;
-#include "/programs/wave.glsl"
+#include "/programs/include/wave.glsl"
 #include "/programs/settings.glsl"
 vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
     //for ease of use

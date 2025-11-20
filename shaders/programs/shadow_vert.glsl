@@ -16,11 +16,11 @@ uniform int renderStage;
 out vec2 lmcoord;
 out vec2 texCoord;
 out vec3 foliageColor;
-
+out vec4 mc_EntityOut;
 
 void main() {
 
-    
+    mc_EntityOut = mc_Entity;
     
     texCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
@@ -32,7 +32,7 @@ void main() {
 
     float distanceFromPlayer = length(gl_Position.xy);
 
-    #include "/programs/voxelizing.glsl"
+    #include "/programs/include/voxelizing.glsl"
 
     gl_Position.xy = gl_Position.xy / (0.1+distanceFromPlayer);
 

@@ -41,9 +41,9 @@ uniform vec4 entityColor;
 vec3 sunColor = vec3(1);
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
-#include "/programs/wave.glsl"
-#include "/programs/functions.glsl"
-#include "/programs/SunColorCalc.glsl"
+#include "/programs/include/wave.glsl"
+#include "/programs/include/functions.glsl"
+#include "/programs/include/SunColorCalc.glsl"
 void main() {
 
     vec4 outputColorData = texture(gtexture,texCoord);

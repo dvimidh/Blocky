@@ -296,7 +296,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     #endif
     //return vec4(outputColor*pow(ao, 2.0), transparency);
     //if (clamp(voxel_pos, ivec3(0), ivec3(VOXEL_AREA)) == voxel_pos) {  
-    //    return vec4(bytes.rgb, transparency);
+      //  return vec4(bytes.rgb, transparency);
     //} else {
         return vec4(vec3(outputColor), transparency);
     //}

@@ -37,7 +37,7 @@
 	) //for one vertex per face, write if in range
 	
     {
-		vec4 voxel_data = vec4(0.0, 0.0, 0.0, 0.0);
+		vec4 voxel_data = vec4(0.1, 0.0, 0.0, 0.0);
         
         //voxel_data = vec4(at_midBlock.a);
 

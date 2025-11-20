@@ -2,8 +2,11 @@ screen.LIGHTING = Lighting
 screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
 screen.WATER = Water
+screen.COLOR = Color
+screen.SUNLIGHTCOLOR = Sunlight Color
+screen.SKYLIGHTCOLOR = SkylightColor
 
-option.INFO = Blocky v0.5
+option.INFO = Blocky v0.5.4
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -62,3 +65,27 @@ option.BLOOM_STRENGTH.comment = Adjusts the intensity bloom
 
 option.BLOOM_SPREAD = Bloom Radius
 option.BLOOM_SPREAD.comment = Adjusts how far the bloom spreads
+
+option.SUNRISECOLR = Sunrise Red
+option.SUNRISECOLG = Sunrise Green
+option.SUNRISECOLB = Sunrise Blue
+
+option.SUNDAYCOLR = Day Red
+option.SUNDAYCOLG = Day Green
+option.SUNDAYCOLB = Day Blue
+
+option.AMBNIGHTCOLR = Night Red
+option.AMBNIGHTCOLG = Night Green
+option.AMBNIGHTCOLB = Night Blue
+
+option.AMBRISECOLR = Sunrise Red
+option.AMBRISECOLG = Sunrise Green
+option.AMBRISECOLB = Sunrise Blue
+
+option.AMBDAYCOLR = Day Red
+option.AMBDAYCOLG = Day Green
+option.AMBDAYCOLB = Day Blue
+
+option.AMBNIGHTCOLR = Night Red
+option.AMBNIGHTCOLG = Night Green
+option.AMBNIGHTCOLB = Night Blue

@@ -27,7 +27,7 @@ out float EntityID;
 out float ao;
 out vec3 foot_pos;
 out float lightLevel;
-#include "/programs/wave.glsl"
+#include "/programs/include/wave.glsl"
 void main() {
     lightLevel = at_midBlock.a;
     

@@ -1,7 +1,7 @@
 #version 430 compatibility
 
 #include "/programs/settings.glsl"
-#include "/programs/fogColorCalc.glsl"
+#include "/programs/include/fogColorCalc.glsl"
 in vec2 texCoord;
 in vec3 viewSpacePosition;
 uniform float frameTimeCounter;
@@ -128,7 +128,7 @@ if ((col.r + col.g + col.b)/3 < 1.01) {
 		return mix( col, myFogColor, clamp(fogAmount, 0.0, 1.0));
 	}
 }
-#include "/programs/fxaa.glsl"
+#include "/programs/include/fxaa.glsl"
 
 void main() {
 	myFogColor = fogColorCalc(sunAngle, rainStrength);
