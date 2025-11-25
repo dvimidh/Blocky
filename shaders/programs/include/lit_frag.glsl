@@ -20,6 +20,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 modelViewMatrixInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
+uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform float far;
 uniform float dhNearPlane;

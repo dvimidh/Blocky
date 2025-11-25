@@ -27,6 +27,8 @@ uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 uniform float rainStrength;
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferProjection;
 //vertexToFragment
 in vec2 texCoord;
 in vec3 foliageColor;
@@ -39,6 +41,11 @@ in vec3 foot_pos;
 in float EntityID;
 uniform vec4 entityColor;
 vec3 sunColor = vec3(1);
+
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+   vec4 homPos = projectionMatrix * vec4(position, 1.0);
+   return homPos.xyz / homPos.w;
+}
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;
 #include "/programs/include/wave.glsl"

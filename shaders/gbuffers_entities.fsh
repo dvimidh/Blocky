@@ -20,6 +20,7 @@ uniform mat4 modelViewMatrixInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferProjection;
 uniform int worldTime;
 uniform float far;
 uniform float dhNearPlane;
@@ -29,6 +30,12 @@ uniform float sunAngle;
 uniform float viewHeight;
 uniform float viewWidth;
 uniform float rainStrength;
+
+ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+    vec4 homPos = projectionMatrix * vec4(position, 1.0);
+    return homPos.xyz / homPos.w;
+}
+
 //vertexToFragment
 in vec2 texCoord;
 in vec3 foliageColor;

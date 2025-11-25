@@ -1,12 +1,13 @@
 screen.LIGHTING = Lighting
 screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
+screen.FOGCOLOR = Fog Color
 screen.WATER = Water
 screen.COLOR = Color
 screen.SUNLIGHTCOLOR = Sunlight Color
 screen.SKYLIGHTCOLOR = SkylightColor
 
-option.INFO = Blocky v0.5.4
+option.INFO = Blocky v0.5.4.1
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -74,9 +75,9 @@ option.SUNDAYCOLR = Day Red
 option.SUNDAYCOLG = Day Green
 option.SUNDAYCOLB = Day Blue
 
-option.AMBNIGHTCOLR = Night Red
-option.AMBNIGHTCOLG = Night Green
-option.AMBNIGHTCOLB = Night Blue
+option.SUNNIGHTCOLR = Night Red
+option.SUNDAYCOLBNIGHTCOLG = Night Green
+option.SUNNIGHTCOLB = Night Blue
 
 option.AMBRISECOLR = Sunrise Red
 option.AMBRISECOLG = Sunrise Green
@@ -89,3 +90,15 @@ option.AMBDAYCOLB = Day Blue
 option.AMBNIGHTCOLR = Night Red
 option.AMBNIGHTCOLG = Night Green
 option.AMBNIGHTCOLB = Night Blue
+
+option.FOGRISECOLR = Sunrise Red
+option.FOGRISECOLG = Sunrise Green
+option.FOGRISECOLB = Sunrise Blue
+
+option.FOGDAYCOLR = Day Red
+option.FOGDAYCOLG = Day Green
+option.FOGDAYCOLB = Day Blue
+
+option.FOGNIGHTCOLR = Night Red
+option.FOGNIGHTCOLG = Night Green
+option.FOGNIGHTCOLB = Night Blue

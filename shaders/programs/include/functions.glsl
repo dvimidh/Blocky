@@ -136,7 +136,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
     mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
-    vec3 normalWorldSpace = TBN * normalNormalSpace;
+    vec3 normalWorldSpace = worldGeoNormal;
     //mat data
     vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
@@ -168,8 +168,10 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     #ifdef PIXEL_LOCKED_SHADOWS
     vec3 fragWorldUnrounded = fragWorldSpace;
     fragWorldSpace = (floor(fragWorldSpace * 16.0 + 0.01) + 0.5) / 16.0;
-    fragFeetPlayerSpace = fragWorldSpace - cameraPosition;
+    fragFeetPlayerSpace = fragWorldSpace - cameraPosition;    
+
     
+
     #endif
     vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.06*worldGeoNormal;
     vec3 fragShadowViewSpace = (shadowModelView * vec4(adjustedFragFeetPlayerSpace, 1.0)).xyz;
