@@ -1,11 +1,9 @@
-#version 430 
+#version 430 compatibility
 
 
 
 //attributes
-in vec3 vaPosition; 
-in vec2 vaUV0;
-in vec4 vaColor;
+
 
 
 //uniforms
@@ -19,18 +17,15 @@ uniform vec3 cameraPosition;
 
 out vec2 texCoord;
 out vec3 foliageColor;
-
+out vec3 viewpos;
 
 void main() {
 
+    viewpos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+    texCoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    foliageColor = gl_Color.rgb;
 
-
-    texCoord = vaUV0;
-    foliageColor = vaColor.rgb;
-
-    vec4 viewSpacePositionVec4 = modelViewMatrix * vec4(vaPosition+chunkOffset,1);
-
-    gl_Position = projectionMatrix*modelViewMatrix*vec4(vaPosition + chunkOffset, 1);
+    gl_Position = ftransform();
 
     
 

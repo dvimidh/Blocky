@@ -136,7 +136,10 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
     mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
-    vec3 normalWorldSpace = worldGeoNormal;
+    vec3 normalWorldSpace = TBN * normalNormalSpace;
+    if (normalWorldSpace.r <= 0.5 && normalWorldSpace.g <= 0.5 && normalWorldSpace.b <= 0.5) {
+        //normalWorldSpace = worldGeoNormal;
+    }
     //mat data
     vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
@@ -300,7 +303,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //if (clamp(voxel_pos, ivec3(0), ivec3(VOXEL_AREA)) == voxel_pos) {  
       //  return vec4(bytes.rgb, transparency);
     //} else {
-        return vec4(vec3(outputColor), transparency);
+        return vec4(outputColor, transparency);
     //}
 }
 

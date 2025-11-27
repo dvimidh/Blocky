@@ -38,7 +38,8 @@ void main() {
     vec4 viewSpacePositionVec4 = gl_ModelViewMatrix * gl_Vertex;
     viewSpacePosition = viewSpacePositionVec4.xyz;
     geoNormal = gl_NormalMatrix * gl_Normal;
-    tangent = vec4(normalize(normalMatrix * at_tangent.rgb), at_tangent.a);
+	tangent  = vec4(normalize(gl_NormalMatrix * at_tangent.xyz), at_tangent.w);
+	
     foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition, 1.) ).xyz;
 
     if(abs(mc_Entity.x-10001) < 0.5) {
