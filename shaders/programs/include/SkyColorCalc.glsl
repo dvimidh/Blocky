@@ -3,7 +3,7 @@ float fogify(float x, float w) {
 }
 
 vec3 calcSkyColor(vec3 pos, vec3 myFogColor, float sunAngle) {
-
+pos = normalize(pos);
 
 
 float sunAmount = dot(normalize(pos), normalize(sunPosition));
@@ -31,7 +31,7 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 
 
 	float upDot = dot(normalize(pos), gbufferModelView[1].xyz); //not much, what's up with you?
-	vec3 baseSkyColor = mix(skyColor, myFogColor, clamp(fogify(max(upDot, 0.0), 0.1)+pow(max(sunAmount, 0.0), 2.0)*0.5, 0.0, 1.0));
-	baseSkyColor = mix(baseSkyColor, vec3(1.0, 0.65, 0.3), clamp(pow(max(sunAmount, 0.0), 75.0), 0.0, 0.4)*max(upDot, 0.0));
+	vec3 baseSkyColor = mix(skyColor, myFogColor, clamp(fogify(max(upDot, 0.0), 0.3)+pow(max(sunAmount, 0.0), 2.0)*0.5, 0.0, 1.0));
+	baseSkyColor = mix(baseSkyColor, vec3(1.0, 0.65, 0.3), clamp(pow(max(sunAmount, 0.0), 75.0), 0.0, 0.4*(1-rainStrength))*max(pow(upDot, 0.4), 0.0));
 	return baseSkyColor;
 }

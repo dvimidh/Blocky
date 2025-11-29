@@ -7,14 +7,14 @@ vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
 // Timothy Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
 // https://gpuopen.com/wp-content/uploads/2016/03/GdcVdrLottes.pdf
 vec3 tonemap_lottes(vec3 rgb) {
-	const vec3 a      = vec3(1.5); // Contrast
-	const vec3 d      = vec3(0.91); // Shoulder contrast
-	const vec3 hdr_max = vec3(1.2);  // White point
-	const vec3 mid_in  = vec3(0.2); // Fixed midpoint x
-	const vec3 mid_out = vec3(0.22); // Fixed midput y
+	const vec3 a      = vec3(0.97); // Constrast
+	const vec3 d      = vec3(2); // Shoulder contrast
+	const vec3 hdr_max = vec3(100.6);  // White point
+	const vec3 mid_in  = vec3(0.4); // Fixed midpoint x		
+	const vec3 mid_out = vec3(0.42); // Fixed midput y
 
 	const vec3 b =
-		(-pow(mid_in, a) + pow(hdr_max, a) * mid_out) /
+		(-pow(mid_in, a) + pow(hdr_max, a) * mid_out) /	
 		((pow(hdr_max, a * d) - pow(mid_in, a * d)) * mid_out);
 	const vec3 c =
 		(pow(hdr_max, a * d) * pow(mid_in, a) - pow(hdr_max, a) * pow(mid_in, a * d) * mid_out) /
@@ -24,7 +24,7 @@ vec3 tonemap_lottes(vec3 rgb) {
 }
 
 void main() {
-    color = mix(tonemap_lottes(color), color, 1.0);
+    color = mix(tonemap_lottes(color), color, 0.0); 
     /*DRAWBUFFERS:0 */
     //color = color / (color+vec3(1.0));
     //color = vec3(1.0) - exp(-color * exposure);

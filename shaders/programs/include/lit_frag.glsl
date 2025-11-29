@@ -85,7 +85,7 @@ void main() {
     if (abs(EntityID-10010) < 0.5) {    
     
     //albedo.rgb *= 0.2*(7 - (mix(max(albedo.r, max(albedo.g, albedo.b))*1.5, (albedo.r + albedo.g + albedo.b)/2.0, 0.5)));
-    emmissive = albedo * 2*(max(albedo.r, max(albedo.g, albedo.b)) - (albedo.r + albedo.g + albedo.b)/4);
+    emmissive = albedo * 2.0*(max(albedo.r, max(albedo.g, albedo.b)) - (albedo.r + albedo.g + albedo.b)/4);
 
     }
 

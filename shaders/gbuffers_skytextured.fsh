@@ -28,8 +28,9 @@ void main() {
     if(outputColorData.a < 0.1) {
         discard;
     }
-    transparency = transparency*clamp(mix(0.0, 1.0, upDot+0.15), 0.0, 1.0);
+    transparency = transparency*clamp(mix(0.0, 1.0, clamp(upDot+0.15, 0.0, 1.0)), 0.0, 1.0);
     //output color
 
     outColor0 =vec4(pow(albedo*1.6, vec3(1/2.2)), transparency);
 }
+    

@@ -3,16 +3,31 @@
 #include "/programs/settings.glsl"
 
 in vec2 texCoord;
-uniform sampler2D colortex0; // original scene color
-uniform sampler2D colortex1; // blurred bloom
-
-
+uniform sampler2D colortex3;
+uniform float viewWidth;
+uniform float viewHeight;
+vec2 srcResolution = vec2(viewWidth, viewHeight);
+float filterRadius = BLOOM_SPREAD/srcResolution.x;
 void main() {
-    vec3 color = texture(colortex0, texCoord).rgb;
-    vec3 blurred = texture(colortex1, texCoord).rgb;
-    vec3 bloom = max(blurred - color, 0.0);
-    vec3 finalColor = color + clamp(bloom * BLOOM_STRENGTH, 0.0, 1.0);
+    float x = filterRadius;
+    float y = filterRadius;
 
-    /*DRAWBUFFERS:0 */
-    gl_FragData[0] = vec4(finalColor, 1.0);
+    // 3x3 tent filter
+    vec3 a = texture(colortex3, texCoord + vec2(-x,  y)).rgb;
+    vec3 b = texture(colortex3, texCoord + vec2( 0,  y)).rgb;
+    vec3 c = texture(colortex3, texCoord + vec2( x,  y)).rgb;
+    vec3 d = texture(colortex3, texCoord + vec2(-x,  0)).rgb;
+    vec3 e = texture(colortex3, texCoord).rgb;
+    vec3 f = texture(colortex3, texCoord + vec2( x,  0)).rgb;
+    vec3 g = texture(colortex3, texCoord + vec2(-x, -y)).rgb;
+    vec3 h = texture(colortex3, texCoord + vec2( 0, -y)).rgb;
+    vec3 i = texture(colortex3, texCoord + vec2( x, -y)).rgb;
+
+    vec3 upsample = e * 4.0;
+    upsample += (b + d + f + h) * 2.0;
+    upsample += (a + c + g + i);
+    upsample *= 1.0 / 16.0;
+
+    /*DRAWBUFFERS:2 */
+    gl_FragData[0] = vec4(upsample, 1.0);
 }

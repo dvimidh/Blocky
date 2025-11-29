@@ -164,13 +164,9 @@ void main() {
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	if ((color.r + color.g + color.b)/3 > 1.05) {
-	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.4,1.4,1.4), // sun
-                           pow(sunAmount,40.0));
-						   color = myFogColor;
+		myFogColor  = mix(myFogColor, vec3(1.9,1.9,1.9), clamp(pow(sunAmount,40.0), 0.0, 1.0));
+		color = myFogColor;
 	}
-	
-	
 	}
 	else{
 		ifsky = false;
@@ -292,8 +288,8 @@ void main() {
 
 	if ((color.r + color.g + color.b)/3 > 1.05) {
 	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.4,1.4,1.4), // sun
-                           pow(sunAmount,40.0));
+                           vec3(1.9,1.9,1.9), // sun
+                           clamp(pow(sunAmount,40.0), 0.0, 1.0));
 						   color = myFogColor;
 	}
 	
@@ -301,7 +297,8 @@ void main() {
 	}
 
 #ifdef CHUNK_FADE
-if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) < 0.01) {
+if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) == 0.0) {
+	
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
@@ -316,7 +313,8 @@ vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 
 
 float fogFactor = clamp(exp(-5.0 * (1.0 - myDistance / far)), 0.0, 1.0);
-
+myFogColor = fogColorCalc(sunAngle, rainStrength);
+	myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
 if (isEyeInWater == 0) {
 color.rgb = mix(color.rgb, myFogColor, fogFactor);
 if (depth < depthT-0.01) {
