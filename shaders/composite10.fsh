@@ -2,32 +2,42 @@
 
 #include "/programs/settings.glsl"
 
-in vec2 texCoord;
-uniform sampler2D colortex2;
+// ...existing code...
+
+in vec2 texCoord; // full-res input
+uniform sampler2D colortex4;
+float offset = BLOOM_SPREAD;        // offset multiplier (like your 'offset' uniform)
 uniform float viewWidth;
 uniform float viewHeight;
-vec2 srcResolution = vec2(viewWidth, viewHeight);
-float filterRadius = BLOOM_SPREAD/srcResolution.x;
 
 void main() {
-    float x = filterRadius;
-    float y = filterRadius;
 
-    // 3x3 tent filter
-    vec3 a = texture(colortex2, texCoord + vec2(-x,  y)).rgb;
-    vec3 b = texture(colortex2, texCoord + vec2( 0,  y)).rgb;
-    vec3 c = texture(colortex2, texCoord + vec2( x,  y)).rgb;
-    vec3 d = texture(colortex2, texCoord + vec2(-x,  0)).rgb;
-    vec3 e = texture(colortex2, texCoord).rgb;
-    vec3 f = texture(colortex2, texCoord + vec2( x,  0)).rgb;
-    vec3 g = texture(colortex2, texCoord + vec2(-x, -y)).rgb;
-    vec3 h = texture(colortex2, texCoord + vec2( 0, -y)).rgb;
-    vec3 i = texture(colortex2, texCoord + vec2( x, -y)).rgb;
 
-    vec3 upsample = e * 4.0;
-    upsample += (b + d + f + h) * 2.0;
-    upsample += (a + c + g + i);
-    upsample *= 1.0 / 16.0;
-    /*DRAWBUFFERS:1 */
-    gl_FragData[0] = vec4(upsample, 1.0);
+    // reciprocal pixel size
+    vec2 frameSizeRCP = vec2(1.0 / viewWidth, 1.0 / viewHeight);
+
+    // half-pixel and scaled offset
+    vec2 halfpixel = frameSizeRCP * 0.5;
+    vec2 o = halfpixel * offset;
+
+    // Dual-Kawase style: center weighted x4 + 4 diagonal samples
+    vec3 col = vec3(0.0);
+    col += texture(colortex4, texCoord + vec2(-o.x * 2.0, 0.0)).rgb; // bottom-left
+    col += texture(colortex4, texCoord + vec2( o.x * 2.0, 0.0)).rgb; // bottom-right
+    col += texture(colortex4, texCoord + vec2(0.0, -o.y * 2.0)).rgb; // top-left
+    col += texture(colortex4, texCoord + vec2(0.0,  o.y * 2.0)).rgb; // top-right
+
+    	/* Sample 4 diagonal corners with 2x weight each */
+	col += (texture(colortex4, texCoord + vec2(-o.x,  o.y)) * 2.0).rgb; /* top-left */
+	col += (texture(colortex4, texCoord + vec2( o.x,  o.y)) * 2.0).rgb; /* top-right */
+	col += (texture(colortex4, texCoord + vec2(-o.x, -o.y)) * 2.0).rgb; /* bottom-left */
+	col += (texture(colortex4, texCoord + vec2( o.x, -o.y)) * 2.0).rgb; /* bottom-right */
+    // normalize and apply strength
+    vec3 outCol = (col / 12.0);
+
+    /*DRAWBUFFERS:3 */
+    
+	gl_FragData[0] = vec4(outCol, 1.0);
+
 }
+

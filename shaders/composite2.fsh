@@ -2,37 +2,37 @@
 
 #include "/programs/settings.glsl"
 
-in vec2 texCoord;
+// ...existing code...
+
+in vec2 texCoord; // full-res input
 uniform sampler2D colortex2;
+float offset = BLOOM_SPREAD;        // offset multiplier (like your 'offset' uniform)
 uniform float viewWidth;
 uniform float viewHeight;
-vec2 srcResolution = vec2(viewWidth, viewHeight);
+
 void main() {
-vec2 srcTexelSize = 1.0 / srcResolution;
-    float x = srcTexelSize.x;
-    float y = srcTexelSize.y;
-
-    // 13-tap kernel
-    vec3 a = texture(colortex2, texCoord + vec2(-2*x,  2*y)).rgb;
-    vec3 b = texture(colortex2, texCoord + vec2(   0,  2*y)).rgb;
-    vec3 c = texture(colortex2, texCoord + vec2( 2*x,  2*y)).rgb;
-    vec3 d = texture(colortex2, texCoord + vec2(-2*x,    0)).rgb;
-    vec3 e = texture(colortex2, texCoord).rgb;
-    vec3 f = texture(colortex2, texCoord + vec2( 2*x,    0)).rgb;
-    vec3 g = texture(colortex2, texCoord + vec2(-2*x, -2*y)).rgb;
-    vec3 h = texture(colortex2, texCoord + vec2(   0, -2*y)).rgb;
-    vec3 i = texture(colortex2, texCoord + vec2( 2*x, -2*y)).rgb;
-    vec3 j = texture(colortex2, texCoord + vec2(-x, y)).rgb;
-    vec3 k = texture(colortex2, texCoord + vec2( x, y)).rgb;
-    vec3 l = texture(colortex2, texCoord + vec2(-x, -y)).rgb;
-    vec3 m = texture(colortex2, texCoord + vec2( x, -y)).rgb;
-
-    vec3 downsample = e * 0.125;
-    downsample += (a + c + g + i) * 0.03125;
-    downsample += (b + d + f + h) * 0.0625;
-    downsample += (j + k + l + m) * 0.125;
 
 
-	/*DRAWBUFFERS:3 */
-	gl_FragData[0] = vec4(downsample, 1.0);
+    // reciprocal pixel size
+    vec2 frameSizeRCP = vec2(1.0 / viewWidth, 1.0 / viewHeight);
+
+    // half-pixel and scaled offset
+    vec2 halfpixel = frameSizeRCP * 0.5;
+    vec2 o = halfpixel * offset;
+
+    // Dual-Kawase style: center weighted x4 + 4 diagonal samples
+    vec3 col = texture(colortex2, texCoord).rgb * 4.0;
+    col += texture(colortex2, texCoord + vec2(-o.x, -o.y)).rgb; // bottom-left
+    col += texture(colortex2, texCoord + vec2( o.x, -o.y)).rgb; // bottom-right
+    col += texture(colortex2, texCoord + vec2(-o.x,  o.y)).rgb; // top-left
+    col += texture(colortex2, texCoord + vec2( o.x,  o.y)).rgb; // top-right
+
+    // normalize and apply strength
+    vec3 outCol = (col / 8.0);
+
+    /*DRAWBUFFERS:3 */
+    
+	gl_FragData[0] = vec4(outCol, 1.0);
+
 }
+

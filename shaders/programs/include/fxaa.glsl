@@ -12,8 +12,8 @@ float edgeThreshold = 0.063;
 float edgeThresholdMin = 0.0156;
 #endif */
 
-float edgeThreshold = 0.063;
-float edgeThresholdMin = 0.0156;
+float edgeThreshold = 0.25;
+float edgeThresholdMin = 0.0625;
 
 
 vec3 FXAA311(vec3 color) {
@@ -149,9 +149,7 @@ vec3 FXAA311(vec3 color) {
 		float subPixelOffset2 = (-2.0 * subPixelOffset1 + 3.0) * subPixelOffset1 * subPixelOffset1;
 		float subPixelOffsetFinal = subPixelOffset2 * subPixelOffset2 * FXAA_SUBPIXEL;
 
-		#ifdef TAA
-		subPixelOffsetFinal *= 0.5;
-		#endif
+		
 
 		finalOffset = max(finalOffset, subPixelOffsetFinal);
 		

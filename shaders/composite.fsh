@@ -138,15 +138,13 @@ if ((col.r + col.g + col.b)/3 < 1.01) {
 		return mix( col, myFogColor, clamp(fogAmount, 0.0, 1.0));
 	}
 }
-#include "/programs/include/fxaa.glsl"
+
 
 void main() {
 	myFogColor = fogColorCalc(sunAngle, rainStrength);
 
 	
-	#ifdef FXAA
-	color = FXAA311(color);	
-	#endif
+	
 	
 	
 	
@@ -164,8 +162,8 @@ void main() {
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	if ((color.r + color.g + color.b)/3 > 1.05) {
-		myFogColor  = mix(myFogColor, vec3(1.9,1.9,1.9), clamp(pow(sunAmount,40.0), 0.0, 1.0));
-		color = myFogColor;
+		myFogColor  = mix(myFogColor, vec3(1.3,1.3,1.3), clamp(pow(sunAmount,40.0), 0.0, 1.0));
+		//color = myFogColor;
 	}
 	}
 	else{
@@ -287,10 +285,8 @@ void main() {
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	if ((color.r + color.g + color.b)/3 > 1.05) {
-	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.9,1.9,1.9), // sun
-                           clamp(pow(sunAmount,40.0), 0.0, 1.0));
-						   color = myFogColor;
+	myFogColor  = mix(myFogColor, vec3(1.3,1.3,1.3), clamp(pow(sunAmount,40.0), 0.0, 1.0));
+	//color = myFogColor;
 	}
 	
 	
@@ -337,16 +333,8 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
     #endif
 	#endif
 	vec3 baseColor = color;
-	if (color.r > 0.05) { 
-		color.r *= 5.0;
-	}
-	float Brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
-	if (Brightness <0.0) { 
-		color = vec3(0);
-	}
-	 if (color.r > 0.05) {
-	 color.r /= 5;
-	}
+	vec3 brightness = GetLuminance(color) * vec3(1.0);	
+	color *= pow(clamp(brightness/5.7, 0.0, 5.7), vec3(1.0))*4.7*BLOOM_STRENGTH;
 	/*DRAWBUFFERS:01 */
 	gl_FragData[0] = vec4(baseColor, 1.0);
 	gl_FragData[1] = vec4(color, 1.0);

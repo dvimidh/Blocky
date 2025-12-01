@@ -282,9 +282,9 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      } 
      if ((brdfv.r + brdfv.g + brdfv.b)/3*(shadowMultiplier.r + shadowMultiplier.b + shadowMultiplier.g)/3 > 0.9 && transparency > 0.1) {
         
-        sunColor=sunColor*5.4;
+        sunColor=sunColor*50.4;
         sunColor = clamp(sunColor, vec3(0.0), vec3(1.4));
-        transparency += clamp(1 + (max(((brdfv.r + brdfv.g + brdfv.b)/3 - 0.9)*(shadowMultiplier.r + shadowMultiplier.b + shadowMultiplier.g)/3, 0.0)), 1.9, 2.5);
+        transparency = 1;
         brdfv = clamp(brdfv, vec3(0.0), vec3(1.0));
      }
      //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);

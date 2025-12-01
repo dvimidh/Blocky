@@ -2,17 +2,42 @@
 
 #include "/programs/settings.glsl"
 
-in vec2 texCoord;
-uniform sampler2D colortex0; // original scene color
-uniform sampler2D colortex1; // blurred bloom
+// ...existing code...
 
+in vec2 texCoord; // full-res input
+uniform sampler2D colortex3;
+float offset = BLOOM_SPREAD;        // offset multiplier (like your 'offset' uniform)
+uniform float viewWidth;
+uniform float viewHeight;
 
 void main() {
-    vec3 color = texture(colortex0, texCoord).rgb;
-    vec3 blurred = texture(colortex1, texCoord).rgb;
-    vec3 bloom = max(blurred - color, 0.0);
-    vec3 finalColor = color + clamp(bloom * BLOOM_STRENGTH, 0.0, 1.0);
-    //vec3 finalColor = blurred;
-    /*DRAWBUFFERS:0 */
-    gl_FragData[0] = vec4(finalColor, 1.0);
+
+
+    // reciprocal pixel size
+    vec2 frameSizeRCP = vec2(1.0 / viewWidth, 1.0 / viewHeight);
+
+    // half-pixel and scaled offset
+    vec2 halfpixel = frameSizeRCP * 0.5;
+    vec2 o = halfpixel * offset;
+
+    // Dual-Kawase style: center weighted x4 + 4 diagonal samples
+    vec3 col = vec3(0.0);
+    col += texture(colortex3, texCoord + vec2(-o.x * 2.0, 0.0)).rgb; // bottom-left
+    col += texture(colortex3, texCoord + vec2( o.x * 2.0, 0.0)).rgb; // bottom-right
+    col += texture(colortex3, texCoord + vec2(0.0, -o.y * 2.0)).rgb; // top-left
+    col += texture(colortex3, texCoord + vec2(0.0,  o.y * 2.0)).rgb; // top-right
+
+    	/* Sample 4 diagonal corners with 2x weight each */
+	col += (texture(colortex3, texCoord + vec2(-o.x,  o.y)) * 2.0).rgb; /* top-left */
+	col += (texture(colortex3, texCoord + vec2( o.x,  o.y)) * 2.0).rgb; /* top-right */
+	col += (texture(colortex3, texCoord + vec2(-o.x, -o.y)) * 2.0).rgb; /* bottom-left */
+	col += (texture(colortex3, texCoord + vec2( o.x, -o.y)) * 2.0).rgb; /* bottom-right */
+    // normalize and apply strength
+    vec3 outCol = (col / 12.0);
+
+    /*DRAWBUFFERS:2 */
+    
+	gl_FragData[0] = vec4(outCol, 1.0);
+
 }
+

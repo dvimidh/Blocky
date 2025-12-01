@@ -61,7 +61,7 @@ option.WATER_TRANSLUCENCY_MULTIPLIER=Shader Water Tranclucency
 option.WATER_ROUGHNESS=Water Roughness
 option.WATER_ROUGHNESS.comment = The spread of the sun/moon reflection on the water
 
-option.BLOOM_STRENGTH=Bloom Bloom Strength
+option.BLOOM_STRENGTH=Bloom Strength
 option.BLOOM_STRENGTH.comment = Adjusts the intensity bloom
 
 option.BLOOM_SPREAD = Bloom Radius
