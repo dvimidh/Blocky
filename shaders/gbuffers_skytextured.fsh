@@ -31,6 +31,6 @@ void main() {
     transparency = transparency*clamp(mix(0.0, 1.0, clamp(upDot+0.15, 0.0, 1.0)), 0.0, 1.0);
     //output color
 
-    outColor0 =vec4(pow(albedo*2, vec3(1/2.2)), transparency);
+    outColor0 =vec4(pow(albedo*1.0, vec3(1/2.2)), transparency);
 }
     

@@ -85,7 +85,7 @@ void main() {
     if (abs(EntityID-10010) < 0.5) {    
     
     //albedo.rgb *= 0.2*(7 - (mix(max(albedo.r, max(albedo.g, albedo.b))*1.5, (albedo.r + albedo.g + albedo.b)/2.0, 0.5)));
-    emmissive = albedo;
+    emmissive = min(albedo, 0.5);
     }
 
 
@@ -112,7 +112,7 @@ void main() {
     //outputColor.rgb = clamp(outputColor.rgb * (1.5-(15/10)), vec3(0.0), vec3(1.0));
 
     //outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
-    outColor0 = vec4(pow(outputColor.rgb + emmissive/2, vec3(1/2.2)), transparency);
+    outColor0 = vec4(pow(outputColor.rgb + emmissive, vec3(1/2.2)), transparency);
     
     //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater, transparency);

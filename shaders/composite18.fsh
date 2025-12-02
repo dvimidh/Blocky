@@ -3,10 +3,10 @@
 #include "/programs/settings.glsl"
 
 // ...existing code...
-
+#ifdef BLOOM
 in vec2 texCoord; // full-res input
 uniform sampler2D colortex4;
-float offset = BLOOM_SPREAD;        // offset multiplier (like your 'offset' uniform)
+float offset = BLOOM_SPREAD;        
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -40,4 +40,4 @@ void main() {
 	gl_FragData[0] = vec4(outCol, 1.0);
 
 }
-
+#endif

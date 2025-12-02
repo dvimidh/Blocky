@@ -24,9 +24,9 @@ vec3 tonemap_lottes(vec3 rgb) {
 }
 
 vec3 tonemapMe(vec3 color) {
-	float exposure = 4.0;
+	float exposure = 3.0;
 	// Apply tonemapping operator here
-	color = pow((1-1/(1+pow(color, vec3(exposure)))), vec3(exposure));
+	color = pow((1-(1/(1+pow(color, vec3(exposure))))), vec3(1/exposure));
 	return color;
 }
 

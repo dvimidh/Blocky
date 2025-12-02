@@ -2,11 +2,11 @@
 
 #include "/programs/settings.glsl"
 
-// ...existing code...
+#ifdef BLOOM
 
 in vec2 texCoord; // full-res input
 uniform sampler2D colortex3;
-float offset = BLOOM_SPREAD;        // offset multiplier (like your 'offset' uniform)
+float offset = BLOOM_SPREAD;        
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -36,3 +36,4 @@ void main() {
 
 }
 
+#endif
