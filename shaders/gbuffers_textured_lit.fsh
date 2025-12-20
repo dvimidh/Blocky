@@ -3,13 +3,13 @@
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
 
-uniform float alphaTestRef = 0.1;
+uniform float alphaTestRef = 0.02;
 
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 5 */
 layout(location = 0) out vec4 color;
 
 void main() {

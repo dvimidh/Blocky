@@ -1,7 +1,7 @@
 #version 430 compatibility
 
 #include "/programs/settings.glsl"
-#include "/programs/include/fogColorCalc.glsl"
+
 
 uniform float viewHeight;
 uniform float viewWidth;
@@ -9,6 +9,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
+#include "/programs/include/fogColorCalc.glsl"
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform float sunAngle;

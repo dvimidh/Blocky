@@ -129,7 +129,7 @@ void main() {
 
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
 
-
+    vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
 	
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
@@ -193,7 +193,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     }
      vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColorData.rgb, metallic, reflectance);
      vec3 ambientLightDirection = worldGeoNormal;
-    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
     vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
     float transparency = outputColorData.a;
@@ -207,18 +207,12 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     if (depth != 1.0) {
     discard;
     }
-    float distanceFromCamera = distance(vec3(0), viewSpacePosition);
 
-    float maxFogDistance = 2800;
-
-    float minFogDistance = 1500;
     
     //outputColor;
 
 
-    //float fogBlendValue = clamp((distanceFromCamera - minFogDistance) / (maxFogDistance - minFogDistance), 0, 1);
 
-    //outputColor = mix(outputColor, pow(fogColor, vec3(2.2)), fogBlendValue);
 
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);
 }

@@ -29,7 +29,7 @@ void main() {
 	/* Sample along the direction vector (horizontal or vertical) */
 	for (int i = -kernel_size; i <= kernel_size; ++i) {
 		/* Calculate the required weight for this 1D sample */
-		float w = gaussianWeight(float(i), BLOOM_SIGMA);
+		float w = gaussianWeight(float(i* BLOOM_SPREAD), BLOOM_SIGMA);
 		
 		/* Offset from the current pixel along the specified direction */
 		vec2 offset = vec2(i) * direction * BLOOM_SPREAD * frameSizeRCP;

@@ -1,7 +1,7 @@
 #version 430 compatibility
 
 #include "/programs/settings.glsl"
-#include "/programs/include/fogColorCalc.glsl"
+
 in vec2 texCoord;
 in vec3 viewSpacePosition;
 uniform float frameTimeCounter;
@@ -17,6 +17,7 @@ uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform sampler2D colortex0;
 uniform sampler2D colortex6;
+uniform sampler2D colortex5;
 uniform sampler2D colortex7;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -30,12 +31,13 @@ uniform float playerMood;
 uniform float constantMood;
 uniform int isEyeInWater;
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
-vec3 sunDirection = 0.01 * sunPosition;
-vec3 moonDirection = 0.01 * moonPosition;
+vec3 sunDirection = normalize(sunPosition);
+vec3 moonDirection = normalize(moonPosition);
 vec3 sunDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*sunDirection;
 vec3 moonDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*moonDirection;
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 float mixAmount = 1;
+#include "/programs/include/fogColorCalc.glsl"
 #include "/programs/include/skyColorCalc.glsl"
 float GetLuminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
@@ -44,15 +46,22 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	vec4 homPos = projectionMatrix * vec4(position, 1.0);
 	return homPos.xyz / homPos.w;
 }
+vec3 tonemapMe3(vec3 color) {
+	float exposure = 1 + sqrt(FOG_INTENSITY);
+	// Apply tonemapping operator here
+	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
+	return color;
+}
 
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
-	vec3 colorCloud = texture2DLod(colortex6, texCoord, 0.0).rgb;
-	vec3 colorWater = texture2DLod(colortex7, texCoord, 0.0).rgb;
-	float transparency = texture2DLod(colortex7, texCoord, 0.0).a;
+	vec4 colorCloud = texture2DLod(colortex6, texCoord, 0.0);
+	vec3 colorParticles = texture2DLod(colortex5, texCoord, 0.0).rgb;
+	float Particlestransparency = texture2DLod(colortex5, texCoord, 0.0).a;
+	float transparency = texture2DLod(colortex7, texCoord, 0.0).b;
 vec3 myFogColor = vec3(0);
 float depth = texture(depthtex0, texCoord).r;
+
 float depthT = texture(depthtex1, texCoord).r;
-float depthW = texture(colortex7, texCoord).a;
 vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
@@ -68,30 +77,10 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	
 	//if(sky) 
 	float sunAmount = max( dot(rd, lig), 0.0 );
-	if(sky) {
-		
-	if ((col.r + col.g + col.b)/3 < 1.05) {
-		if((col.r + col.g + col.b)/3 > 1.0) {
-		myFogColor  = mix(myFogColor, // fog
-                           mix(vec3(1.0,0.7,0.4), vec3(1.0,1.0,1.0), ((col.r + col.g + col.b)/3-1.0)*20), // sun
-                           pow(sunAmount,1.0)/1);
-	} else {
-	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.2,0.8,0.5), // sun
-                           pow(sunAmount,40.0));
-	}
-	} else {
-		myFogColor  = mix(myFogColor, vec3(1.0,1.0,1.0), pow(sunAmount,1.0)/1.0);
-	}
-	float moonAmount = max( dot(rd, ligm), 0.0 );
-	myFogColor  = mix(myFogColor, // fog
-                           vec3(1.0,1.0, 1.0), // sun
-                           pow(moonAmount,300.0)*0.7);
-	}
+	
 	vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 
 	vec3 SunRiseColor = myFogColor;
-if ((col.r + col.g + col.b)/3 < 1.01) {
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		SunRiseColor = riseColorMore;
 	}
@@ -107,9 +96,11 @@ if ((col.r + col.g + col.b)/3 < 1.01) {
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
 	}
-	myFogColor  = mix(myFogColor,SunRiseColor,pow(sunAmount,1.50)/1.1);
-	}
-
+	vec3 NDCPosndh = vec3(texCoord.xy, depth) * 2.0 - 1.0;
+  	vec3 viewPosndh = projectAndDivide(gbufferProjectionInverse, NDCPosndh);
+	float upDot = dot(normalize(viewPosndh), normalize(gbufferModelView[1].xyz));
+	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.5)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(1.6*upDot), 0.0, 1.0) - clamp(100/t, 0.0, 1.0),0.0)*(1-rainStrength));
+	
 	if (isEyeInWater == 1) {
 		fogAmount = t * 0.02;
 		myFogColor = mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5);
@@ -118,10 +109,10 @@ if ((col.r + col.g + col.b)/3 < 1.01) {
 		return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.9));
 	}
 	if (isEyeInWater == 0) {
-		if(sky || (colorCloud.r + colorCloud.g + colorCloud.b) > 0.1) {
+		if(sky) {
 			return col;
 		} else {
-			return mix( col, myFogColor, clamp(fogAmount, 0.0, 0.6));
+			return mix( col, myFogColor, clamp(tonemapMe3(vec3(fogAmount*0.9)).r, 0.0, 1.0) );
 	}
 		}
 		
@@ -139,32 +130,31 @@ if ((col.r + col.g + col.b)/3 < 1.01) {
 	}
 }
 
-
+bool calctransparency = true;
 void main() {
+	#ifdef DISTANT_HORIZONS
+	float dhDepth = texture(dhDepthTex0, texCoord).r;
+	if (dhDepth < depth && colorCloud.a > 0.01) {
+		colorCloud =vec4(0.0);
+		calctransparency = false;
+	}
+#endif
 	myFogColor = fogColorCalc(sunAngle, rainStrength);
 
-	
-	
-	
-	
-	
-  if(depth == 1.0){
+  if(depth == 1.0 || !calctransparency) {
     #ifdef DISTANT_HORIZONS
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
 
 	bool ifsky;
 	if (dhDepth == 1.0) {
 		ifsky = true;
-	myFogColor = fogColorCalc(sunAngle, rainStrength);
+		myFogColor = fogColorCalc(sunAngle, rainStrength);
 		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   		vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
-	if ((color.r + color.g + color.b)/3 > 1.05) {
-		myFogColor  = mix(myFogColor, vec3(1.3,1.3,1.3), clamp(pow(sunAmount,40.0), 0.0, 1.0));
-		//color = myFogColor;
-	}
+	
 	}
 	else{
 		ifsky = false;
@@ -192,7 +182,7 @@ void main() {
 	
 	#endif
 	
-	}  else {
+	}  else if(calctransparency) {
 	//float dhDepth = texture(dhDepthTex0, texCoord).r;
 	bool ifsky = false;
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
@@ -215,7 +205,7 @@ void main() {
 			vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 			vec3 cameraToPointT = worldPosT - worldPos;
 			cameraToPointT = normalize(cameraToPointT);
-			color.rgb = applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
+			color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky), color.rgb, transparency);
 			} else {
 				#ifdef DISTANT_HORIZONS
 				float dhDepth = texture(dhDepthTex0, texCoord).r;
@@ -243,34 +233,7 @@ void main() {
 
 				}
 				#endif
-				#ifndef DISTANT_HORIZONS
-					ifsky = true;
-					vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
-			  		vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
-					vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
-					vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
-					vec3 cameraToPointT = worldPosT - worldPos;
-					float myDistanceT = length(viewPosT) - length(viewPos);
-					cameraToPointT = normalize(cameraToPointT);
-					color.rgb = applyFog(color.rgb, myDistanceT, cameraPosition, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, 6*FOG_INTENSITY/1000, 0.01, ifsky);
-				#endif
-			}/*
-		if(colorWater.r + colorWater.g + colorWater.b > 0.01 && depthT<(depthW-0.3)) {
-			if (isEyeInWater == 0) {
-				vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
-	  			vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
-				vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
-				vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
-				vec3 cameraToPointT = worldPosT - worldPos;
-				float myDistanceT = length(viewPosT) - length(viewPos);
-				cameraToPointT = normalize(cameraToPointT);
-				float fogAmount = myDistanceT * 0.02;
-				myFogColor = mix(colorWater.rgb, vec3(0.0, 0.3, 0.5), 0.5);
-				color.r /= 1.5;
-				color.g /= 1.25;
-				color.rgb = mix(color.rgb, myFogColor, clamp(fogAmount, 0.0, 0.9));
-			}	
-		} */
+			}
 	}
 	
   }
@@ -284,10 +247,6 @@ void main() {
 		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
-	if ((color.r + color.g + color.b)/3 > 1.05) {
-	myFogColor  = mix(myFogColor, vec3(1.3,1.3,1.3), clamp(pow(sunAmount,40.0), 0.0, 1.0));
-	//color = myFogColor;
-	}
 	
 	
 	}
@@ -322,7 +281,8 @@ vec3 cameraToPointT = worldPosT - worldPos;
 float myDistanceT = length(viewPosT) - length(viewPos);
 cameraToPointT = normalize(cameraToPointT);
 float fogFactorT = clamp(exp(-5.0 * (1.0 - myDistanceT / far)), 0.0, 1.0);
-color.rgb = mix(color.rgb, mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5), 0.9), fogFactorT), transparency);
+color.rgb = mix(color.rgb, mix(color.rgb, fogColor, fogFactorT), transparency);
+
 }
 }
 if (isEyeInWater == 1) {
@@ -332,10 +292,14 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 }
     #endif
 	#endif
+	color = mix(color, colorCloud.rgb, colorCloud.a);
+	color = mix(color, colorParticles.rgb, Particlestransparency);
 	vec3 baseColor = color;
-	vec3 brightness = GetLuminance(color) * vec3(1.0);	
-	color *= pow(clamp((max(brightness-0.75, 0.0))/5.7, 0.0, 5.7), vec3(1.0))*5.7*BLOOM_STRENGTH;
+	float brightness = GetLuminance(baseColor);
+	float bloomThreshold = 0.8;
+	float bloom = max(brightness - bloomThreshold, 0.0);
+	color = baseColor * pow(clamp(bloom, 0, 1.0), 5.0) * BLOOM_STRENGTH;
 	/*DRAWBUFFERS:01 */
-	gl_FragData[0] = vec4(baseColor, 1.0); 	
+	gl_FragData[0] = vec4(baseColor, 1.0);
 	gl_FragData[1] = vec4(color, 1.0);
 }

@@ -29,9 +29,22 @@ vec3 tonemapMe(vec3 color) {
 	color = pow((1-(1/(1+pow(color, vec3(exposure))))), vec3(1/exposure));
 	return color;
 }
+vec3 tonemapMe2(vec3 color) {
+	float exposure = 10.0;
+	// Apply tonemapping operator here
+	color = 1-(1/(1+pow(color, vec3(exposure)))) - (color-1-(1/(1+pow(color, vec3(exposure)))));
+	return color;
+}
+vec3 tonemapMe3(vec3 color) {
+	float exposure = 6;
+	// Apply tonemapping operator here
+	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
+	return color;
+}
+
 
 void main() {
-    color = mix(tonemapMe(color), color, 0.0); 
+    color = mix(tonemapMe3(color), color, 0.0); 
     /*DRAWBUFFERS:0 */
     //color = color / (color+vec3(1.0));
     //color = vec3(1.0) - exp(-color * exposure);

@@ -4,7 +4,7 @@
 
 uniform mat4 gbufferModelView;
 
-
+#include "/programs/include/distort.glsl"
 //functions
 mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     //for DirectX normal mapping you want to switch the order of these
@@ -176,12 +176,12 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     
 
     #endif
-    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.06*worldGeoNormal;
+    vec3 adjustedFragFeetPlayerSpace = fragFeetPlayerSpace + 0.08*worldGeoNormal;
     vec3 fragShadowViewSpace = (shadowModelView * vec4(adjustedFragFeetPlayerSpace, 1.0)).xyz;
     vec4 fragHomogenousSpace = shadowProjection * vec4(fragShadowViewSpace, 1.0);
     vec3 fragShadowNdcSpace = fragHomogenousSpace.xyz/fragHomogenousSpace.w;
     float distanceFromPlayerNDC = length(fragShadowNdcSpace.xy);
-    vec3 distortedShadowNdcSpace = vec3(fragShadowNdcSpace.xy / ((0.1+distanceFromPlayerNDC)), fragShadowNdcSpace.z);
+    vec3 distortedShadowNdcSpace = distortShadowClipPos(fragShadowNdcSpace.xyz);
     vec3 fragShadowScreenSpace = distortedShadowNdcSpace*0.5 + 0.5; 
     
     
@@ -193,7 +193,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //shadow
     float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0HW, fragShadowScreenSpace.xyz).r);
     float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture(shadowtex1, fragShadowScreenSpace.xy).r);
-    vec3 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy).rgb;
+    vec4 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy);
 
     vec3 shadowMultiplier = vec3(1.0);
 
@@ -208,7 +208,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
             shadowMultiplier = vec3(texture(shadowtex0HW, fragShadowScreenSpace.xyz));
             #endif
         } else {
-            shadowMultiplier = shadowColor;
+            shadowMultiplier = shadowColor.rgb * (1-shadowColor.a);
         }
 
     }
@@ -217,7 +217,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         shadowMultiplier = vec3(1.0);
     }
     //block and sky lighting
-    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
+    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(4.2));
     vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
     vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
 	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
@@ -229,22 +229,26 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		skyLight = skyLight*mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
 	}
-	if (sunAngle > 0.075 && sunAngle < 0.45) {
+	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		skyLight = skyLight*dayColor;
 	}
-	if (sunAngle > 0.45 && sunAngle < 0.5) {
-		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.45));
+	if (sunAngle > 0.425 && sunAngle < 0.475) {
+		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.425));
 	}
+    if (sunAngle > 0.475 && sunAngle < 0.50) {
+        skyLight = skyLight*riseColor;
+    }
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
 		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 0.90) ) {
+	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
 		skyLight = skyLight*nightColor;
 	}
-	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));
+	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));
 	}   
     skyLight = skyLight * 1.5;
+    skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);
     //Voxel Data (I hope)
     //vec3 voxel_pos_unrounded = fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2;
     ivec3 voxel_pos = ivec3(fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2);
@@ -262,10 +266,10 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     } else {
         brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
     }
-    
+    vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
    
     
-    ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.7, 1.0);
+    ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.6, 1.0);
     
     vec3 outputColor =vec3(0);
 
@@ -282,15 +286,16 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      } 
      if ((brdfv.r + brdfv.g + brdfv.b)/3*(shadowMultiplier.r + shadowMultiplier.b + shadowMultiplier.g)/3 > 0.9 && transparency > 0.1) {
         
-        sunColor=sunColor*50.4;
-        sunColor = clamp(sunColor, vec3(0.0), vec3(1.4));
-        transparency = 1;
-        brdfv = clamp(brdfv, vec3(0.0), vec3(1.0));
+        sunColor=sunColor*50.4*(1.1-rainStrength);
+        sunColor = clamp(sunColor, vec3(0.0), vec3(100.9));
+        transparency = mix(transparency+0.2, 1.5, 1-rainStrength);
+        brdfv = clamp(brdfv, vec3(0.0), vec3(4.0 - rainStrength*1.8));
      }
      //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
 
      outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
     } else{
+        brdfv = clamp(brdfv, vec3(0.0), vec3(4.0 - rainStrength*1.8));
         outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
     }
     #endif 

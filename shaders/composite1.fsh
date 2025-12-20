@@ -20,7 +20,7 @@ void main() {
 
     // half-pixel and scaled offset
     vec2 halfpixel = frameSizeRCP * 0.5;
-    vec2 o = halfpixel * offset;
+    vec2 o = halfpixel;
 
     // Dual-Kawase style: center weighted x4 + 4 diagonal samples
     vec3 col = texture(colortex1, texCoord).rgb * 4.0;

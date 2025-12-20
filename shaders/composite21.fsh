@@ -20,13 +20,13 @@ void main() {
     vec3 finalColor = color;
     #ifdef FXAA
 	color = FXAA311(finalColor);
-    
+    vec3 brightness = GetLuminance(color) * vec3(1.0);
 	#endif
     #ifdef BLOOM
 
     vec3 blurred = texture(colortex1, texCoord).rgb;
     //vec3 blurred = textureLod(colortex1, texCoord, 2.0).rgb;
-    vec3 bloom = clamp(blurred, 0.0, 0.5*BLOOM_STRENGTH);
+    vec3 bloom = max(clamp(blurred, 0.0, 0.4), 0.0);
     finalColor = color+bloom;
     #endif
     //finalColor = blurred;

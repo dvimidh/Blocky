@@ -7,7 +7,7 @@ screen.COLOR = Color
 screen.SUNLIGHTCOLOR = Sunlight Color
 screen.SKYLIGHTCOLOR = SkylightColor
 
-option.INFO = Blocky v0.5.4.1
+option.INFO = Blocky v0.5.5.1
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -36,8 +36,8 @@ value.shadowMapResolution.16384=163842 (16k)
 option.SHADOW_INTENSITY = Sunlight/Moonlight Intensity
 option.SHADOW_INTENSITY.comment = Intensity of the Sunlight and Moonlight
 
-option.AMBIENT_INTENSITY = Ambient Light
-option.AMBIENT_INTENSITY.comment = Brightness of Ambient Light (Blocklight)
+option.AMBIENT_INTENSITY = Blocklight
+option.AMBIENT_INTENSITY.comment = Brightness of Blocklight
 
 option.SKYLIGHT_INTENSITY=Skylight Intensity
 option.SKYLIGHT_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Can be esed in combination with Sunlight/Moonlight Intensity Intensity to get a variety of different lightings.
@@ -49,15 +49,15 @@ option.SHADOW_FILTERING=Shadow Filtering
 option.SHADOW_FILTERING.comment = Slightly softens the shadows
 
 option.FOG_INTENSITY=Fog Intensity
-option.FOG_INTENSITY.comment = Adjusts the intensity of the fog. (will impact the sky)
+option.FOG_INTENSITY.comment = Adjusts the intensity of the fog.
 
 option.CHUNK_FADE=Border Fog
-option.CHUNK_FADE.comment = Adds border fog to conceal chunk pop in when distant horizons isn't present
+option.CHUNK_FADE.comment = Adds border fog to conceal chunk pop in
 
 option.WATER_STYLE=Water Style
 value.WATER_STYLE.1 = Shader
 value.WATER_STYLE.2 = Vanilla
-option.WATER_TRANSLUCENCY_MULTIPLIER=Shader Water Tranclucency 
+option.WATER_TRANSLUCENCY_MULTIPLIER=Shader water tranclucency 
 option.WATER_ROUGHNESS=Water Roughness
 option.WATER_ROUGHNESS.comment = The spread of the sun/moon reflection on the water
 
@@ -66,6 +66,9 @@ option.BLOOM_STRENGTH.comment = Adjusts the intensity bloom
 
 option.BLOOM_SPREAD = Bloom Radius
 option.BLOOM_SPREAD.comment = Adjusts how far the bloom spreads
+
+option.BLOOM = Bloom
+option.BLOOM.comment = The halo around bright things
 
 option.SUNRISECOLR = Sunrise Red
 option.SUNRISECOLG = Sunrise Green

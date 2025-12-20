@@ -1,5 +1,5 @@
 #version 430 compatibility
-
+#include "/programs/include/distort.glsl"
 
 layout (r32ui) uniform uimage3D cimage1;
 layout (r32ui) uniform uimage3D cimage2;
@@ -34,6 +34,6 @@ void main() {
 
     #include "/programs/include/voxelizing.glsl"
 
-    gl_Position.xy = gl_Position.xy / (0.1+distanceFromPlayer);
+    gl_Position.xyz = distortShadowClipPos(gl_Position.xyz);
 
 }

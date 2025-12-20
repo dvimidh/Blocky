@@ -64,7 +64,7 @@ void main() {
         albedo = foliageColor/4.4 + vec3(0.1, 0.0, 0.1);
     }
     #endif
-    float transparency = outputColorData.a;
+    float transparency = outputColorData.a; 
     float depth = texture(depthtex0, texCoord).r;
     if(transparency < 0.1) {
         discard;
@@ -76,7 +76,10 @@ void main() {
     
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
-        transparency = clamp(transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER, 0.2, 1.0);
+        transparency = clamp(transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER, 0.2, 2.0);
+        albedo = albedo + max(0.0, albedo.r - 0.02)*20.6*vec3(0.5, 0.6, 0.9);
+        transparency = transparency + max(0.0, albedo.r - 0.05)*1.6;
+
     }
     #endif
 
@@ -85,7 +88,7 @@ void main() {
     if (abs(EntityID-10010) < 0.5) {    
     
     //albedo.rgb *= 0.2*(7 - (mix(max(albedo.r, max(albedo.g, albedo.b))*1.5, (albedo.r + albedo.g + albedo.b)/2.0, 0.5)));
-    emmissive = min(albedo, 0.5);
+    emmissive = min(albedo, 0.5)/5;
     }
 
 
@@ -99,10 +102,11 @@ void main() {
         outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.2);
     }
     #endif
-    if (transparency<0.9) {
+    float doit = 0.0;
+    if (transparency<0.9 && transparency>0.1) {
         
         storeWater = outputColor.rgb;
-        
+        doit = 1.0;
     } else {
         storeWater = vec3(0.0);
     }
@@ -115,6 +119,6 @@ void main() {
     outColor0 = vec4(pow(outputColor.rgb + emmissive, vec3(1/2.2)), transparency);
     
     //outColor0 = vec4(1.0);
-    outColor1 = vec4(storeWater, transparency);
+    outColor1 = vec4(storeWater.rg*doit, transparency*doit, doit);
 
 }

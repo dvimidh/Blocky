@@ -42,7 +42,7 @@
         //voxel_data = vec4(at_midBlock.a);
 
 		if (abs(mc_Entity.x - 10010) == 0.) {
-            voxel_data = vec4(0.0, 0.4, 1.0, 1.0);
+            voxel_data = vec4(0.0, 0.4, 1.0, 15.0);
         }
 		
 		
