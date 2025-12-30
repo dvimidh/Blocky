@@ -1,7 +1,7 @@
 #version 430 compatibility
 
 #include "/programs/settings.glsl"
-
+#include "/programs/include/SunColorCalc.glsl"
 mat3 generateSimpleTBN(vec3 normal) {
     // Create an arbitrary tangent vector
     vec3 tangent;
@@ -24,6 +24,7 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	vec4 homPos = projectionMatrix * vec4(position, 1.0);
 	return homPos.xyz / homPos.w;
 }
+uniform sampler2D lightmaptex;
 uniform float far;
 uniform sampler2D lightmap;
 uniform sampler2D depthtex0;
@@ -99,7 +100,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 }
 
 void main() {
-        vec4 outputColorData = vec4(pow(blockColor.rgb, vec3(2.2)), blockColor.a);
+    vec4 outputColorData = vec4(pow(blockColor.rgb, vec3(2.2)), blockColor.a);
     
     vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
 
@@ -112,7 +113,7 @@ void main() {
     vec3 normalWorldSpace = TBN * normalNormalSpace;
      vec4 specularData = texture(specular, texCoord);
     float perceptualSmoothness = specularData.r;
-    
+
     float metallic = 0.0;
     
     vec3 reflectance = vec3(0);
@@ -127,11 +128,13 @@ void main() {
 
     float lightBrightness = clamp(dot(shadowLightDirection,worldGeoNormal), 0.2, 1.0);
 
-    vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-
+    
+    vec3 skyLight = vec3(lightMapCoords.y);
+    float skylightval = lightMapCoords.y;
     vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
 	
-    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
+    vec3 blockLight = pow(texture(lightmaptex, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
+    //blockLight = vec3(pow(lightMapCoords.x/2, 1/2.2));
     vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
     vec3 dhviewPos = worldPos-cameraPosition;
 	float myDistance = length(dhviewPos);
@@ -139,45 +142,39 @@ void main() {
         discard;
     }
     vec3 viewDirection = normalize(cameraPosition - worldPos);
-    vec3 riseColor = vec3(1.2, 0.65, 0.5);
-	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.2, 0.3, 0.3);
+    vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
+	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
+	vec3 nightColor = vec3(AMBNIGHTCOLR, AMBNIGHTCOLG, AMBNIGHTCOLG);
 
-    if (sunAngle > 0.00 && sunAngle < 0.025) {
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		skyLight = skyLight*mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
 	}
-	if (sunAngle > 0.075 && sunAngle < 0.45) {
+	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		skyLight = skyLight*dayColor;
 	}
-	if (sunAngle > 0.45 && sunAngle < 0.5) {
-		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.45));
+	if (sunAngle > 0.425 && sunAngle < 0.475) {
+		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.425));
 	}
-	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
+    if (sunAngle > 0.475 && sunAngle < 0.50) {
+        skyLight = skyLight*riseColor;
+    }
+	if (sunAngle > 0.50 && sunAngle < 0.525) {
+		skyLight = skyLight*mix(riseColor, nightColor, 1/0.025 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 0.90) ) {
+	if ((sunAngle > 0.525 && sunAngle < 0.975) ) {
 		skyLight = skyLight*nightColor;
 	}
-	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));
-	}
-
+	if ((sunAngle > 0.975 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.025 * (sunAngle-0.975));
+	}   
+    skyLight = skyLight * 1.5;
+    skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);
     
     vec3 sunColor = vec3(1.0);
-if (sunAngle < 0.5) {// || sunAngle > 0.98) {
-        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
-        } else {
-            sunColor = vec3(1.0, 0.5, 0.3);
-        }
-        sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
-    } else {
-        sunColor = vec3(0.6, 0.6, 0.6);
-        
-    }
+    sunColor = SunColor(sunAngle, rainStrength);
       
     if (sunAngle > 0.0 && sunAngle < 0.01) {
     sunColor = sunColor*mix(0, 1, 100 * (sunAngle));
@@ -192,10 +189,10 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     sunColor = sunColor*mix(0, 1, 100 * (1.0-sunAngle));
     }
      vec3 brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, outputColorData.rgb, metallic, reflectance);
-     vec3 ambientLightDirection = worldGeoNormal;
-    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
+   vec3 ambientLightDirection = vec3(0.0, 1.0, 0.0);
+    vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.6, 1.0);
 
-    vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
+    vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skylightval*sunColor*brdfv;
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;
@@ -209,9 +206,9 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     }
 
     
-    //outputColor;
 
 
+    
 
 
     outColor0 =vec4(pow(outputColor,vec3(1/2.2)), transparency);

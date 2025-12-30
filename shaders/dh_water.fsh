@@ -44,7 +44,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     return BRDF;
     
 }
-uniform sampler2D lightmap;
+uniform sampler2D lightmaptex;
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
 uniform float viewHeight;
@@ -117,9 +117,9 @@ void main() {
 
     float lightBrightness = clamp(dot(shadowLightDirection,worldGeoNormal), 0.2, 1.0);
 
-    vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-
-    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
+    vec3 skyLight = pow(texture(lightmaptex, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
+    float skylightval = lightMapCoords.y;
+    vec3 blockLight = pow(texture(lightmaptex, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
     vec3 viewDirection = normalize(cameraPosition - worldPos);
     vec3 riseColor = vec3(1.2, 0.65, 0.5);
@@ -184,7 +184,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
      vec3 ambientLightDirection = worldGeoNormal;
     vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY) + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.0, 1.0);
 
-    outputColor = outputColor*ambientLight + SHADOW_INTENSITY*skyLight*sunColor*brdfv;
+    outputColor = outputColor*ambientLight + SHADOW_INTENSITY*skylightval*sunColor*brdfv;
 
 
     vec2 texCoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);

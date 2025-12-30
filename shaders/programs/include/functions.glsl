@@ -218,7 +218,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     }
     //block and sky lighting
     vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(4.2));
-    vec3 skyLight = pow(texture(lightmap, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
+    vec3 skyLight = vec3(lightMapCoords.y);
     vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
 	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
 	vec3 nightColor = vec3(AMBNIGHTCOLR, AMBNIGHTCOLG, AMBNIGHTCOLB);
@@ -238,14 +238,14 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     if (sunAngle > 0.475 && sunAngle < 0.50) {
         skyLight = skyLight*riseColor;
     }
-	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
+	if (sunAngle > 0.50 && sunAngle < 0.525) {
+		skyLight = skyLight*mix(riseColor, nightColor, 1/0.025 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
+	if ((sunAngle > 0.525 && sunAngle < 0.975) ) {
 		skyLight = skyLight*nightColor;
 	}
-	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));
+	if ((sunAngle > 0.975 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.025 * (sunAngle-0.975));
 	}   
     skyLight = skyLight * 1.5;
     skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);

@@ -26,7 +26,7 @@ void main() {
 
     vec3 blurred = texture(colortex1, texCoord).rgb;
     //vec3 blurred = textureLod(colortex1, texCoord, 2.0).rgb;
-    vec3 bloom = max(clamp(blurred, 0.0, 0.4), 0.0);
+    vec3 bloom = max(clamp(blurred, 0.0, 0.9), 0.0);
     finalColor = color+bloom;
     #endif
     //finalColor = blurred;

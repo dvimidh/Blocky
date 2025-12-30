@@ -7,7 +7,7 @@ screen.COLOR = Color
 screen.SUNLIGHTCOLOR = Sunlight Color
 screen.SKYLIGHTCOLOR = SkylightColor
 
-option.INFO = Blocky v0.5.5.1
+option.INFO = Blocky v0.5.5.2
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance

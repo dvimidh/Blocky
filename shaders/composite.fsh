@@ -296,9 +296,9 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 	color = mix(color, colorParticles.rgb, Particlestransparency);
 	vec3 baseColor = color;
 	float brightness = GetLuminance(baseColor);
-	float bloomThreshold = 0.8;
+	float bloomThreshold = 0.12;
 	float bloom = max(brightness - bloomThreshold, 0.0);
-	color = baseColor * pow(clamp(bloom, 0, 1.0), 5.0) * BLOOM_STRENGTH;
+	color = baseColor * pow(clamp(bloom, 0, 1.0), 5.0) * BLOOM_STRENGTH/2;
 	/*DRAWBUFFERS:01 */
 	gl_FragData[0] = vec4(baseColor, 1.0);
 	gl_FragData[1] = vec4(color, 1.0);

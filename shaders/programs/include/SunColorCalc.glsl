@@ -2,10 +2,12 @@
 vec3 SunColor(float sunAngle, float rainStrength) {
 vec3 SunColorTemp;
 if (sunAngle < 0.5) {// || sunAngle > 0.98) {
-        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            SunColorTemp = mix(vec3(SUNRISECOLR, SUNRISECOLG, SUNRISECOLB), vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB), 1/0.055 * (sunAngle));
+        if (sunAngle < 0.01) {// || sunAngle > 0.98) {
+            SunColorTemp = vec3(SUNRISECOLR, SUNRISECOLG, SUNRISECOLB);
+        } else if (sunAngle > 0.01 && sunAngle < 0.055) {// || sunAngle > 0.98) {
+            SunColorTemp = mix(vec3(SUNRISECOLR, SUNRISECOLG, SUNRISECOLB), vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB), 1/0.045 * (sunAngle-0.01));
         } else if (sunAngle > 0.445) {
-            SunColorTemp = mix(vec3(SUNRISECOLR, SUNRISECOLG, SUNRISECOLB), vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB), 1/0.055 * (0.5 - sunAngle));
+            SunColorTemp = mix(vec3(SUNRISECOLR, SUNRISECOLG, SUNRISECOLB), vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB), clamp(1/0.045 * (0.50 - sunAngle), 0.0, 1.0));
         } else {
             SunColorTemp = vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB);
         }
