@@ -10,7 +10,7 @@ void main() {
 	//vec4 color = vec4(0.0);
     //#endif
 	//#ifndef DISTANT_HORIZONS
-	vec4 color = texture2D(texture, texcoord) * glcolor;
+	vec4 color = texture2D(texture, texcoord) * glcolor * 1.3;
    // #endif
 /* DRAWBUFFERS:06 */
 	//gl_FragData[0] = color; //gcolor

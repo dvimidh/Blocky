@@ -1,4 +1,5 @@
 #version 430 compatibility
+#include "/programs/settings.glsl"
 #include "/programs/include/distort.glsl"
 
 layout (r32ui) uniform uimage3D cimage1;

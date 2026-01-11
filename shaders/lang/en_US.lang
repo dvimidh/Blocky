@@ -1,11 +1,15 @@
 screen.LIGHTING = Lighting
 screen.POST_PROCCESSING = Post Processing
 screen.FOG = Fog
+screen.SKY = Sky
 screen.FOGCOLOR = Fog Color
 screen.WATER = Water
 screen.COLOR = Color
+screen.SHADOWS = Shadows
 screen.SUNLIGHTCOLOR = Sunlight Color
-screen.SKYLIGHTCOLOR = SkylightColor
+screen.SKYLIGHTCOLOR = Skylight Color
+screen.BLOCKLIGHTCOLOR = Blocklight Color
+screen.SKYMULTIPLIERS = Sky Color Multipliers
 
 option.INFO = Blocky v0.5.5.2
 value.INFO.0 = by dvimidh
@@ -36,20 +40,43 @@ value.shadowMapResolution.16384=163842 (16k)
 option.SHADOW_INTENSITY = Sunlight/Moonlight Intensity
 option.SHADOW_INTENSITY.comment = Intensity of the Sunlight and Moonlight
 
-option.AMBIENT_INTENSITY = Blocklight
+option.DISTORTION_STRENGTH = Shadowmap Distortion Strength
+option.DISTORTION_STRENGTH.comment = How much the Shadowmap distorts.  Higher values will make shadows close to the player higher resolution while decreasing the quality further away
+
+option.AMBIENT_INTENSITY = Blocklight Intensity
 option.AMBIENT_INTENSITY.comment = Brightness of Blocklight
+
+option.BLOCKLIGHTSPREAD = Blocklight Spread
+option.BLOCKLIGHTSPREAD.comment = How far the Blocklight spreads (THIS WILL EFFECT THE PERCIEVED MINIMUM LIGHT VALUE)
 
 option.SKYLIGHT_INTENSITY=Skylight Intensity
 option.SKYLIGHT_INTENSITY.comment = Adjusts the intensity of the ambient lighting. Can be esed in combination with Sunlight/Moonlight Intensity Intensity to get a variety of different lightings.
 
-option.PIXEL_LOCKED_SHADOWS=Pixellated Lighting
-option.PIXEL_LOCKED_SHADOWS.comment = Locks the shadows to minecrafts 16 x 16 grid (like vibrant visuals)
+option.HALO_STRENGTH = Halo Strength
+option.HALO_STRENGTH.comment = Ring of color around the sun
 
+option.AMB_AO_STRENGTH = Ambient Occlusion Strength
+option.AMB_AO_STRENGTH.comment = The dark shadows in corners
+
+option.SUN_AO_STRENGTH = Ambient Occlusion Strength in Sunlight
+option.SUN_AO_STRENGTH.comment = The dark shadows in corners that are in direct sunlight
+
+option.MINIMUMLIGHT = Minimum Light Multiplier
+option.MINIMUMLIGHT.comment = How dark the lighting is when there is no light
+
+option.PIXEL_LOCKED_SHADOWS=Pixellated Lighting
+option.PIXEL_LOCKED_SHADOWS.comment = Locks the shadows to a texture grid (like vibrant visuals)
+
+option.PIXEL_LOCKED_SHADOWS_RES = Pixel Resolution
+option.PIXEL_LOCKED_SHADOWS_RES.comment = The resolution of the texture grid Pixellated Lighting snaps to
 option.SHADOW_FILTERING=Shadow Filtering
 option.SHADOW_FILTERING.comment = Slightly softens the shadows
 
 option.FOG_INTENSITY=Fog Intensity
 option.FOG_INTENSITY.comment = Adjusts the intensity of the fog.
+
+option.RAIN_FOG_INTENSITY=Rain Fog Intensity
+option.RAIN_FOG_INTENSITY.comment = Adjusts the intensity of the fog during rain or snow.
 
 option.CHUNK_FADE=Border Fog
 option.CHUNK_FADE.comment = Adds border fog to conceal chunk pop in
@@ -105,3 +132,19 @@ option.FOGDAYCOLB = Day Blue
 option.FOGNIGHTCOLR = Night Red
 option.FOGNIGHTCOLG = Night Green
 option.FOGNIGHTCOLB = Night Blue
+
+option.BLOCKCOLR = Blocklight Red
+option.BLOCKCOLG = Blocklight Green
+option.BLOCKCOLB = Blocklight Blue
+
+option.SKYRISECOLR = Sunrise Red
+option.SKYRISECOLG = Sunrise Green
+option.SKYRISECOLB = Sunrise Blue
+
+option.SKYDAYCOLR = Day Red
+option.SKYDAYCOLG = Day Green
+option.SKYDAYCOLB = Day Blue
+
+option.SKYNIGHTCOLR = Night Red
+option.SKYNIGHTCOLG = Night Green
+option.SKYNIGHTCOLB = Night Blue

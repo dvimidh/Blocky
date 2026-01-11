@@ -28,7 +28,7 @@ void main() {
     float transparency = clamp(outputColorData.a, 0.0, 1.0);
 
 
-    if(outputColorData.a < 0.1) {
+    if(outputColorData.a < 0.01) {
         discard;
     }   
     transparency = transparency*clamp(mix(0.0, 1.0, clamp(upDot+0.15, 0.0, 1.0)), 0.0, 1.0);

@@ -170,7 +170,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 fragFeetPlayerSpaceBackup = fragFeetPlayerSpace;
     #ifdef PIXEL_LOCKED_SHADOWS
     vec3 fragWorldUnrounded = fragWorldSpace;
-    fragWorldSpace = (floor(fragWorldSpace * 16.0 + 0.01) + 0.5) / 16.0;
+    fragWorldSpace = (floor(fragWorldSpace * PIXEL_LOCKED_SHADOWS_RES + 0.01) + 0.5) / PIXEL_LOCKED_SHADOWS_RES;
     fragFeetPlayerSpace = fragWorldSpace - cameraPosition;    
 
     
@@ -217,8 +217,12 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         shadowMultiplier = vec3(1.0);
     }
     //block and sky lighting
-    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(4.2));
-    vec3 skyLight = vec3(lightMapCoords.y);
+    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(4.2/BLOCKLIGHTSPREAD));
+    vec3 skyLight = vec3(clamp(lightMapCoords.y-0.06666666666, 0.0, 1.0));
+    float skyLightVal = clamp(lightMapCoords.y-0.06666666666, 0.0, 1.0);
+    skyLightVal *= 1.0/0.9;
+    float skyLightDirect = pow(mix(0.0, 1.0, clamp((skyLightVal-0.5)*2.0, 0.0, 1.0)), 1);
+
     vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
 	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
 	vec3 nightColor = vec3(AMBNIGHTCOLR, AMBNIGHTCOLG, AMBNIGHTCOLB);
@@ -247,8 +251,11 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
 	if ((sunAngle > 0.975 && sunAngle < 1.0) ) {
 		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.025 * (sunAngle-0.975));
 	}   
+    skyLight = mix(vec3((skyLight.r + skyLight.g + skyLight.b)/3, (skyLight.r + skyLight.g + skyLight.b)/3, (skyLight.r + skyLight.g + skyLight.b)/3), skyLight, clamp(1.0-((skyLightVal - skyLightDirect)/max(skyLightVal, 0.001)), 0.0, 1.0));
     skyLight = skyLight * 1.5;
     skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);
+
+
     //Voxel Data (I hope)
     //vec3 voxel_pos_unrounded = fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2;
     ivec3 voxel_pos = ivec3(fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2);
@@ -269,7 +276,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
    
     
-    ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.6, 1.0);
+    ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.8, 1.0);
     
     vec3 outputColor =vec3(0);
 
@@ -293,22 +300,22 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
      }
      //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);
 
-     outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
+     outputColor = (albedo * (ambientLight+0.01*MINIMUMLIGHT)*pow(ao, 3.5*AMB_AO_STRENGTH) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0*SUN_AO_STRENGTH));
     } else{
-        brdfv = clamp(brdfv, vec3(0.0), vec3(4.0 - rainStrength*1.8));
-        outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
+        brdfv = clamp(brdfv, vec3(0.0), vec3(3.5 - rainStrength*1.8));
+        outputColor = (albedo * (ambientLight+0.01*MINIMUMLIGHT)*pow(ao, 3.5*AMB_AO_STRENGTH) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0*SUN_AO_STRENGTH));
     }
     #endif 
     #if WATER_STYLE != 1
     
-    outputColor = (albedo * ambientLight*pow(ao, 2.0) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0));
+    outputColor = (albedo * (ambientLight+0.01*MINIMUMLIGHT)*pow(ao, 3.5*AMB_AO_STRENGTH) + (SHADOW_INTENSITY)*shadowMultiplier*sunColor*brdfv*pow(ao, 2.0*SUN_AO_STRENGTH));
     
     #endif
     //return vec4(outputColor*pow(ao, 2.0), transparency);
     //if (clamp(voxel_pos, ivec3(0), ivec3(VOXEL_AREA)) == voxel_pos) {  
       //  return vec4(bytes.rgb, transparency);
     //} else {
-        return vec4(outputColor, transparency);
+        return vec4(vec3(outputColor), transparency);
     //}
 }
 

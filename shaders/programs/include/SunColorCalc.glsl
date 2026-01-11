@@ -11,7 +11,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
         } else {
             SunColorTemp = vec3(SUNDAYCOLR, SUNDAYCOLG, SUNDAYCOLB);
         }
-        SunColorTemp = mix(SunColorTemp, vec3(0.2, 0.1, 0.05)*0.4, rainStrength);   
+        SunColorTemp = mix(SunColorTemp, vec3(0.2, 0.1, 0.05), rainStrength);   
     } else {
         SunColorTemp = 0.3*vec3(SUNNIGHTCOLR, SUNNIGHTCOLG, SUNNIGHTCOLB);
     }

@@ -129,8 +129,8 @@ void main() {
     float lightBrightness = clamp(dot(shadowLightDirection,worldGeoNormal), 0.2, 1.0);
 
     
-    vec3 skyLight = vec3(lightMapCoords.y);
-    float skylightval = lightMapCoords.y;
+    vec3 skyLight = vec3(clamp(lightMapCoords.y-0.1, 0.0, 1.0));
+    float skylightval = clamp(lightMapCoords.y-0.1, 0.0, 1.0);
     vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
 	
     vec3 blockLight = pow(texture(lightmaptex, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
@@ -192,7 +192,7 @@ void main() {
    vec3 ambientLightDirection = vec3(0.0, 1.0, 0.0);
     vec3 ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.6, 1.0);
 
-    vec3 outputColor = outputColorData.rgb*ambientLight + SHADOW_INTENSITY*skylightval*sunColor*brdfv;
+    vec3 outputColor = outputColorData.rgb*(ambientLight+0.01) + SHADOW_INTENSITY*skylightval*sunColor*brdfv;
     float transparency = outputColorData.a;
     if(outputColorData.a < 0.1) {
         discard;

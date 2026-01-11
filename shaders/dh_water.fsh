@@ -3,6 +3,7 @@
 uniform vec3 cameraPosition;
 #include "/programs/include/wave.glsl"
 #include "/programs/settings.glsl"
+#include "/programs/include/SunColorCalc.glsl"
 vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
     //for ease of use
     float alpha = pow(roughness,2);
@@ -117,49 +118,57 @@ void main() {
 
     float lightBrightness = clamp(dot(shadowLightDirection,worldGeoNormal), 0.2, 1.0);
 
-    vec3 skyLight = pow(texture(lightmaptex, vec2(1/32.0,lightMapCoords.y)).rgb, vec3(2.2));
-    float skylightval = lightMapCoords.y;
+    vec3 skyLight = vec3(clamp(lightMapCoords.y-0.1, 0.0, 1.0));
+    float skylightval = clamp(lightMapCoords.y-0.1, 0.0, 1.0);
     vec3 blockLight = pow(texture(lightmaptex, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(2.2));
     vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
     vec3 viewDirection = normalize(cameraPosition - worldPos);
-    vec3 riseColor = vec3(1.2, 0.65, 0.5);
-	vec3 dayColor = vec3(1.0);
-	vec3 nightColor = vec3(0.2, 0.3, 0.3);
+    vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
+	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
+	vec3 nightColor = vec3(AMBNIGHTCOLR, AMBNIGHTCOLG, AMBNIGHTCOLG);
 
-    if (sunAngle > 0.00 && sunAngle < 0.025) {
+	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		skyLight = skyLight*riseColor;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		skyLight = skyLight*mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
 	}
-	if (sunAngle > 0.075 && sunAngle < 0.45) {
+	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		skyLight = skyLight*dayColor;
 	}
-	if (sunAngle > 0.45 && sunAngle < 0.5) {
-		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.45));
+	if (sunAngle > 0.425 && sunAngle < 0.475) {
+		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.425));
 	}
-	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		skyLight = skyLight*mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
+    if (sunAngle > 0.475 && sunAngle < 0.50) {
+        skyLight = skyLight*riseColor;
+    }
+	if (sunAngle > 0.50 && sunAngle < 0.525) {
+		skyLight = skyLight*mix(riseColor, nightColor, 1/0.025 * (sunAngle-0.5));
 	}
-	if ((sunAngle > 0.55 && sunAngle < 0.90) ) {
+	if ((sunAngle > 0.525 && sunAngle < 0.975) ) {
 		skyLight = skyLight*nightColor;
 	}
-	if ((sunAngle > 0.90 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.1 * (sunAngle-0.90));
-	}
+	if ((sunAngle > 0.975 && sunAngle < 1.0) ) {
+		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.025 * (sunAngle-0.975));
+	}   
+    skyLight = skyLight * 1.5;
+    skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);
 
     
     vec3 sunColor = vec3(1.0);
-if (sunAngle < 0.5) {// || sunAngle > 0.98) {
-        if (sunAngle > 0.00 && sunAngle < 0.055) {// || sunAngle > 0.98) {
-            sunColor = mix(vec3(1.0, 0.3, 0.1), vec3(1.0, 0.5, 0.3), 1/0.055 * (sunAngle));
-        } else {
-            sunColor = vec3(1.0, 0.5, 0.3);
-        }
-        sunColor = mix(sunColor, vec3(0.2, 0.1, 0.05), rainStrength);
-    } else {
-        sunColor = vec3(0.6, 0.6, 0.6);
-        
+    sunColor = SunColor(sunAngle, rainStrength);
+      
+    if (sunAngle > 0.0 && sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle));
+    }
+    if (sunAngle-0.5 > 0.0 && sunAngle-0.5 < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (sunAngle-0.5));
+    }
+    if (0.5-sunAngle > 0.0 && 0.5-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (0.5-sunAngle));
+    }
+    if (1.0-sunAngle > 0.0 && 1.0-sunAngle < 0.01) {
+    sunColor = sunColor*mix(0, 1, 100 * (1.0-sunAngle));
     }
     
 #if WATER_STYLE == 1
