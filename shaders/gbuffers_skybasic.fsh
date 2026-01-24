@@ -22,7 +22,7 @@ const float sunPathRotation = 0.0;
 
 vec3 myFogColor = fogColorCalc(sunAngle, rainStrength);
 
-#include "/programs/include/skyColorCalc.glsl"
+#include "/programs/include/SkyColorCalc.glsl"
 
 
 void main() {

@@ -58,10 +58,12 @@ layout(location = 1) out vec4 outColor1;
 void main() {
     
     vec4 outputColorData = texture(gtexture,texCoord);
+    
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
+    vec3 oldAlbedo = albedo;
     #ifndef WATER_TEXTURE
     if (abs(EntityID-10006) < 0.5) {
-        albedo = foliageColor/4.4 + vec3(0.1, 0.0, 0.1);
+        albedo = foliageColor*vec3(0.2, 0.1, 0.4);
     }
     #endif
     float transparency = outputColorData.a; 
@@ -77,9 +79,11 @@ void main() {
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         transparency = clamp(transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER, 0.2, 2.0);
+        #ifdef WATER_TEXTURE
+        
         albedo = albedo + max(0.0, albedo.r - 0.02)*20.6*vec3(0.5, 0.6, 0.9);
         transparency = transparency + max(0.0, albedo.r - 0.05)*1.6;
-
+        #endif
     }
     #endif
 
@@ -99,7 +103,7 @@ void main() {
     transparency = outputColor.a;
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
-        outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.2);
+        outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.9);
     }
     #endif
     float doit = 0.0;

@@ -38,7 +38,7 @@ vec3 moonDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*moonDirection;
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 float mixAmount = 1;
 #include "/programs/include/fogColorCalc.glsl"
-#include "/programs/include/skyColorCalc.glsl"
+#include "/programs/include/SkyColorCalc.glsl"
 float GetLuminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
 }
