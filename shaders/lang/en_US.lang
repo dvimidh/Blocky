@@ -87,6 +87,9 @@ value.WATER_STYLE.2 = Vanilla
 option.WATER_TRANSLUCENCY_MULTIPLIER=Shader water tranclucency 
 option.WATER_ROUGHNESS=Water Roughness
 option.WATER_ROUGHNESS.comment = The spread of the sun/moon reflection on the water
+option.WATER_SHININESS=Water Reflection Strength
+option.WATER_ROUGHNESS.comment = The strength of the sun/moon reflection on the water
+option.WATER_TEXTURE = Water Texture
 
 option.BLOOM_STRENGTH=Bloom Strength
 option.BLOOM_STRENGTH.comment = Adjusts the intensity bloom
@@ -106,7 +109,7 @@ option.SUNDAYCOLG = Day Green
 option.SUNDAYCOLB = Day Blue
 
 option.SUNNIGHTCOLR = Night Red
-option.SUNDAYCOLBNIGHTCOLG = Night Green
+option.SUNNIGHTCOLG = Night Green
 option.SUNNIGHTCOLB = Night Blue
 
 option.AMBRISECOLR = Sunrise Red

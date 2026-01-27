@@ -161,7 +161,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         metallic = 0.01;
         roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
-        albedo = vec3(albedo.r/10, clamp(albedo.g*1.3, 0.0, 0.2), clamp(albedo.b*1.5, 0.0, 0.4));
+        albedo = albedo*vec3(0.4, 1.1, 1.2);
     }
     #endif
     //space conversion

@@ -63,7 +63,7 @@ void main() {
     vec3 oldAlbedo = albedo;
     #ifndef WATER_TEXTURE
     if (abs(EntityID-10006) < 0.5) {
-        albedo = foliageColor*vec3(0.2, 0.1, 0.4);
+        albedo = foliageColor*vec3(0.07, 0.2, 0.4);
     }
     #endif
     float transparency = outputColorData.a; 
@@ -81,8 +81,8 @@ void main() {
         transparency = clamp(transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER, 0.2, 2.0);
         #ifdef WATER_TEXTURE
         
-        albedo = albedo + max(0.0, albedo.r - 0.02)*20.6*vec3(0.5, 0.6, 0.9);
-        transparency = transparency + max(0.0, albedo.r - 0.05)*1.6;
+        albedo = albedo + max(0.0, albedo.r - 0.02)*5.0*vec3(0.3, 0.6, 0.9);
+        transparency = transparency + max(0.0, albedo.r - 0.05)*0.4;
         #endif
     }
     #endif
