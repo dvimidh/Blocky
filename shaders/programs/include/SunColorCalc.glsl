@@ -21,7 +21,7 @@ if (sunAngle < 0.5) {// || sunAngle > 0.98) {
     } else if (sunAngle < 0.03) {
         sunfade = mix(0.0, 1.0, (sunAngle)/(0.03));
     } else if (sunAngle > 0.5 && sunAngle < 0.53) {
-        sunfade = mix(1.0, 0.0, (sunAngle - 0.5)/(0.03));   
+        sunfade = mix(0.0, 1.0, (sunAngle - 0.5)/(0.03));   
     } else {
         sunfade = 1.0;
     }
