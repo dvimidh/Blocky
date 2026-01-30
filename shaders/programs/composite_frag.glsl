@@ -87,8 +87,11 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
 	} 
-	if (sunAngle > 0.45 && sunAngle < 0.5) {
-		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.45));
+	if (sunAngle > 0.425 && sunAngle < 0.475) {
+		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.425));
+	}
+	if (sunAngle > 0.475 && sunAngle < 0.50) {
+		SunRiseColor = riseColorMore;
 	}
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
 		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
@@ -156,7 +159,7 @@ void main() {
 		myFogColor = fogColorCalc(sunAngle, rainStrength);
 		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   		vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
+		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	
@@ -247,7 +250,7 @@ void main() {
 		myFogColor = fogColorCalc(sunAngle, rainStrength);
 		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   		vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
+		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	
@@ -273,7 +276,7 @@ vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 float fogFactor = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2)), 0.0, 1.0);
 
 myFogColor = fogColorCalc(sunAngle, rainStrength);
-	myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle);
+	myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
 if (isEyeInWater == 0) {
 color.rgb = mix(color.rgb, myFogColor, fogFactor);
 if (depth < depthT-0.01) {

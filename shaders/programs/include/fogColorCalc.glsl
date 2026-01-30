@@ -11,7 +11,7 @@ vec3 fogColorCalc(float sunAngle, float rainStrength) {
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		myFogColor = mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
 	}
-	if (sunAngle > 0.075 && sunAngle < 0.45) {
+	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		myFogColor = dayColor;
 	}
 	if (sunAngle > 0.425 && sunAngle < 0.475) {

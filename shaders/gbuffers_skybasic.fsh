@@ -32,7 +32,7 @@ void main() {
 		color = starData.rgb;
 	}
 	else {
-		color = calcSkyColor(normalize(viewpos.xyz), myFogColor, sunAngle);
+		color = calcSkyColor(normalize(viewpos.xyz), myFogColor, sunAngle, 1.0);
 	}
 
 /* DRAWBUFFERS:0 */

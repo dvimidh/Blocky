@@ -100,6 +100,12 @@ option.BLOOM_SPREAD.comment = Adjusts how far the bloom spreads
 option.BLOOM = Bloom
 option.BLOOM.comment = The halo around bright things
 
+option.EXPOSURE = Exposure
+option.EXPOSURE.comment = How easy it is to get to white.  Lower values handle brighter things better
+
+option.SATURATION = Saturation
+option.SATURATION.comment = The strength of colors.  Higher values make colors pop more
+
 option.SUNRISECOLR = Sunrise Red
 option.SUNRISECOLG = Sunrise Green
 option.SUNRISECOLB = Sunrise Blue

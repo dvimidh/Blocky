@@ -36,15 +36,20 @@ vec3 tonemapMe2(vec3 color) {
 	return color;
 }
 vec3 tonemapMe3(vec3 color) {
-	float exposure = 6;
+	float exposure = 6*EXPOSURE;
 	// Apply tonemapping operator here
 	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
 	return color;
 }
-
+vec3 increaseSaturation(vec3 rgb, float adjustment) {
+    const vec3 W = vec3(0.3333333, 0.3333333, 0.3333333); // Luminance weights
+    vec3 intensity = vec3(dot(rgb, W)); // Calculate luminance (grayscale)
+    return mix(intensity, rgb, adjustment); // Interpolate between grayscale and original color
+}
 
 void main() {
     color = mix(tonemapMe3(color), color, 0.0); 
+	color = increaseSaturation(color, SATURATION);
     /*DRAWBUFFERS:0 */
     //color = color / (color+vec3(1.0));
     //color = vec3(1.0) - exp(-color * exposure);
