@@ -11,7 +11,7 @@ screen.SKYLIGHTCOLOR = Skylight Color
 screen.BLOCKLIGHTCOLOR = Blocklight Color
 screen.SKYMULTIPLIERS = Sky Color Multipliers
 
-option.INFO = Blocky v0.5.5.2
+option.INFO = Blocky v0.5.5.3
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance
@@ -102,6 +102,12 @@ option.BLOOM.comment = The halo around bright things
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = How easy it is to get to white.  Lower values handle brighter things better
+
+option.SKY_SATURATION = Sky Saturation
+option.SKY_SATURATION.comment = The strength of colors in the sky.  Higher values make colors pop more
+
+option.SKY_INTENSITY = Sky Intensity
+option.SKY_INTENSITY.comment = The brightness of the sky
 
 option.SATURATION = Saturation
 option.SATURATION.comment = The strength of colors.  Higher values make colors pop more

@@ -23,14 +23,16 @@ const float sunPathRotation = 0.0;
 vec3 myFogColor = fogColorCalc(sunAngle, rainStrength);
 
 #include "/programs/include/SkyColorCalc.glsl"
-
+float upDot = dot(normalize(viewpos), normalize(gbufferModelView[1].xyz));
 
 void main() {
 	
 	vec3 color;
 	if (starData.a > 0.5) {	
-		color = starData.rgb;
+		color = mix(starData.rgb, calcSkyColor(normalize(viewpos.xyz), myFogColor, sunAngle, 1.0), clamp(mix(0.0, 1.0, clamp(upDot+0.15, 0.0, 1.0)), 0.0, 1.0));
+		
 	}
+
 	else {
 		color = calcSkyColor(normalize(viewpos.xyz), myFogColor, sunAngle, 1.0);
 	}

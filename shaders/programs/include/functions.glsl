@@ -20,7 +20,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 
     //dot products
     float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
-    float NdotL = clamp(dot(normal, lightDir), 0.001,1.0);
+    float NdotL = clamp(dot(normal, lightDir) + 0.05, 0.001,1.0);
     float NdotH = clamp(dot(normal,H), 0.001,1.0);
     float VdotH = clamp(dot(viewDir, H), 0.001,1.0);
 
@@ -66,7 +66,7 @@ vec3 brdfg(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albed
 
     //dot products
     float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
-    float NdotL = clamp(dot(normal, lightDir), 0.001,1.0);
+    float NdotL = clamp(dot(normal, lightDir) + 0.05, 0.001,1.0);
     if (abs(EntityID - 10008) < 0.5) {
         NdotL = clamp(NdotL, 0.6,1.0);
     }
@@ -161,7 +161,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         metallic = 0.01;
         roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
-        albedo = albedo*vec3(0.4, 1.1, 1.2);
+        albedo = albedo*vec3(0.9, 1.3, 1.0);
     }
     #endif
     //space conversion

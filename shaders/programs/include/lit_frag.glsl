@@ -59,7 +59,15 @@ void main() {
     
     vec4 outputColorData = texture(gtexture,texCoord);
     
+    
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
+    #if WATER_STYLE == 1
+    if (abs(EntityID-10006) < 0.5) {
+        if(outputColorData.r > 0.80) {
+            albedo =vec3((albedo.r+albedo.g+albedo.b)/3.0, (albedo.r+albedo.g+albedo.b)/2.0 , (albedo.r+albedo.g+albedo.b)/1.0)/2.5;
+        }
+    }
+    #endif
     vec3 oldAlbedo = albedo;
     #ifndef WATER_TEXTURE
     if (abs(EntityID-10006) < 0.5) {
@@ -104,6 +112,7 @@ void main() {
     #if WATER_STYLE == 1
     if (abs(EntityID-10006) < 0.5) {
         outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.9);
+        
     }
     #endif
     float doit = 0.0;

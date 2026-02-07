@@ -42,6 +42,6 @@ void main() {
     if(sunAmount > 0) {
         albedo *= (1.0 + 3-upDot*3);
     }
-    outColor0 =vec4(pow(albedo*1.0, vec3(1/2.2)), transparency*(1-rainStrength*0.8));
+    outColor0 =vec4(pow(albedo*1.0, vec3(1/2.2)), transparency*(1-rainStrength*0.9));
 }
     

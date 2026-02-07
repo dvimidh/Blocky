@@ -13,7 +13,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 
     //dot products
     float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
-    float NdotL = clamp(dot(normal, lightDir), 0.001,1.0);
+    float NdotL = clamp(dot(normal, lightDir) + 0.05, 0.001,1.0);
     float NdotH = clamp(dot(normal,H), 0.001,1.0);
     float VdotH = clamp(dot(viewDir, H), 0.001,1.0);
 
