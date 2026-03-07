@@ -11,7 +11,7 @@ screen.SKYLIGHTCOLOR = Skylight Color
 screen.BLOCKLIGHTCOLOR = Blocklight Color
 screen.SKYMULTIPLIERS = Sky Color Multipliers
 
-option.INFO = Blocky v0.5.5.3
+option.INFO = Blocky v0.6
 value.INFO.0 = by dvimidh
 option.INFO.comment = https://dvimidh.com 
 option.shadowDistance=Shadow Distance

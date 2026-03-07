@@ -47,7 +47,7 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	return homPos.xyz / homPos.w;
 }
 vec3 tonemapMe3(vec3 color) {
-	float exposure = 1 + sqrt(FOG_INTENSITY);
+	float exposure = 3 + 1/sqrt(FOG_INTENSITY);
 	// Apply tonemapping operator here
 	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
 	return color;
@@ -61,8 +61,8 @@ vec3 tonemapMe3(vec3 color) {
 vec3 myFogColor = vec3(0);
 float depth = texture(depthtex0, texCoord).r;
 
-float depthT = texture(depthtex1, texCoord).r;
-vec3 applyFog( in vec3  col,  // color of pixel
+	float depthT = texture(depthtex1, texCoord).r;
+	vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
                in vec3  rd,   // camera to point vector
@@ -72,9 +72,18 @@ vec3 applyFog( in vec3  col,  // color of pixel
 			   in float b,    // constant
 			   in bool sky)   // if pixel is part of the sky
 {
-	
+
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
-	
+	float s = 10.0/(220.0+300.0);
+	float h = (-300.0+220.0)/2.0;
+	float c3 = ro.y;		
+	float p3 = ro.y + t*rd.y;
+	//fogAmount = t*10*(-log(-pow(2.71828182846,-s*(p3-h))+1)/s - (-log(-pow(2.71828182846,-s*(c3-h))+1)/s))/(p3-c3);	
+	fogAmount = abs(
+		(t * 0.01 * FOG_INTENSITY  / (p3 - c3)) * (
+			log(abs(pow(2.71828182846,-s*(p3-h))+1))/s              - log(abs(pow(2.71828182846,-s*(c3-h))+1))/s
+			)
+		);
 	//if(sky) 
 	float sunAmount = max( dot(rd, lig), 0.0 );
 	
@@ -102,8 +111,8 @@ vec3 applyFog( in vec3  col,  // color of pixel
 	vec3 NDCPosndh = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPosndh = projectAndDivide(gbufferProjectionInverse, NDCPosndh);
 	float upDot = dot(normalize(viewPosndh), normalize(gbufferModelView[1].xyz));
-	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.5)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(1.6*upDot), 0.0, 1.0) - clamp(100/t, 0.0, 1.0),0.0)*(1-rainStrength));
-	
+	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.6*upDot)+upDot, 0.0, 1.0),0.0)*(1-rainStrength));
+
 	if (isEyeInWater == 1) {
 		fogAmount = t * 0.02;
 		myFogColor = mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5);
@@ -115,7 +124,7 @@ vec3 applyFog( in vec3  col,  // color of pixel
 		if(sky) {
 			return col;
 		} else {
-			return mix( col, myFogColor, clamp(tonemapMe3(vec3(fogAmount*0.9)).r, 0.0, 1.0) );
+			return mix( col, myFogColor, clamp(tonemapMe3(vec3(fogAmount*0.85)).r, 0.0, 1.0) );
 	}
 		}
 		

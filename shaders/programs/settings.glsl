@@ -1,5 +1,5 @@
 /* 
-Blocky Shaders v0.5.5.3 by dvimidh 
+Blocky Shaders v0.6 by dvimidh 
 https://dvimidh.com 
 */ 
 /* 

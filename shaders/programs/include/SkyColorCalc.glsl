@@ -47,15 +47,15 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.6*upDot)+upDot, 0.0, 1.0),0.0)*(1-rainStrength));
 
 
-	vec3 MyskyColor = skyColor*SkyMult;
+	vec3 MyskyColor = increaseSaturation(skyColor*SkyMult, SKY_SATURATION);
 	float myFar = far;
 	#ifdef CHUNK_FADE
 	#ifdef DISTANT_HORIZONS
 	myFar = 100000000.0;
 	#endif
 	#endif
-	vec3 baseSkyColor = mix(MyskyColor, myFogColor,clamp(1 - upDot*2 + 100/(myFar + 500.0) + 0.4*mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength), 0.0, 1.0));
+	vec3 baseSkyColor = mix(MyskyColor, myFogColor,clamp(1 - upDot*2 + 100/(myFar + 500.0) + 0.06*mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength), 0.0, 1.0) + rainStrength*0.3);
 	baseSkyColor = mix(baseSkyColor, vec3(1.4, 0.85, -0.1), clamp(pow(max(sunAmount, 0.0), 100.0)*HALO_STRENGTH* HaloMult, 0.0, 0.4*(1-rainStrength))*max(pow(upDot, 0.4), 0.0));//sun halo
 	
-	return increaseSaturation(baseSkyColor, SKY_SATURATION);
+	return baseSkyColor;
 }	
