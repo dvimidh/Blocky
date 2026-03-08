@@ -74,8 +74,8 @@ float depth = texture(depthtex0, texCoord).r;
 {
 
     float fogAmount = (a/b) * exp(-(ro.y+0.3)*b) * (1.0-exp(-t*(rd.y+0.3)*b))/(rd.y+0.3);
-	float s = 10.0/(220.0+300.0);
-	float h = (-300.0+220.0)/2.0;
+	float s = 10.0/(FOG_DECAY_END - FOG_DECAY_START);
+	float h = (FOG_DECAY_START+FOG_DECAY_END)/2.0;
 	float c3 = ro.y;		
 	float p3 = ro.y + t*rd.y;
 	//fogAmount = t*10*(-log(-pow(2.71828182846,-s*(p3-h))+1)/s - (-log(-pow(2.71828182846,-s*(c3-h))+1)/s))/(p3-c3);	

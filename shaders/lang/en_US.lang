@@ -78,6 +78,12 @@ option.FOG_INTENSITY.comment = Adjusts the intensity of the fog.
 option.RAIN_FOG_INTENSITY=Rain Fog Intensity
 option.RAIN_FOG_INTENSITY.comment = Adjusts the intensity of the fog during rain or snow.
 
+option.FOG_DECAY_START=Fog Decay Start Height
+option.FOG_DECAY_START.comment=When the fog density starts decreasing with height
+
+option.FOG_DECAY_END=Fog Decay End Height
+option.FOG_DECAY_END.comment=The height when the fog density decreases to zero
+
 option.CHUNK_FADE=Border Fog
 option.CHUNK_FADE.comment = Adds border fog to conceal chunk pop in
 
