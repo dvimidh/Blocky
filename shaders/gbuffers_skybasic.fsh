@@ -9,7 +9,6 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
-#include "/programs/include/fogColorCalc.glsl"
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform float sunAngle;
@@ -19,9 +18,8 @@ in vec4 starData; //rgb = star color, a = flag for weather or not this pixel is 
 in vec3 viewpos;
 const float sunPathRotation = 0.0;
 
-
+#include "/programs/include/fogColorCalc.glsl"
 vec3 myFogColor = fogColorCalc(sunAngle, rainStrength);
-
 #include "/programs/include/SkyColorCalc.glsl"
 float upDot = dot(normalize(viewpos), normalize(gbufferModelView[1].xyz));
 

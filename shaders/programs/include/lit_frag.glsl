@@ -1,8 +1,7 @@
 #version 430 compatibility
 
 #include "/programs/settings.glsl"
-#include "/programs/include/fogColorCalc.glsl"
-#include "/programs/include/SunColorCalc.glsl"
+
 
 //uniforms  
 uniform usampler3D cSampler1;
@@ -54,6 +53,8 @@ layout(location = 0) out vec4 outColor0;
 layout(location = 1) out vec4 outColor1;
 #include "/programs/include/wave.glsl"
 #include "/programs/include/functions.glsl"
+#include "/programs/include/fogColorCalc.glsl"
+#include "/programs/include/SunColorCalc.glsl"
 
 void main() {
     

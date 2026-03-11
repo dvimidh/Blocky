@@ -33,9 +33,10 @@ uniform int isEyeInWater;
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
 vec3 sunDirection = normalize(sunPosition);
 vec3 moonDirection = normalize(moonPosition);
-vec3 sunDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*sunDirection;
-vec3 moonDirectionEyePlayerPos = mat3(gbufferModelViewInverse)*moonDirection;
+vec3 sunDirectionEyePlayerPos = sunDirection*mat3(gbufferModelViewInverse);
+vec3 moonDirectionEyePlayerPos = moonDirection*mat3(gbufferModelViewInverse);
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
+
 float mixAmount = 1;
 #include "/programs/include/fogColorCalc.glsl"
 #include "/programs/include/SkyColorCalc.glsl"
@@ -47,9 +48,9 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	return homPos.xyz / homPos.w;
 }
 vec3 tonemapMe3(vec3 color) {
-	float exposure = 3 + 1/sqrt(FOG_INTENSITY);
+	float exposure = 3.0 + 1.0/sqrt(FOG_INTENSITY);
 	// Apply tonemapping operator here
-	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
+	color = pow((pow(color, vec3(exposure)))/(1.0+pow(color, vec3(exposure))), vec3(1.0/exposure));
 	return color;
 }
 
@@ -144,6 +145,7 @@ float depth = texture(depthtex0, texCoord).r;
 
 bool calctransparency = true;
 void main() {
+
 	#ifdef DISTANT_HORIZONS
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
 	vec3 dhNDCPos = vec3(texCoord.xy, dhDepth) * 2.0 - 1.0;

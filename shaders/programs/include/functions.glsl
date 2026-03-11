@@ -262,7 +262,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //if(fract(voxel_pos_unrounded.x) < 0.05 || fract(voxel_pos_unrounded.x) > 0.95) {
         //voxel_pos.x = /*int(voxel_pos.x - normalize(normalWorldSpace).x);*/ int(voxel_pos.x+1);
     //}
-    vec4 bytes = unpackUnorm4x8(texture3D(cSampler2, vec3(voxel_pos)/vec3(VOXEL_AREA)).r);
+    //vec4 bytes = unpackUnorm4x8(texture3D(cSampler2, vec3(voxel_pos)/vec3(VOXEL_AREA)).r);
     
     //ambient lighting
     vec3 ambientLightDirection = vec3(0.0, 1.0, 0.0);

@@ -33,7 +33,7 @@ void main() {
 
     float distanceFromPlayer = length(gl_Position.xy);
 
-    #include "/programs/include/voxelizing.glsl"
+    //#include "/programs/include/voxelizing.glsl"
 
     gl_Position.xyz = distortShadowClipPos(gl_Position.xyz);
 
