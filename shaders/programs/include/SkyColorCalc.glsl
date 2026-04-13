@@ -15,6 +15,7 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 	vec3 SkyMult;
 	vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 	vec3 SunRiseColor = myFogColor;
+	vec3 SkyBoost = vec3(0.0, 0.0, 0.0);
 	if (sunAngle > 0.00 && sunAngle < 0.025) {
 		SunRiseColor = riseColorMore;
 		SkyMult = RiseMult;
@@ -36,18 +37,22 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
 		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
 		SkyMult = mix(RiseMult, nightMult, 1/0.05 * (sunAngle-0.5));
+		SkyBoost = mix(vec3(0.0), vec3(0.1), 1/0.05 * (sunAngle-0.5));
 	}
 	if (sunAngle > 0.55 && sunAngle < 0.95) {
 		SkyMult = nightMult;
+		SkyBoost = vec3(0.1);
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
 		SkyMult = mix(nightMult, RiseMult, 1/0.05 * (sunAngle-0.95));
+		SkyBoost = mix(vec3(0.0), vec3(0.1), 1/0.05 * (sunAngle-0.95));
 	}
 	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.6*upDot)+upDot, 0.0, 1.0),0.0)*(1-rainStrength));
 
 
-	vec3 MyskyColor = mix(increaseSaturation(skyColor*SkyMult, SKY_SATURATION), vec3(0.4, 0.45, 0.6), rainStrength);
+
+	vec3 MyskyColor = mix(increaseSaturation(skyColor*SkyMult + SkyBoost*SkyMult, SKY_SATURATION), vec3(0.4, 0.45, 0.6), rainStrength);
 	float myFar = far;
 	#ifdef CHUNK_FADE
 	#ifdef DISTANT_HORIZONS

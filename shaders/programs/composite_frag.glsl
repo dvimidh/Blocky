@@ -3,7 +3,7 @@
 #include "/programs/settings.glsl"
 
 in vec2 texCoord;
-in vec3 viewSpacePosition;
+
 uniform float frameTimeCounter;
 uniform float sunAngle;
 uniform float far;
@@ -30,6 +30,13 @@ uniform float rainStrength;
 uniform float playerMood;
 uniform float constantMood;
 uniform int isEyeInWater;
+
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+	vec4 homPos = projectionMatrix * vec4(position, 1.0);
+	return homPos.xyz / homPos.w;
+}
+
+vec3 viewSpacePosition = projectAndDivide(gbufferProjectionInverse, vec3(texCoord, texture2D(depthtex0, texCoord))*2.0 -1.0);
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
 vec3 sunDirection = normalize(sunPosition);
 vec3 moonDirection = normalize(moonPosition);
@@ -43,17 +50,14 @@ float mixAmount = 1;
 float GetLuminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
 }
-vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
-	vec4 homPos = projectionMatrix * vec4(position, 1.0);
-	return homPos.xyz / homPos.w;
-}
+
 vec3 tonemapMe3(vec3 color) {
 	float exposure = 3.0 + 1.0/sqrt(FOG_INTENSITY);
 	// Apply tonemapping operator here
 	color = pow((pow(color, vec3(exposure)))/(1.0+pow(color, vec3(exposure))), vec3(1.0/exposure));
 	return color;
 }
-
+float sunAmount = max( dot(normalize(viewSpacePosition), normalize(sunPosition)), 0.0 );
 	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
 	vec4 colorCloud = texture2DLod(colortex6, texCoord, 0.0);
 	vec3 colorParticles = texture2DLod(colortex5, texCoord, 0.0).rgb;
@@ -81,12 +85,12 @@ float depth = texture(depthtex0, texCoord).r;
 	float p3 = ro.y + t*rd.y;
 	//fogAmount = t*10*(-log(-pow(2.71828182846,-s*(p3-h))+1)/s - (-log(-pow(2.71828182846,-s*(c3-h))+1)/s))/(p3-c3);	
 	fogAmount = abs(
-		(t * 0.01 * FOG_INTENSITY  / (p3 - c3)) * (
+		(t * 0.01 * mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength)  / (p3 - c3)) * (
 			log(abs(pow(2.71828182846,-s*(p3-h))+1))/s              - log(abs(pow(2.71828182846,-s*(c3-h))+1))/s
 			)
 		);
 	//if(sky) 
-	float sunAmount = max( dot(rd, lig), 0.0 );
+	
 	
 	vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 
