@@ -31,7 +31,7 @@ const int colortex9Format = RGBA16F;
   #define VOXEL_AREA 0 // [0 32 64 128 256]
   #define VOXEL_RADIUS (VOXEL_AREA/2)
   const float voxelDistance = VOXEL_AREA;
-  const float entityShadowDistanceMul = 0.0; //[0.0 0.025 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+  const float entityShadowDistanceMul = 0.3; //[0.0 0.025 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
   #define VOXEL_X int(VOXEL_AREA/8)
   #define VOXEL_YZ int(VOXEL_AREA/4)
   
