@@ -22,8 +22,9 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
 		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
-	} 	SkyMult = mix(RiseMult, dayMult, 1/0.05 * (sunAngle - 0.025));
-	if (sunAngle >0.075 && sunAngle < 0.0425) {
+		SkyMult = mix(RiseMult, dayMult, 1/0.05 * (sunAngle - 0.025));
+	} 	
+	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		SkyMult = dayMult;
 	}
 	if (sunAngle > 0.425 && sunAngle < 0.475) {
@@ -46,7 +47,7 @@ float sunAmount = dot(normalize(pos), normalize(sunPosition));
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
 		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
 		SkyMult = mix(nightMult, RiseMult, 1/0.05 * (sunAngle-0.95));
-		SkyBoost = mix(vec3(0.0), vec3(0.1), 1/0.05 * (sunAngle-0.95));
+		SkyBoost = mix(vec3(0.1), vec3(0.0), 1/0.05 * (sunAngle-0.95));
 	}
 	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.6*upDot)+upDot, 0.0, 1.0),0.0)*(1-rainStrength));
 

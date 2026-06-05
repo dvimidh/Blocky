@@ -10,9 +10,9 @@
 uniform sampler2D gtexture;
 
 //vertexToFragment
-in vec2 texCoord;
-in vec3 foliageColor;
-in vec4 mc_EntityOut;
+varying vec2 texCoord;
+varying vec3 foliageColor;
+varying vec4 mc_EntityOut;
 
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 outColor0;

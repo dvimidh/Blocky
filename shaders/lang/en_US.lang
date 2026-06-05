@@ -28,7 +28,7 @@ value.shadowDistance.768.0=48 chunks
 value.shadowDistance.1024.0=64 chunks
 
 option.shadowMapResolution=Shadowmap Resolution
-option.shadowMapResolution.comment=Adjusts shadowmap size. §e[*]§rHigher resolution gives sharper shadows, but reduces performance.
+option.shadowMapResolution.comment=Adjusts shadowmap size. Higher resolution gives sharper shadows, but reduces performance.
 value.shadowMapResolution.512=512 (0.5K)
 value.shadowMapResolution.1024=1024 (1K)
 value.shadowMapResolution.2048=2048 (2K)
@@ -37,9 +37,12 @@ value.shadowMapResolution.4096=4096 (4K)
 value.shadowMapResolution.8192=8192 (8k)
 value.shadowMapResolution.16384=163842 (16k)
 
+option.entityShadowDistanceMul= Entity Shadow Distance
+option.entityShadowDistanceMul.comment= Decreases the entity shadow distance (things like mobs etc) to increase performance, For best performance, set to 0;
+
 option.SHADOW_INTENSITY = Sunlight/Moonlight Intensity
 option.SHADOW_INTENSITY.comment = Intensity of the Sunlight and Moonlight
-
+ 
 option.DISTORTION_STRENGTH = Shadowmap Distortion Strength
 option.DISTORTION_STRENGTH.comment = How much the Shadowmap distorts.  Higher values will make shadows close to the player higher resolution while decreasing the quality further away
 
