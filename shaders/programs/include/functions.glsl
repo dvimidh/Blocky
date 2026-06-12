@@ -189,16 +189,16 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 reflectionDirection = reflect(-shadowLightDirection, normalWorldSpace);
     vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
    
-    
+    #ifdef SHADOW
     //shadow
     float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0HW, fragShadowScreenSpace.xyz).r);
     float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture(shadowtex1, fragShadowScreenSpace.xy).r);
     vec4 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy);
 
     vec3 shadowMultiplier = vec3(1.0);
-
+    #endif
    
-
+#ifdef SHADOW
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
             #ifndef SHADOW_FILTERING
@@ -212,7 +212,10 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         }
 
     }
-
+#endif
+#ifndef SHADOW
+    vec3 shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rgb, vec3(5.2)));
+#endif
     if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.003) {
         shadowMultiplier = vec3(1.0);
     }

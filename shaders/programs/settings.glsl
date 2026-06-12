@@ -25,7 +25,12 @@ const int colortex9Format = RGBA16F;
   #define BLOCKLIGHTSPREAD 1.5 //[0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
   #define MINIMUMLIGHT 0.6 //[0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
   const int shadowMapResolution = 2048; // [512 1024 2048 3072 4096 6144 8192 16384]
-  const float shadowDistance = 128.0; //[32.0 64.0 96.0 128.0 192.0 256.0 384.0 512.0 768.0 1024.0]
+#ifdef SHADOW
+  const float shadowDistance = 128.0; //[32.0 64.0 80.0 96.0 128.0 192.0 256.0 384.0 512.0 768.0 1024.0]
+#endif
+#ifndef SHADOW
+const float shadowDistance = 0;
+#endif
   const bool shadowHardwareFiltering = true;
   const float shadowDistanceRenderMul = 1.0;
   #define VOXEL_AREA 0 // [0 32 64 128 256]

@@ -18,6 +18,7 @@ option.shadowDistance=Shadow Distance
 option.shadowDistance.comment=Adjusts shadow distance.
 value.shadowDistance.32.0=2 chunks
 value.shadowDistance.64.0=4 chunks
+value.shadowDistance.80.0=5 chunks
 value.shadowDistance.96.0=6 chunks
 value.shadowDistance.128.0=8 chunks
 value.shadowDistance.192.0=12 chunks
@@ -45,6 +46,9 @@ option.SHADOW_INTENSITY.comment = Intensity of the Sunlight and Moonlight
  
 option.DISTORTION_STRENGTH = Shadowmap Distortion Strength
 option.DISTORTION_STRENGTH.comment = How much the Shadowmap distorts.  Higher values will make shadows close to the player higher resolution while decreasing the quality further away
+
+option.SHADOW = Shadows Enabled
+option.SHADOW.comment = Greatly helps performance when off
 
 option.AMBIENT_INTENSITY = Blocklight Intensity
 option.AMBIENT_INTENSITY.comment = Brightness of Blocklight
