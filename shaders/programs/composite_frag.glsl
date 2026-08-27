@@ -52,7 +52,7 @@ float GetLuminance(vec3 color) {
 }
 
 vec3 tonemapMe3(vec3 color) {
-	float exposure = 3.0 + 1.0/sqrt(FOG_INTENSITY);
+	float exposure = 3.0 + 1.0/sqrt(mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength));
 	// Apply tonemapping operator here
 	color = pow((pow(color, vec3(exposure)))/(1.0+pow(color, vec3(exposure))), vec3(1.0/exposure));
 	return color;
@@ -116,7 +116,7 @@ float depth = texture(depthtex0, texCoord).r;
 	vec3 NDCPosndh = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPosndh = projectAndDivide(gbufferProjectionInverse, NDCPosndh);
 	float upDot = dot(normalize(viewPosndh), normalize(gbufferModelView[1].xyz));
-	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.6*upDot)+upDot, 0.0, 1.0),0.0)*(1-rainStrength));
+	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.1*upDot)+upDot/5, 0.0, 1.0),0.0)*(1-rainStrength));
 
 	if (isEyeInWater == 1) {
 		fogAmount = t * 0.02;
@@ -190,7 +190,7 @@ void main() {
 	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6*FOG_INTENSITY/1000, 6*RAIN_FOG_INTENSITY/1000, rainStrength), 0.01, ifsky);
 	#endif
 	#ifndef DISTANT_HORIZONS
-	bool ifsky = true;
+	bool ifsky = false;
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
@@ -231,7 +231,7 @@ void main() {
 				#ifdef DISTANT_HORIZONS
 				float dhDepth = texture(dhDepthTex0, texCoord).r;
 				if (dhDepth == 1.0) {
-					ifsky = true;
+					ifsky = false;
 					vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  				vec3 viewPosT = projectAndDivide(dhProjectionInverse, NDCPosT);
 					vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;

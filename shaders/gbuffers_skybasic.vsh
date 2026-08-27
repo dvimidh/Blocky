@@ -2,8 +2,8 @@
 
 #include "/programs/settings.glsl"
 
-out vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
-out vec3 viewpos;
+varying vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
+varying vec3 viewpos;
 void main() {
 	viewpos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 	gl_Position = ftransform();

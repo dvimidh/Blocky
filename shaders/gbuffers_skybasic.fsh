@@ -32,7 +32,7 @@ void main() {
 	}
 
 	else {
-		color = calcSkyColor(normalize(viewpos.xyz), myFogColor, sunAngle, 1.0);
+		color = calcSkyColor(normalize(viewpos), myFogColor, sunAngle, 1.0);
 	}
 
 /* DRAWBUFFERS:0 */

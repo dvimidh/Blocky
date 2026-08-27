@@ -198,7 +198,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 shadowMultiplier = vec3(1.0);
 
    
-
+if(shadowDistance > 0.0) {
     if(isInShadow == 0.0) {
         if(isInNonColoredShadow == 0.0) {
             #ifndef SHADOW_FILTERING
@@ -212,6 +212,9 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         }
 
     }
+} else {
+    shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rgb, vec3(5.2)));
+}
 
     if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.003) {
         shadowMultiplier = vec3(1.0);
