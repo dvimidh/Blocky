@@ -2,7 +2,7 @@
 
 #include "/programs/settings.glsl"
 
-in vec2 texCoord;
+varying vec2 texCoord;
 
 uniform float frameTimeCounter;
 uniform float sunAngle;

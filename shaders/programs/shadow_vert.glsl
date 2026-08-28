@@ -2,8 +2,6 @@
 #include "/programs/settings.glsl"
 #include "/programs/include/distort.glsl"
 
-layout (r32ui) uniform uimage3D cimage1;
-layout (r32ui) uniform uimage3D cimage2;
 
 uniform sampler2D gtexture;
 attribute vec4 at_midBlock;
@@ -14,10 +12,10 @@ uniform float frameTimeCounter;
 uniform mat4 shadowModelViewInverse;
 uniform int entityId;
 uniform int renderStage;
-out vec2 lmcoord;
-out vec2 texCoord;
-out vec3 foliageColor;
-out vec4 mc_EntityOut;
+varying vec2 lmcoord;
+varying vec2 texCoord;
+varying vec3 foliageColor;
+varying vec4 mc_EntityOut;
 
 void main() {
 
@@ -32,8 +30,6 @@ void main() {
     gl_Position = ftransform();
 
     float distanceFromPlayer = length(gl_Position.xy);
-
-    //#include "/programs/include/voxelizing.glsl"
 
     gl_Position.xyz = distortShadowClipPos(gl_Position.xyz);
 
