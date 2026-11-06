@@ -12,7 +12,7 @@ mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
     return mat3(tangent, bitangent, normal);
 }
 vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
-    //for ease of use
+    
     float alpha = pow(roughness,2);
 
     vec3 H = normalize(lightDir + viewDir);
@@ -40,7 +40,7 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 
     // Distribution of Microfacets
     float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
-    float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159 * pow(lowerTerm,2.0));
+    float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159265358979323 * pow(lowerTerm,2.0));
 
     
 
@@ -50,8 +50,6 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     vec3 BRDF = (phongDiffuse+cookTorrance)*NdotL;
    
     vec3 diffFunction = BRDF;
-    
-        
 
     return BRDF;
     
