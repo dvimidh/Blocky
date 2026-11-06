@@ -25,6 +25,7 @@ const int colortex9Format = RGBA16F;
   #else
     const float shadowDistance = 0.0; 
   #endif
+  const float shadowDistanceRendermul = 1.0;
   #define SHADOW_INTENSITY 2.1 // [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
   #define SKYLIGHT_INTENSITY 2.5 // [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
   #define AMBIENT_INTENSITY 3.0 // [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
@@ -41,7 +42,7 @@ const int colortex9Format = RGBA16F;
   #define VOXEL_X int(VOXEL_AREA/8)
   #define VOXEL_YZ int(VOXEL_AREA/4)
   
-  #define FXAA_SUBPIXEL 0.00 //[0.00 0.25 0.50 0.75 1.00
+  #define FXAA_SUBPIXEL 0.75 //[0.00 0.25 0.50 0.75 1.00]
   //#define SHADOW_FILTERING
   #define PIXEL_LOCKED_SHADOWS
   #define PIXEL_LOCKED_SHADOWS_RES 16.0 //[1.0 2.0 4.0 8.0 16.0 32.0 64.0 128.0 256.0 512.0 1024.0 2048.0 4096.0]

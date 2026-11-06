@@ -12,8 +12,8 @@ float edgeThreshold = 0.063;
 float edgeThresholdMin = 0.0156;
 #endif */
 
-float edgeThreshold = 0.25;
-float edgeThresholdMin = 0.0625;
+float edgeThreshold = 0.063;
+float edgeThresholdMin = 0.0156;
 
 
 vec3 FXAA311(vec3 color) {

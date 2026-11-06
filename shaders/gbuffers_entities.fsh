@@ -22,6 +22,7 @@ uniform mat4 shadowProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferProjection;
 uniform int worldTime;
+uniform int entityId;
 uniform float far;
 uniform float dhNearPlane;
 uniform vec3 shadowLightPosition;
@@ -58,7 +59,10 @@ void main() {
     vec4 outputColorData = texture(gtexture,texCoord);
     vec3 albedo = mix(pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2)), entityColor.rgb, entityColor.a);
     float transparency = outputColorData.a;
-
+    if (abs(entityId-10100) < 0.5) {
+        albedo = albedo.rgb*2;
+        transparency = transparency * min((albedo.r + albedo.g + albedo.b + 0.5)/2.0, 1.0);
+    }
     if(transparency < 0.1) {
         discard;
     }
