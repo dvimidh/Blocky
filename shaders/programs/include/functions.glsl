@@ -13,7 +13,7 @@ mat3 tbnNormalTangent(vec3 normal, vec3 tangent) {
 }
 vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
     
-    float alpha = pow(roughness,2);
+    float alpha = pow(roughness,2.);
 
     vec3 H = normalize(lightDir + viewDir);
     
@@ -35,17 +35,17 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
     //rhoD *= (1-metallic); //diffuse is 0 for metals
 
     // Geometric attenuation
-    float k = alpha/2;
+    float k = alpha/2.;
     float geometry = (NdotL / (NdotL*(1.0-k)+k)) * (NdotV / ((NdotV*(1.0-k)+k)));
 
     // Distribution of Microfacets
-    float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
+    float lowerTerm = pow(NdotH,2.) * (pow(alpha,2.) - 1.0) + 1.0;
     float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159265358979323 * pow(lowerTerm,2.0));
 
     
 
     vec3 phongDiffuse = rhoD; //
-    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4*NdotL*NdotV);
+    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4.*NdotL*NdotV);
     
     vec3 BRDF = (phongDiffuse+cookTorrance)*NdotL;
    
@@ -57,19 +57,19 @@ vec3 brdf(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo
 
 vec3 brdfg(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albedo, float metallic, vec3 reflectance) {
     //for ease of use
-    float alpha = pow(roughness,2);
+    float alpha = pow(roughness,2.);
 
     vec3 H = normalize(lightDir + viewDir);
     
 
     //dot products
-    float NdotV = clamp(dot(normal, viewDir), 0.001,1.0);
-    float NdotL = clamp(dot(normal, lightDir) + 0.05, 0.001,1.0);
-    if (abs(EntityID - 10008) < 0.5) {
+    float NdotV = clamp(dot(normal, viewDir), 0.001, 1.0);
+    float NdotL = clamp(dot(normal, lightDir) + 0.05, 0.001, 1.0);
+    if (abs(EntityID - 10008.) < 0.5) {
         NdotL = clamp(NdotL, 0.6,1.0);
     }
-    float NdotH = clamp(dot(normal,H), 0.001,1.0);
-    float VdotH = clamp(dot(viewDir, H), 0.001,1.0);
+    float NdotH = clamp(dot(normal,H), 0.001, 1.0);
+    float VdotH = clamp(dot(viewDir, H), 0.001, 1.0);
 
     // Fresnel
     vec3 F0 = reflectance;
@@ -82,17 +82,17 @@ vec3 brdfg(vec3 lightDir, vec3 viewDir, float roughness, vec3 normal, vec3 albed
     //rhoD *= (1-metallic); //diffuse is 0 for metals
 
     // Geometric attenuation
-    float k = alpha/2;
+    float k = alpha/2.;
     float geometry = (NdotL / (NdotL*(1.0-k)+k)) * (NdotV / ((NdotV*(1.0-k)+k)));
 
     // Distribution of Microfacets
-    float lowerTerm = pow(NdotH,2) * (pow(alpha,2) - 1.0) + 1.0;
+    float lowerTerm = pow(NdotH,2.) * (pow(alpha,2.) - 1.0) + 1.0;
     float normalDistributionFunctionGGX = pow(alpha,2.0) / (3.14159 * pow(lowerTerm,2.0));
 
     
 
     vec3 phongDiffuse = rhoD; //
-    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4*NdotL*NdotV);
+    vec3 cookTorrance = (fresnelReflectance*normalDistributionFunctionGGX*geometry)/(4.*NdotL*NdotV);
     
     vec3 BRDF = (phongDiffuse+cookTorrance)*NdotL;
    
@@ -108,12 +108,12 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     //light direction
     //sunColor = sunColor * 1.5;
     //normal calc
-    vec3 worldGeoNormal = normalize(mat3(gbufferModelViewInverse) * geoNormal);
-    vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
+    vec3 worldGeoNormal = normalize((gbufferModelViewInverse * vec4(geoNormal, 0.0)).xyz);
+    vec3 worldTangent = normalize((gbufferModelViewInverse * vec4(tangent.xyz, 0.0)).xyz);
     
 
-    if (abs(EntityID-10006) < 0.5) {
-        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
+    if (abs(EntityID-10006.) < 0.5) {
+        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1.)).xyz + cameraPosition;
         worldPos = wave(worldPos, worldTime);
         
         vec3 beforebitangent = normalize(cross(worldTangent, worldGeoNormal));
@@ -131,7 +131,7 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         worldGeoNormal = normalize(cross(bitangent, nonbitangent));
         worldTangent = nonbitangent;
     }
-    vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
+    vec4 normalData = texture2D(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
     mat3 TBN = tbnNormalTangent(worldGeoNormal, worldTangent.rgb);
     vec3 normalWorldSpace = TBN * normalNormalSpace;
@@ -139,25 +139,25 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
         //normalWorldSpace = worldGeoNormal;
     }
     //mat data
-    vec4 specularData = texture(specular, texCoord);
+    vec4 specularData = texture2D(specular, texCoord);
     float perceptualSmoothness = specularData.r;
     
     float metallic = 0.0;
     
     vec3 reflectance = vec3(0);
-    if (specularData.g*255 > 299) {
+    if (specularData.g*255. > 299.) {
         metallic = 1.0;
         reflectance = albedo;
     } else {
         reflectance = vec3(specularData.g);
     }
     float roughness = pow(1.0-perceptualSmoothness, 2.0);
-    float smoothness = 1-roughness;
+    float smoothness = 1.-roughness;
     #if WATER_STYLE == 1
-    if(abs(EntityID-10006) < 0.5) {
+    if(abs(EntityID-10006.) < 0.5) {
         smoothness = 0.9;
         metallic = 0.01;
-        roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5 * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
+        roughness = 0.05 * WATER_ROUGHNESS*(0.1 + 5. * pow((albedo.r + albedo.g + albedo.b)/3.0+ 0.8, 2.0));
         reflectance = vec3(WATER_SHININESS * 0.25);
         albedo = albedo*vec3(0.9, 1.3, 1.0);
     }
@@ -183,16 +183,16 @@ vec4 lightingCalculations(vec3 albedo, vec3 sunColor, float EntityID, float sunA
     vec3 fragShadowScreenSpace = distortedShadowNdcSpace*0.5 + 0.5; 
     
     
-    vec3 shadowLightDirection = normalize(mat3(gbufferModelViewInverse)*shadowLightPosition);
+    vec3 shadowLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
     vec3 reflectionDirection = reflect(-shadowLightDirection, normalWorldSpace);
     vec3 viewDirection = normalize(cameraPosition - fragWorldSpace);
     vec3 shadowMultiplier = vec3(1.0);
    
     #ifdef SHADOW
     //shadow
-    float isInShadow = step(fragShadowScreenSpace.z, texture(shadowtex0HW, fragShadowScreenSpace.xyz).r);
-    float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture(shadowtex1, fragShadowScreenSpace.xy).r);
-    vec4 shadowColor = texture(shadowcolor0, fragShadowScreenSpace.xy);
+    float isInShadow = shadow2D(shadowtex0HW, vec3(fragShadowScreenSpace.xy, fragShadowScreenSpace.z)).r;
+    float isInNonColoredShadow = step(fragShadowScreenSpace.z, texture2D(shadowtex1, fragShadowScreenSpace.xy).r);
+    vec4 shadowColor = texture2D(shadowcolor0, fragShadowScreenSpace.xy);
 
     #endif
    
@@ -204,10 +204,10 @@ if(shadowDistance > 0.0) {
             shadowMultiplier = vec3(0.0);
             #endif
             #ifdef SHADOW_FILTERING
-            shadowMultiplier = vec3(texture(shadowtex0HW, fragShadowScreenSpace.xyz));
+            shadowMultiplier = vec3(shadow2D(shadowtex0HW, vec3(fragShadowScreenSpace.xy, fragShadowScreenSpace.z)));
             #endif
         } else {
-            shadowMultiplier = shadowColor.rgb * (1-shadowColor.a);
+            shadowMultiplier = shadowColor.rgb * (1.-shadowColor.a);
         }
 
     }
@@ -218,15 +218,15 @@ if(shadowDistance > 0.0) {
 #ifndef SHADOW
 shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rgb, vec3(5.2)));
 #endif
-    if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.003) {
+    if(abs(EntityID - 10008.) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.003) {
         shadowMultiplier = vec3(1.0, 1.0, 1.0);
     }
     //block and sky lighting
-    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1/32.0)).rgb, vec3(4.2/BLOCKLIGHTSPREAD));
+    vec3 blockLight = pow(texture(lightmap, vec2(lightMapCoords.x, 1./32.0)).rgb, vec3(4.2/BLOCKLIGHTSPREAD));
     vec3 skyLight = vec3(clamp(lightMapCoords.y-0.06666666666, 0.0, 1.0));
     float skyLightVal = clamp(lightMapCoords.y-0.06666666666, 0.0, 1.0);
     skyLightVal *= 1.0/0.9;
-    float skyLightDirect = pow(mix(0.0, 1.0, clamp((skyLightVal-0.5)*2.0, 0.0, 1.0)), 1);
+    float skyLightDirect = pow(mix(0.0, 1.0, clamp((skyLightVal-0.5)*2.0, 0.0, 1.0)), 1.);
 
     vec3 riseColor = vec3(AMBRISECOLR, AMBRISECOLG, AMBRISECOLB);
 	vec3 dayColor = vec3(AMBDAYCOLR, AMBDAYCOLG, AMBDAYCOLB);
@@ -236,34 +236,34 @@ shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rg
 		skyLight = skyLight*riseColor;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
-		skyLight = skyLight*mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
+		skyLight = skyLight*mix(riseColor, dayColor, 1./0.05 * (sunAngle - 0.025));
 	}
 	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		skyLight = skyLight*dayColor;
 	}
 	if (sunAngle > 0.425 && sunAngle < 0.475) {
-		skyLight = skyLight*mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.425));
+		skyLight = skyLight*mix(dayColor, riseColor, 1./0.05 * (sunAngle-0.425));
 	}
     if (sunAngle > 0.475 && sunAngle < 0.50) {
         skyLight = skyLight*riseColor;
     }
 	if (sunAngle > 0.50 && sunAngle < 0.525) {
-		skyLight = skyLight*mix(riseColor, nightColor, 1/0.025 * (sunAngle-0.5));
+		skyLight = skyLight*mix(riseColor, nightColor, 1./0.025 * (sunAngle-0.5));
 	}
 	if ((sunAngle > 0.525 && sunAngle < 0.975) ) {
 		skyLight = skyLight*nightColor;
 	}
 	if ((sunAngle > 0.975 && sunAngle < 1.0) ) {
-		skyLight  = skyLight*mix(nightColor, riseColor, 1/0.025 * (sunAngle-0.975));
+		skyLight  = skyLight*mix(nightColor, riseColor, 1./0.025 * (sunAngle-0.975));
 	}   
-    skyLight = mix(vec3((skyLight.r + skyLight.g + skyLight.b)/3, (skyLight.r + skyLight.g + skyLight.b)/3, (skyLight.r + skyLight.g + skyLight.b)/3), skyLight, clamp(1.0-((skyLightVal - skyLightDirect)/max(skyLightVal, 0.001)), 0.0, 1.0));
+    skyLight = mix(vec3((skyLight.r + skyLight.g + skyLight.b)/3., (skyLight.r + skyLight.g + skyLight.b)/3., (skyLight.r + skyLight.g + skyLight.b)/3.), skyLight, clamp(1.0-((skyLightVal - skyLightDirect)/max(skyLightVal, 0.001)), 0.0, 1.0));
     skyLight = skyLight * 1.5;
     skyLight = mix(skyLight, vec3(0.3)*(skyLight.r+skyLight.g + skyLight.b+0.2), rainStrength);
 
 
     //Voxel Data (I hope)
     //vec3 voxel_pos_unrounded = fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2;
-    ivec3 voxel_pos = ivec3(fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2);
+    //ivec3 voxel_pos = ivec3(fragFeetPlayerSpaceBackup-normalize(normalWorldSpace)*0.05 + fract(cameraPosition) + VOXEL_AREA/2.);
     //if(fract(voxel_pos_unrounded.x) < 0.05 || fract(voxel_pos_unrounded.x) > 0.95) {
         //voxel_pos.x = /*int(voxel_pos.x - normalize(normalWorldSpace).x);*/ int(voxel_pos.x+1);
     //}
@@ -273,7 +273,7 @@ shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rg
     vec3 ambientLightDirection = vec3(0.0, 1.0, 0.0);
     vec3 ambientLight;
     vec3 brdfv;
-    if(abs(EntityID - 10008) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.5) {
+    if(abs(EntityID - 10008.) < 0.5 && abs(fragShadowScreenSpace.z - texture(shadowtex1, fragShadowScreenSpace.xy).r) < 0.5) {
         brdfv = brdfg(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
     } else {
         brdfv = brdf(shadowLightDirection, viewDirection, roughness, normalWorldSpace, albedo, metallic, reflectance);
@@ -281,26 +281,26 @@ shadowMultiplier = vec3(pow(texture(lightmap, vec2(lightMapCoords.y, 1/32.0)).rg
     vec3 blockcolor = vec3(BLOCKCOLR, BLOCKCOLG, BLOCKCOLB);
    
     
-    ambientLight = (blockLight/2*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.8, 1.0);
+    ambientLight = (blockLight/2.*(AMBIENT_INTENSITY)*blockcolor + 0.2*skyLight*SKYLIGHT_INTENSITY)*clamp(dot(ambientLightDirection, normalWorldSpace), 0.8, 1.0);
     
     vec3 outputColor =vec3(0);
 
     #if WATER_STYLE == 1
-    if(abs(EntityID-10006) < 0.5) {
+    if(abs(EntityID-10006.) < 0.5) {
 
 
 
 
     
 
-     if ((brdfv.r + brdfv.g + brdfv.b)/3 < 1.0) {
+     if ((brdfv.r + brdfv.g + brdfv.b)/3. < 1.0) {
         //brdf = min(brdf, brdf/5000);
      } 
-     if ((brdfv.r + brdfv.g + brdfv.b)/3*(shadowMultiplier.r + shadowMultiplier.b + shadowMultiplier.g)/3 > 0.9 && transparency > 0.1) {
+     if ((brdfv.r + brdfv.g + brdfv.b)/3.*(shadowMultiplier.r + shadowMultiplier.b + shadowMultiplier.g)/3. > 0.9 && transparency > 0.1) {
         
         sunColor=sunColor*50.4*(1.1-rainStrength);
         sunColor = clamp(sunColor, vec3(0.0), vec3(100.9));
-        transparency = mix(transparency+0.2, 1.5, 1-rainStrength);
+        transparency = mix(transparency+0.2, 1.5, 1.-rainStrength);
         brdfv = clamp(brdfv, vec3(0.0), vec3(4.0 - rainStrength*1.8));
      }
      //transparency += clamp(min((brdfv.r + brdfv.g + brdfv.b)/2, 0.3) + (max((brdfv.r + brdfv.g + brdfv.b)/2-0.4, 0.0))*(shadowMultiplier.r + shadowMultiplier.g + shadowMultiplier.b)/3, 0.0, 1.0);

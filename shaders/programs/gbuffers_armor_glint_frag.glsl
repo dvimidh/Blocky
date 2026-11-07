@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
@@ -13,8 +13,8 @@ in vec4 glcolor;
 layout(location = 0) out vec4 color;
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
-	color *= texture(lightmap, lmcoord);
+	color = texture2D(gtexture, texcoord) * glcolor;
+	color *= texture2D(lightmap, lmcoord);
 	if (color.a < alphaTestRef) {
 		discard;
 	}

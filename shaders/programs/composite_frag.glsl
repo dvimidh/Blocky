@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -40,11 +40,11 @@ vec3 viewSpacePosition = projectAndDivide(gbufferProjectionInverse, vec3(texCoor
 vec3 eyeCameraPosition = cameraPosition + gbufferModelViewInverse[3].xyz;
 vec3 sunDirection = normalize(sunPosition);
 vec3 moonDirection = normalize(moonPosition);
-vec3 sunDirectionEyePlayerPos = sunDirection*mat3(gbufferModelViewInverse);
-vec3 moonDirectionEyePlayerPos = moonDirection*mat3(gbufferModelViewInverse);
+vec3 sunDirectionEyePlayerPos = (vec4(sunDirection, 1.0) * gbufferModelViewInverse).xyz;
+vec3 moonDirectionEyePlayerPos = (vec4(moonDirection, 1.0) * gbufferModelViewInverse).xyz;
 vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 
-float mixAmount = 1;
+float mixAmount = 1.;
 #include "/programs/include/fogColorCalc.glsl"
 #include "/programs/include/SkyColorCalc.glsl"
 float GetLuminance(vec3 color) {
@@ -64,9 +64,9 @@ float sunAmount = max( dot(normalize(viewSpacePosition), normalize(sunPosition))
 	float Particlestransparency = texture2DLod(colortex5, texCoord, 0.0).a;
 	float transparency = texture2DLod(colortex7, texCoord, 0.0).b;
 vec3 myFogColor = vec3(0);
-float depth = texture(depthtex0, texCoord).r;
+float depth = texture2D(depthtex0, texCoord).r;
 
-	float depthT = texture(depthtex1, texCoord).r;
+	float depthT = texture2D(depthtex1, texCoord).r;
 	vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
@@ -84,11 +84,19 @@ float depth = texture(depthtex0, texCoord).r;
 	float c3 = ro.y;		
 	float p3 = ro.y + t*rd.y;
 	//fogAmount = t*10*(-log(-pow(2.71828182846,-s*(p3-h))+1)/s - (-log(-pow(2.71828182846,-s*(c3-h))+1)/s))/(p3-c3);	
-	fogAmount = abs(
-		(t * 0.01 * mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength)  / (p3 - c3)) * (
-			log(abs(pow(2.71828182846,-s*(p3-h))+1))/s              - log(abs(pow(2.71828182846,-s*(c3-h))+1))/s
-			)
+	float heightDelta = p3 - c3;
+	float cameraExp = exp(clamp(-s * (c3 - h), -80.0, 80.0));
+	float pointExp = exp(clamp(-s * (p3 - h), -80.0, 80.0));
+	float fogProfile;
+	if (abs(heightDelta) < 0.001) {
+		fogProfile = cameraExp / (1.0 + cameraExp);
+	} else {
+		fogProfile = abs(
+			(log(1.0 + pointExp) - log(1.0 + cameraExp)) /
+			(s * heightDelta)
 		);
+	}
+	fogAmount = t * 0.01 * mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength) * fogProfile;
 	//if(sky) 
 	
 	
@@ -99,24 +107,28 @@ float depth = texture(depthtex0, texCoord).r;
 		SunRiseColor = riseColorMore;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
-		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
+		SunRiseColor = mix(riseColorMore, myFogColor, 1./0.05 * (sunAngle - 0.025));
 	} 
 	if (sunAngle > 0.425 && sunAngle < 0.475) {
-		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.425));
+		SunRiseColor = mix(myFogColor, riseColorMore, 1./0.05 * (sunAngle-0.425));
 	}
 	if (sunAngle > 0.475 && sunAngle < 0.50) {
 		SunRiseColor = riseColorMore;
 	}
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
+		SunRiseColor = mix(riseColorMore, myFogColor, 1./0.05 * (sunAngle-0.5));
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
+		SunRiseColor = mix(myFogColor, riseColorMore, 1./0.05 * (sunAngle-0.95));
 	}
 	vec3 NDCPosndh = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPosndh = projectAndDivide(gbufferProjectionInverse, NDCPosndh);
 	float upDot = dot(normalize(viewPosndh), normalize(gbufferModelView[1].xyz));
-	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.1*upDot)+upDot/5, 0.0, 1.0),0.0)*(1-rainStrength));
+	#ifdef END_DIMENSION
+	myFogColor = vec3(0.0);
+	#else
+	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.1*upDot)+upDot/5., 0.0, 1.0),0.0)*(1.-rainStrength));
+	#endif
 
 	if (isEyeInWater == 1) {
 		fogAmount = t * 0.02;
@@ -174,7 +186,11 @@ void main() {
 		myFogColor = fogColorCalc(sunAngle, rainStrength);
 		vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   		vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+		#ifdef END_DIMENSION
+		myFogColor = vec3(0.0);
+		#else
 		myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
+		#endif
 			float sunAmount = dot(normalize(viewPos), normalize(sunPosition));
 
 	
@@ -194,11 +210,11 @@ void main() {
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
-	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6*FOG_INTENSITY/1000, 6*RAIN_FOG_INTENSITY/1000, rainStrength), 0.01, ifsky);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6.*FOG_INTENSITY/1000., 6.*RAIN_FOG_INTENSITY/1000., rainStrength), 0.01, ifsky);
 	
 	
 	#endif
@@ -209,11 +225,11 @@ void main() {
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
-	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
-	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6*FOG_INTENSITY/1000, 6*RAIN_FOG_INTENSITY/1000, rainStrength), 0.01, ifsky);
+	color.rgb = applyFog(color.rgb, myDistance, cameraPosition, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6.*FOG_INTENSITY/1000., 6.*RAIN_FOG_INTENSITY/1000., rainStrength), 0.01, ifsky);
 	
 	if (depth < depthT) {
 	//if (1<2) {
@@ -222,11 +238,11 @@ void main() {
 			vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  		vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
 			float myDistanceT = length(viewPosT) - myDistance;
-			vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
+			vec3 eyePlayerPosT = (gbufferModelViewInverse*vec4(viewPosT, 1.0)).xyz;
 			vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 			vec3 cameraToPointT = worldPosT - worldPos;
 			cameraToPointT = normalize(cameraToPointT);
-			color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix((6*FOG_INTENSITY/1000), (6*RAIN_FOG_INTENSITY/1000), rainStrength), 0.01, ifsky), color.rgb, transparency);
+			color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix((6.*FOG_INTENSITY/1000.), (6.*RAIN_FOG_INTENSITY/1000.), rainStrength), 0.01, ifsky), color.rgb, transparency);
 			} else {
 				#ifdef DISTANT_HORIZONS
 				float dhDepth = texture(dhDepthTex0, texCoord).r;
@@ -234,23 +250,23 @@ void main() {
 					ifsky = false;
 					vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 	  				vec3 viewPosT = projectAndDivide(dhProjectionInverse, NDCPosT);
-					vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
+					vec3 eyePlayerPosT = (gbufferModelViewInverse*vec4(viewPosT, 1.0)).xyz;
 					vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 					vec3 cameraToPointT = worldPosT - worldPos;
 					float myDistanceT = length(viewPosT) - length(viewPos);
 					cameraToPointT = normalize(cameraToPointT);
-					color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6*FOG_INTENSITY/1000, 6*RAIN_FOG_INTENSITY/1000, rainStrength), 0.01, ifsky), color.rgb, transparency);
+					color.rgb = mix(applyFog(color.rgb, myDistanceT, worldPos, cameraToPointT, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix((6.*FOG_INTENSITY/1000.), (6.*RAIN_FOG_INTENSITY/1000.), rainStrength), 0.01, ifsky), color.rgb, transparency);
 				}
 				else{
 					ifsky = false;
 					vec3 dhNDCPos = vec3(texCoord.xy, dhDepth) * 2.0 - 1.0;
 					vec3 dhviewPos = projectAndDivide(dhProjectionInverse, dhNDCPos);
 					float myDistanceD = length(dhviewPos) - length(viewPos);
-					vec3 dheyePlayerPos = mat3(gbufferModelViewInverse)*dhviewPos;
+					vec3 dheyePlayerPos = (gbufferModelViewInverse*vec4(dhviewPos, 1.0)).xyz;
 					vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
 					vec3 cameraToPoint = dhworldPos - worldPos;
 					cameraToPoint = normalize(cameraToPoint);
-					color.rgb = mix(applyFog(color.rgb, myDistanceD, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix(6*FOG_INTENSITY/1000, 6*RAIN_FOG_INTENSITY/1000, rainStrength), 0.01, ifsky), color.rgb, transparency);
+					color.rgb = mix(applyFog(color.rgb, myDistanceD, dhworldPos, cameraToPoint, sunDirectionEyePlayerPos, moonDirectionEyePlayerPos, mix((6.*FOG_INTENSITY/1000.), (6.*RAIN_FOG_INTENSITY/1000.), rainStrength), 0.01, ifsky), color.rgb, transparency);
 
 				}
 				#endif
@@ -278,7 +294,7 @@ if(depth != 1.0 && (colorCloud.r + colorCloud.g + colorCloud.b) == 0.0) {
 	vec3 NDCPos = vec3(texCoord.xy, depth) * 2.0 - 1.0;
   	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 	float myDistance = length(viewPos);
-	vec3 eyePlayerPos = mat3(gbufferModelViewInverse)*viewPos;
+	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 	vec3 cameraToPoint = worldPos - cameraPosition;
 	cameraToPoint = normalize(cameraToPoint);
@@ -288,21 +304,25 @@ vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 
 
 
-float fogFactor = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2)), 0.0, 1.0);
+float fogFactor = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2.)), 0.0, 1.0);
 
 myFogColor = fogColorCalc(sunAngle, rainStrength);
+	#ifdef END_DIMENSION
+	myFogColor = vec3(0.0);
+	#else
 	myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
+	#endif
 if (isEyeInWater == 0) {
 color.rgb = mix(color.rgb, myFogColor, fogFactor);
 if (depth < depthT-0.01) {
 vec3 NDCPosT = vec3(texCoord.xy, depthT) * 2.0 - 1.0;
 vec3 viewPosT = projectAndDivide(gbufferProjectionInverse, NDCPosT);
-vec3 eyePlayerPosT = mat3(gbufferModelViewInverse)*viewPosT;
+vec3 eyePlayerPosT = (gbufferModelViewInverse*vec4(viewPosT, 1.0)).xyz;
 vec3 worldPosT = eyePlayerPosT + eyeCameraPosition; 
 vec3 cameraToPointT = worldPosT - worldPos;
 float myDistanceT = length(viewPosT) - length(viewPos);
 cameraToPointT = normalize(cameraToPointT);
-float fogFactorT = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2)), 0.0, 1.0);
+float fogFactorT = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2.)), 0.0, 1.0);
 
 color.rgb = mix(color.rgb, mix(color.rgb, fogColor, fogFactorT), transparency);
 
@@ -321,7 +341,7 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 	float brightness = GetLuminance(baseColor);
 	float bloomThreshold = 0.12;
 	float bloom = max(brightness - bloomThreshold, 0.0);
-	color = baseColor * pow(clamp(bloom, 0.0, 1.0), 5.0) * BLOOM_STRENGTH/2;
+	color = baseColor * pow(clamp(bloom, 0.0, 1.0), 5.0) * BLOOM_STRENGTH/2.;
 	/*DRAWBUFFERS:01 */
 	gl_FragData[0] = vec4(baseColor, 1.0);
 	gl_FragData[1] = vec4(color, 1.0);

@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -29,13 +29,13 @@ void main() {
 	/* Sample along the direction vector (horizontal or vertical) */
 	for (int i = -kernel_size; i <= kernel_size; ++i) {
 		/* Calculate the required weight for this 1D sample */
-		float w = gaussianWeight(float(i* BLOOM_SPREAD), BLOOM_SIGMA);
+		float w = gaussianWeight(float(i)* BLOOM_SPREAD, BLOOM_SIGMA);
 		
 		/* Offset from the current pixel along the specified direction */
 		vec2 offset = vec2(i) * direction * BLOOM_SPREAD * frameSizeRCP;
 
 		/* Read and sum up the contribution of that pixel, weighted */
-		sum += texture(colortex4, texCoord + offset) * w;
+		sum += texture2D(colortex4, texCoord + offset) * w;
 		weightSum += w;
 	}
 

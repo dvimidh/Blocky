@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -16,7 +16,7 @@ float GetLuminance(vec3 color) {
 #include "/programs/include/fxaa.glsl"
 
 void main() {
-    vec3 color = texture(colortex0, texCoord).rgb;
+    vec3 color = texture2D(colortex0, texCoord).rgb;
     vec3 finalColor = color;
     #ifdef FXAA
 	color = FXAA311(finalColor);
@@ -24,8 +24,8 @@ void main() {
 	#endif
     #ifdef BLOOM
 
-    vec3 blurred = texture(colortex1, texCoord).rgb;
-    //vec3 blurred = textureLod(colortex1, texCoord, 2.0).rgb;
+    vec3 blurred = texture2D(colortex1, texCoord).rgb;
+    //vec3 blurred = texture2DLod(colortex1, texCoord, 2.0).rgb;
     vec3 bloom = max(clamp(blurred, 0.0, 0.9), 0.0);
     finalColor = color+bloom;
     #endif

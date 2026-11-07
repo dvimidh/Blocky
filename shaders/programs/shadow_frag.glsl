@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 
  
@@ -23,7 +23,7 @@ void main() {
 
     #ifdef SHADOW
     
-    vec4 outputColorData = texture(gtexture,texCoord);  
+    vec4 outputColorData = texture2D(gtexture,texCoord);  
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     float transparency = outputColorData.a;
     if (outputColorData.a < 0.1) {

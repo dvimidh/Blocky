@@ -1,4 +1,5 @@
-#version 430 compatibility
+#version 330 compatibility
+
 #include "/programs/settings.glsl"
 #include "/programs/include/distort.glsl"
 

@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 
 uniform mat3 normalMatrix;

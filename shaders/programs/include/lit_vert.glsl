@@ -42,14 +42,14 @@ void main() {
 	
     foot_pos = (gbufferModelViewInverse * vec4( viewSpacePosition, 1.) ).xyz;
 
-    if(abs(mc_Entity.x-10001) < 0.5) {
-        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
-        worldPos = vec3(worldPos.x + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x + 0.3*worldPos.y), worldPos.y + 0.005*sin(0.1*worldTime + worldPos.z + worldPos.x + 10), worldPos.z + 0.03*sin(0.1*worldTime + worldPos.z + worldPos.x + 15));
+    if(abs(mc_Entity.x-10001.) < 0.5) {
+        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1.)).xyz + cameraPosition;
+        worldPos = vec3(worldPos.x + 0.03*sin(0.1*float(worldTime) + worldPos.z + worldPos.x + 0.3*worldPos.y), worldPos.y + 0.005*sin(0.1*float(worldTime) + worldPos.z + worldPos.x + 10.), worldPos.z + 0.03*sin(0.1*float(worldTime) + worldPos.z + worldPos.x + 15.));
         viewSpacePositionVec4 = gbufferModelView*vec4(worldPos-cameraPosition, 1.0);
     }
-    if(abs(EntityID-10006) < 0.5) {
+    if(abs(EntityID-10006.) < 0.5) {
         
-        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1)).xyz + cameraPosition;
+        vec3 worldPos = (gbufferModelViewInverse * vec4(viewSpacePosition.xyz, 1.)).xyz + cameraPosition;
         
         worldPos = wave(worldPos, worldTime);
         

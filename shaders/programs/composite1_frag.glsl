@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -23,11 +23,11 @@ void main() {
     vec2 o = halfpixel;
 
     // Dual-Kawase style: center weighted x4 + 4 diagonal samples
-    vec3 col = texture(colortex1, texCoord).rgb * 4.0;
-    col += texture(colortex1, texCoord + vec2(-o.x, -o.y)).rgb; // bottom-left
-    col += texture(colortex1, texCoord + vec2( o.x, -o.y)).rgb; // bottom-right
-    col += texture(colortex1, texCoord + vec2(-o.x,  o.y)).rgb; // top-left
-    col += texture(colortex1, texCoord + vec2( o.x,  o.y)).rgb; // top-right
+    vec3 col = texture2D(colortex1, texCoord).rgb * 4.0;
+    col += texture2D(colortex1, texCoord + vec2(-o.x, -o.y)).rgb; // bottom-left
+    col += texture2D(colortex1, texCoord + vec2( o.x, -o.y)).rgb; // bottom-right
+    col += texture2D(colortex1, texCoord + vec2(-o.x,  o.y)).rgb; // top-left
+    col += texture2D(colortex1, texCoord + vec2( o.x,  o.y)).rgb; // top-right
 
     // normalize and apply strength
     vec3 outCol = (col / 8.0);

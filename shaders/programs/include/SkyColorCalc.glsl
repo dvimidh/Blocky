@@ -21,33 +21,33 @@ float sunAmount = max(0.0, dot(normalize(pos), normalize(sunPosition)));
 		SkyMult = RiseMult;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
-		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle - 0.025));
-		SkyMult = mix(RiseMult, dayMult, 1/0.05 * (sunAngle - 0.025));
+		SunRiseColor = mix(riseColorMore, myFogColor, 1./0.05 * (sunAngle - 0.025));
+		SkyMult = mix(RiseMult, dayMult, 1./0.05 * (sunAngle - 0.025));
 	} 	
 	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		SkyMult = dayMult;
 	}
 	if (sunAngle > 0.425 && sunAngle < 0.475) {
-		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.425));
-		SkyMult = mix(dayMult, RiseMult, 1/0.05 * (sunAngle-0.425));
+		SunRiseColor = mix(myFogColor, riseColorMore, 1./0.05 * (sunAngle-0.425));
+		SkyMult = mix(dayMult, RiseMult, 1./0.05 * (sunAngle-0.425));
 	}
 	if (sunAngle > 0.475 && sunAngle < 0.50) {
 		SunRiseColor = riseColorMore;
 		SkyMult = RiseMult;
 	}
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		SunRiseColor = mix(riseColorMore, myFogColor, 1/0.05 * (sunAngle-0.5));
-		SkyMult = mix(RiseMult, nightMult, 1/0.05 * (sunAngle-0.5));
-		SkyBoost = mix(vec3(0.0), vec3(0.1), 1/0.05 * (sunAngle-0.5));
+		SunRiseColor = mix(riseColorMore, myFogColor, 1./0.05 * (sunAngle-0.5));
+		SkyMult = mix(RiseMult, nightMult, 1./0.05 * (sunAngle-0.5));
+		SkyBoost = mix(vec3(0.0), vec3(0.1), 1./0.05 * (sunAngle-0.5));
 	}
 	if (sunAngle > 0.55 && sunAngle < 0.95) {
 		SkyMult = nightMult;
 		SkyBoost = vec3(0.1);
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		SunRiseColor = mix(myFogColor, riseColorMore, 1/0.05 * (sunAngle-0.95));
-		SkyMult = mix(nightMult, RiseMult, 1/0.05 * (sunAngle-0.95));
-		SkyBoost = mix(vec3(0.1), vec3(0.0), 1/0.05 * (sunAngle-0.95));
+		SunRiseColor = mix(myFogColor, riseColorMore, 1./0.05 * (sunAngle-0.95));
+		SkyMult = mix(nightMult, RiseMult, 1./0.05 * (sunAngle-0.95));
+		SkyBoost = mix(vec3(0.1), vec3(0.0), 1./0.05 * (sunAngle-0.95));
 	}
 	myFogColor  = mix(myFogColor,SunRiseColor, max(clamp(pow((sunAmount+0.6)*1.0,1.5)/3.6, 0.0, 1.0) - clamp(abs(0.1*upDot)+upDot/5, 0.0, 1.0),0.0)*(1-rainStrength));
 
@@ -60,7 +60,7 @@ float sunAmount = max(0.0, dot(normalize(pos), normalize(sunPosition)));
 	myFar = 100000000.0;
 	#endif
 	#endif
-	vec3 baseSkyColor = mix(MyskyColor, myFogColor ,clamp(pow(1 - (upDot*2) + 0.5 * upDot * upDot, 1.0) + 100/(myFar + 500.0) + 0.06*mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength) + 0.3, 0.0, 1.0) + rainStrength*0.3);
+	vec3 baseSkyColor = mix(MyskyColor, myFogColor ,clamp(pow(1. - (upDot*2.) + 0.5 * upDot * upDot, 1.0) + 100.0/(myFar + 500.0) + 0.06*mix(FOG_INTENSITY, RAIN_FOG_INTENSITY, rainStrength) + 0.3, 0.0, 1.0) + rainStrength*0.3);
 	baseSkyColor = mix(baseSkyColor, vec3(1.4, 0.85, -0.1), clamp(pow(max(sunAmount, 0.0), 100.0)*HALO_STRENGTH* HaloMult, 0.0, 0.4*(1-rainStrength))*max(pow(upDot, 0.4), 0.0));//sun halo
 	
 	return baseSkyColor;

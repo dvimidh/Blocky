@@ -1,0 +1,1 @@
+#include "/programs/gbuffers_armor_glint_vert.glsl"

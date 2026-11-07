@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 
@@ -22,16 +22,16 @@ void main() {
 
     // Dual-Kawase style: center weighted x4 + 4 diagonal samples
     vec3 col = vec3(0.0);
-    col += texture(colortex4, texCoord + vec2(-o.x * 2.0, 0.0)).rgb; // bottom-left
-    col += texture(colortex4, texCoord + vec2( o.x * 2.0, 0.0)).rgb; // bottom-right
-    col += texture(colortex4, texCoord + vec2(0.0, -o.y * 2.0)).rgb; // top-left
-    col += texture(colortex4, texCoord + vec2(0.0,  o.y * 2.0)).rgb; // top-right
+    col += texture2D(colortex4, texCoord + vec2(-o.x * 2.0, 0.0)).rgb; // bottom-left
+    col += texture2D(colortex4, texCoord + vec2( o.x * 2.0, 0.0)).rgb; // bottom-right
+    col += texture2D(colortex4, texCoord + vec2(0.0, -o.y * 2.0)).rgb; // top-left
+    col += texture2D(colortex4, texCoord + vec2(0.0,  o.y * 2.0)).rgb; // top-right
 
     	/* Sample 4 diagonal corners with 2x weight each */
-	col += (texture(colortex4, texCoord + vec2(-o.x,  o.y)) * 2.0).rgb; /* top-left */
-	col += (texture(colortex4, texCoord + vec2( o.x,  o.y)) * 2.0).rgb; /* top-right */
-	col += (texture(colortex4, texCoord + vec2(-o.x, -o.y)) * 2.0).rgb; /* bottom-left */
-	col += (texture(colortex4, texCoord + vec2( o.x, -o.y)) * 2.0).rgb; /* bottom-right */
+	col += (texture2D(colortex4, texCoord + vec2(-o.x,  o.y)) * 2.0).rgb; /* top-left */
+	col += (texture2D(colortex4, texCoord + vec2( o.x,  o.y)) * 2.0).rgb; /* top-right */
+	col += (texture2D  (colortex4, texCoord + vec2(-o.x, -o.y)) * 2.0).rgb; /* bottom-left */
+	col += (texture2D(colortex4, texCoord + vec2( o.x, -o.y)) * 2.0).rgb; /* bottom-right */
     // normalize and apply strength
     vec3 outCol = (col / 12.0);
 

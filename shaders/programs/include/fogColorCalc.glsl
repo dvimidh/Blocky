@@ -9,25 +9,25 @@ vec3 fogColorCalc(float sunAngle, float rainStrength) {
 		myFogColor = riseColor;
 	}
 	if (sunAngle > 0.025 && sunAngle < 0.075) {
-		myFogColor = mix(riseColor, dayColor, 1/0.05 * (sunAngle - 0.025));
+		myFogColor = mix(riseColor, dayColor, 1./0.05 * (sunAngle - 0.025));
 	}
 	if (sunAngle > 0.075 && sunAngle < 0.425) {
 		myFogColor = dayColor;
 	}
 	if (sunAngle > 0.425 && sunAngle < 0.475) {
-		myFogColor = mix(dayColor, riseColor, 1/0.05 * (sunAngle-0.425));
+		myFogColor = mix(dayColor, riseColor, 1./0.05 * (sunAngle-0.425));
 	}
 	if (sunAngle > 0.475 && sunAngle < 0.50) {
 		myFogColor = riseColor;
 	}
 	if (sunAngle > 0.50 && sunAngle < 0.55) {
-		myFogColor = mix(riseColor, nightColor, 1/0.05 * (sunAngle-0.5));
+		myFogColor = mix(riseColor, nightColor, 1./0.05 * (sunAngle-0.5));
 	}
 	if ((sunAngle > 0.55 && sunAngle < 0.95) ) {
 		myFogColor = nightColor;
 	}
 	if ((sunAngle > 0.95 && sunAngle < 1.0) ) {
-		myFogColor = mix(nightColor, riseColor, 1/0.05 * (sunAngle-0.95));
+		myFogColor = mix(nightColor, riseColor, 1./0.05 * (sunAngle-0.95));
 	}
 	
 	myFogColor = mix(myFogColor, vec3(0.4, 0.45, 0.55)*(skyColor.r*2.0 + skyColor.g*2.0 + skyColor.b*2.1 + 5.4)/6.0, max(rainStrength, 0.0));

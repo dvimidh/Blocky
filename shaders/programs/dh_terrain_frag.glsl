@@ -1,4 +1,4 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 #include "/programs/include/SunColorCalc.glsl"
@@ -106,23 +106,32 @@ void main() {
 
     vec3 worldGeoNormal = mat3(gbufferModelViewInverse) * geoNormal;
     
+    vec3 normalWorldSpace;
+    float perceptualSmoothness;
+    float metallic;
+    vec3 reflectance;
+    #ifdef END_DIMENSION
+    normalWorldSpace = normalize(worldGeoNormal);
+    perceptualSmoothness = 0.0;
+    metallic = 0.0;
+    reflectance = vec3(0.04);
+    #else
     vec3 worldTangent = normalize(mat3(gbufferModelViewInverse) * tangent.xyz);
     vec4 normalData = texture(normals, texCoord)*2.0 - 1.0;
     vec3 normalNormalSpace = vec3(normalData.xy, sqrt(1.0-dot(normalData.xy, normalData.xy)));
     mat3 TBN = generateSimpleTBN(worldGeoNormal);
-    vec3 normalWorldSpace = TBN * normalNormalSpace;
-     vec4 specularData = texture(specular, texCoord);
-    float perceptualSmoothness = specularData.r;
-
-    float metallic = 0.0;
-    
-    vec3 reflectance = vec3(0);
+    normalWorldSpace = TBN * normalNormalSpace;
+    vec4 specularData = texture(specular, texCoord);
+    perceptualSmoothness = specularData.r;
+    metallic = 0.0;
+    reflectance = vec3(0);
     if (specularData.g*255 > 299) {
         metallic = 1.0;
         reflectance = outputColorData.rgb;
     } else {
         reflectance = vec3(specularData.g);
     }
+    #endif
     float roughness = pow(1.0-perceptualSmoothness, 2.0);
     float smoothness = 1-roughness;
 

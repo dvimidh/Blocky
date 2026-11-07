@@ -1,0 +1,1 @@
+#include "/programs/gbuffers_skytextured_frag.glsl"

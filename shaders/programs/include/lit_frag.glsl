@@ -4,8 +4,6 @@
 
 
 //uniforms  
-uniform usampler3D cSampler1;
-uniform usampler3D cSampler2;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D normals;
@@ -63,7 +61,7 @@ void main() {
     
     vec3 albedo = pow(outputColorData.rgb,vec3(2.2)) * pow(foliageColor,vec3(2.2));
     #if WATER_STYLE == 1
-    if (abs(EntityID-10006) < 0.5) {
+    if (abs(EntityID-10006.) < 0.5) {
         if(outputColorData.r > 0.80) {
             albedo =vec3((albedo.r+albedo.g+albedo.b)/3.0, (albedo.r+albedo.g+albedo.b)/2.0 , (albedo.r+albedo.g+albedo.b)/1.0)/2.5;
         }
@@ -71,7 +69,7 @@ void main() {
     #endif
     vec3 oldAlbedo = albedo;
     #ifndef WATER_TEXTURE
-    if (abs(EntityID-10006) < 0.5) {
+    if (abs(EntityID-10006.) < 0.5) {
         albedo = foliageColor*vec3(0.07, 0.2, 0.4);
     }
     #endif
@@ -86,7 +84,7 @@ void main() {
     
     
     #if WATER_STYLE == 1
-    if (abs(EntityID-10006) < 0.5) {
+    if (abs(EntityID-10006.) < 0.5) {
         transparency = clamp(transparency * (albedo.x + albedo.y + albedo.z) * WATER_TRANSLUCENCY_MULTIPLIER, 0.2, 2.0);
         #ifdef WATER_TEXTURE
         
@@ -106,12 +104,12 @@ void main() {
 
 
     vec4 outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
-    if (abs(EntityID-10005) < 0.5) {
+    if (abs(EntityID-10005.) < 0.5) {
     outputColor.rgb += vec3 (2.0, 2.0, 2.0)*albedo*1.8 + 5.5*albedo.b;
     }
     transparency = outputColor.a;
     #if WATER_STYLE == 1
-    if (abs(EntityID-10006) < 0.5) {
+    if (abs(EntityID-10006.) < 0.5) {
         outputColor.rgb = clamp(outputColor.rgb, 0.0, 1.9);
         
     }
@@ -124,13 +122,13 @@ void main() {
     } else {
         storeWater = vec3(0.0);
     }
-    if (abs(EntityID-10010) < 0.5) {
+    if (abs(EntityID-10010.) < 0.5) {
 //outputColor.rgb = 20.5*smoothstep(outputColor.rgb, vec3(0.0), vec3(20.5));
     }
     //outputColor.rgb = clamp(outputColor.rgb * (1.5-(15/10)), vec3(0.0), vec3(1.0));
 
     //outputColor = lightingCalculations(albedo, sunColor, EntityID, sunAngle, worldTime, transparency, ao);
-    outColor0 = vec4(pow(outputColor.rgb + emmissive, vec3(1/2.2)), transparency);
+    outColor0 = vec4(pow(outputColor.rgb + emmissive, vec3(1./2.2)), transparency);
     
     //outColor0 = vec4(1.0);
     outColor1 = vec4(storeWater.rg*doit, transparency*doit, doit);

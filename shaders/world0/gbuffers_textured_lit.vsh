@@ -1,0 +1,1 @@
+#include "/programs/gbuffers_textured_lit_vert.glsl"

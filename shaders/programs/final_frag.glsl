@@ -1,9 +1,9 @@
-#version 430 compatibility
+#version 330 compatibility
 
 #include "/programs/settings.glsl"
 in vec2 texCoord;
 uniform sampler2D colortex0;
-vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
+
 // Timothy Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
 // https://gpuopen.com/wp-content/uploads/2016/03/GdcVdrLottes.pdf
 vec3 tonemap_lottes(vec3 rgb) {
@@ -26,19 +26,19 @@ vec3 tonemap_lottes(vec3 rgb) {
 vec3 tonemapMe(vec3 color) {
 	float exposure = 3.0;
 	// Apply tonemapping operator here
-	color = pow((1-(1/(1+pow(color, vec3(exposure))))), vec3(1/exposure));
+	color = pow((1.-(1./(1.+pow(color, vec3(exposure))))), vec3(1./exposure));
 	return color;
 }
 vec3 tonemapMe2(vec3 color) {
 	float exposure = 10.0;
 	// Apply tonemapping operator here
-	color = 1-(1/(1+pow(color, vec3(exposure)))) - (color-1-(1/(1+pow(color, vec3(exposure)))));
+	color = 1.-(1./(1.+pow(color, vec3(exposure)))) - (color-1.-(1./(1.+pow(color, vec3(exposure)))));
 	return color;
 }
 vec3 tonemapMe3(vec3 color) {
-	float exposure = 6*EXPOSURE;
+	float exposure = 6.*EXPOSURE;
 	// Apply tonemapping operator here
-	color = pow((pow(color, vec3(exposure)))/(1+pow(color, vec3(exposure))), vec3(1/exposure));
+	color = pow((pow(color, vec3(exposure)))/(1.+pow(color, vec3(exposure))), vec3(1./exposure));
 	return color;
 }
 vec3 increaseSaturation(vec3 rgb, float adjustment) {
@@ -48,6 +48,7 @@ vec3 increaseSaturation(vec3 rgb, float adjustment) {
 }
 
 void main() {
+	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
     color = mix(tonemapMe3(color), color, 0.0); 
 	color = increaseSaturation(color, SATURATION);
     /*DRAWBUFFERS:0 */

@@ -23,7 +23,7 @@ const int colortex9Format = RGBA16F;
   #ifdef SHADOW
     const float shadowDistance = SHADOW_DISTANCE;
   #else
-    const float shadowDistance = 0.0; 
+    const float shadowDistance = 0.0;
   #endif
   const float shadowDistanceRendermul = 1.0;
   #define SHADOW_INTENSITY 2.1 // [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.3 1.4 1.5 1.6 1.7 1.9 2.0 2.4 2.8 3.0 3.5 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
@@ -36,11 +36,11 @@ const int colortex9Format = RGBA16F;
   const bool shadowHardwareFiltering = true;
   const float shadowDistanceRenderMul = 1.0;
   #define VOXEL_AREA 0 // [0 32 64 128 256]
-  #define VOXEL_RADIUS (VOXEL_AREA/2)
-  const float voxelDistance = VOXEL_AREA;
+  #define VOXEL_RADIUS (float(VOXEL_AREA)/2.)
+  const float voxelDistance = float(VOXEL_AREA);
   const float entityShadowDistanceMul = 0.3; //[0.0 0.025 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-  #define VOXEL_X int(VOXEL_AREA/8)
-  #define VOXEL_YZ int(VOXEL_AREA/4)
+  #define VOXEL_X int(VOXEL_AREA/8.)
+  #define VOXEL_YZ int(VOXEL_AREA/4.)
   
   #define FXAA_SUBPIXEL 0.75 //[0.00 0.25 0.50 0.75 1.00]
   //#define SHADOW_FILTERING
