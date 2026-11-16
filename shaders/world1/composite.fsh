@@ -2,8 +2,7 @@
 
 #include "/programs/settings.glsl"
 
-varying vec2 texCoord;
-
+in vec2 texCoord;
 uniform float frameTimeCounter;
 uniform float sunAngle;
 uniform float far;
@@ -30,6 +29,9 @@ uniform float playerMood;
 uniform float constantMood;
 uniform int isEyeInWater;
 #include "/programs/include/fogColorCalc.glsl"
+
+
+
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	vec4 homPos = projectionMatrix * vec4(position, 1.0);
 	return homPos.xyz / homPos.w;
@@ -267,8 +269,12 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
     #endif
 	#endif
 
+
+
+	
 	color = mix(color, colorCloud.rgb, colorCloud.a);
 	color = mix(color, colorParticles, Particlestransparency);
+
 	vec3 baseColor = color;
 	float brightness = GetLuminance(baseColor);
 	float bloomThreshold = 0.12;

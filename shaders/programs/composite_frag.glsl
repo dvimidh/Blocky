@@ -47,6 +47,7 @@ vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 float mixAmount = 1.;
 #include "/programs/include/fogColorCalc.glsl"
 #include "/programs/include/SkyColorCalc.glsl"
+#include "/programs/include/lineboxfunc.glsl"
 float GetLuminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
 }
@@ -57,17 +58,19 @@ vec3 tonemapMe3(vec3 color) {
 	color = pow((pow(color, vec3(exposure)))/(1.0+pow(color, vec3(exposure))), vec3(1.0/exposure));
 	return color;
 }
+
 float sunAmount = max( dot(normalize(viewSpacePosition), normalize(sunPosition)), 0.0 );
-	vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
-	vec4 colorCloud = texture2DLod(colortex6, texCoord, 0.0);
-	vec3 colorParticles = texture2DLod(colortex5, texCoord, 0.0).rgb;
-	float Particlestransparency = texture2DLod(colortex5, texCoord, 0.0).a;
-	float transparency = texture2DLod(colortex7, texCoord, 0.0).b;
+vec3 color = texture2DLod(colortex0, texCoord, 0.0).rgb;
+vec4 colorCloud = texture2DLod(colortex6, texCoord, 0.0);
+vec3 colorParticles = texture2DLod(colortex5, texCoord, 0.0).rgb;
+float Particlestransparency = texture2DLod(colortex5, texCoord, 0.0).a;
+float transparency = texture2DLod(colortex7, texCoord, 0.0).b;
 vec3 myFogColor = vec3(0);
 float depth = texture2D(depthtex0, texCoord).r;
 
-	float depthT = texture2D(depthtex1, texCoord).r;
-	vec3 applyFog( in vec3  col,  // color of pixel
+float depthT = texture2D(depthtex1, texCoord).r;
+
+vec3 applyFog( in vec3  col,  // color of pixel
                in float t,    // distnace to point
                in vec3  ro,   // camera position
                in vec3  rd,   // camera to point vector
@@ -160,6 +163,7 @@ float depth = texture2D(depthtex0, texCoord).r;
 }
 
 bool calctransparency = true;
+
 void main() {
 
 	#ifdef DISTANT_HORIZONS
@@ -172,7 +176,7 @@ void main() {
 		colorCloud =vec4(0.0);
 		calctransparency = false;
 	}
-#endif
+	#endif
 	myFogColor = fogColorCalc(sunAngle, rainStrength);
 
   if(depth == 1.0 || !calctransparency) {
@@ -198,6 +202,7 @@ void main() {
 	else{
 		ifsky = false;
 	}
+
 	float myDistance = length(dhviewPos);
 	vec3 dheyePlayerPos = mat3(gbufferModelViewInverse)*dhviewPos;
 	vec3 dhworldPos = dheyePlayerPos + eyeCameraPosition; 
@@ -307,11 +312,8 @@ vec3 riseColorMore = vec3(RISCOLR, RISCOLG, RISCOLB);
 float fogFactor = clamp(exp(-1.5 * (2.0 - (myDistance / far)*2.)), 0.0, 1.0);
 
 myFogColor = fogColorCalc(sunAngle, rainStrength);
-	#ifdef END_DIMENSION
-	myFogColor = vec3(0.0);
-	#else
+
 	myFogColor = calcSkyColor(viewPos, myFogColor, sunAngle, 0.0);
-	#endif
 if (isEyeInWater == 0) {
 color.rgb = mix(color.rgb, myFogColor, fogFactor);
 if (depth < depthT-0.01) {
@@ -335,6 +337,21 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 }
     #endif
 	#endif
+
+	vec3 NDCPos2 = vec3(texCoord.xy, depth) * 2.0 - 1.0;
+  	vec3 viewPos2 = projectAndDivide(gbufferProjectionInverse, NDCPos2);
+	float myDistance = length(viewPos2);
+	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos2, 1.0)).xyz;
+	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
+
+	LineBoxIntersectResult result = lineboxintersect(cameraPosition, normalize(worldPos-cameraPosition), vec3(-100.0, 100.0, -100.0), vec3(100.0, 110.0, 100.0));
+	if(result.hit) {
+		//color = mix(color, vec3(1.0), 0.8);
+	}
+	
+
+
+
 	color = mix(color, colorCloud.rgb, colorCloud.a);
 	color = mix(color, colorParticles.rgb, Particlestransparency);
 	vec3 baseColor = color;
