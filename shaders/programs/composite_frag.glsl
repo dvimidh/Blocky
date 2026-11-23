@@ -30,6 +30,7 @@ uniform float rainStrength;
 uniform float playerMood;
 uniform float constantMood;
 uniform int isEyeInWater;
+uniform int worldTime;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -344,10 +345,11 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos2, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 
-	LineBoxIntersectResult result = lineboxintersect(cameraPosition, normalize(worldPos-cameraPosition), vec3(-100.0, 100.0, -100.0), vec3(100.0, 110.0, 100.0));
-	if(result.hit) {
-		//color = mix(color, vec3(1.0), 0.8);
-	}
+	
+
+	tuple box = boxify(vec3(0.0, 150.0, 0.0), vec3(100.0, 20.0, 100.0));
+	color = mix(color, vec3(1.0), clamp(tracebox(cameraPosition, normalize(worldPos - cameraPosition), box, length(worldPos - cameraPosition), float(worldTime)/10.0), 0.0, 1.0));
+
 	
 
 
