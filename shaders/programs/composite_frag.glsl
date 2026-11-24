@@ -31,7 +31,7 @@ uniform float playerMood;
 uniform float constantMood;
 uniform int isEyeInWater;
 uniform int worldTime;
-
+uniform vec3 shadowLightPosition;
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 	vec4 homPos = projectionMatrix * vec4(position, 1.0);
 	return homPos.xyz / homPos.w;
@@ -48,7 +48,10 @@ vec3 sunDirectionWorldPos = sunDirectionEyePlayerPos + cameraPosition;
 float mixAmount = 1.;
 #include "/programs/include/fogColorCalc.glsl"
 #include "/programs/include/SkyColorCalc.glsl"
-#include "/programs/include/lineboxfunc.glsl"
+#include "/programs/include/SunColorCalc.glsl"
+#include "/programs/include/cloud.glsl"
+vec3 sunColor = SunColor(sunAngle, rainStrength);
+vec3 upSky = calcSkyColor(gbufferModelView[1].xyz, vec3(1.0), sunAngle, 0.0);
 float GetLuminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
 }
@@ -345,11 +348,26 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos2, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 
-	
+	bool cloud = true;
+	if (cloud) {
+		vec3 lightDirectionWorld = normalize((gbufferModelViewInverse* vec4(shadowLightPosition, 1.0)).xyz);
+		tuple box = boxify(vec3(0.0, 150.0, 0.0), vec3(100.0, 20.0, 100.0));
+		floatvec3 dirtrace = tracebox(cameraPosition, normalize(worldPos - cameraPosition), box, length(worldPos - cameraPosition), float(worldTime)/10.0, 0.25, 5.0);
+		floatvec3 ligtrace = tracebox(dirtrace.vector3, lightDirectionWorld, box, 10000000000.0, float(worldTime)/10.0, 0.12, 0.3);
 
-	tuple box = boxify(vec3(0.0, 150.0, 0.0), vec3(100.0, 20.0, 100.0));
-	color = mix(color, vec3(1.0), clamp(tracebox(cameraPosition, normalize(worldPos - cameraPosition), box, length(worldPos - cameraPosition), float(worldTime)/10.0), 0.0, 1.0));
 
+		float cloudOpacity = dirtrace.scalar;
+		float cloudShadow = clamp(ligtrace.scalar, 0.0, 1.0);
+		vec3 viewDir = normalize(worldPos - cameraPosition);
+		float edge = 4.0 * cloudOpacity * (1.0 - cloudOpacity);
+		float sunDot = pow(max(dot(viewDir, lightDirectionWorld), 0.0), 8.0);
+		vec3 edgeBoost = edge * sunDot * 0.0* sunColor;
+
+		cloudShadow = smoothstep(0.01, 0.45, (cloudShadow - pow(sunDot, 0.3)/2.0)/6.0);
+
+		vec3 cloudColor = mix(vec3(mix(sunColor*sunColor, vec3(sunColor.r/3. + sunColor.g/3. + sunColor.b/3.), 0.7)*0.7 + 0.025) + vec3(upSky*0.7 + vec3(0.05, 0.05, 0.1)), vec3(upSky*0.7 + vec3(0.05, 0.05, 0.1)), cloudShadow);
+		color = mix(color, cloudColor, clamp(cloudOpacity, 0.0, 1.0));
+	}
 	
 
 

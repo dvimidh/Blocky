@@ -38,15 +38,15 @@ LineBoxIntersectResult lineboxintersect(vec3 start, vec3 direction, vec3 boxmin,
 
 //density functions for reference
 float xdens(float x, float t, float speed, float scale, float tinystrenght, float midstrength, float bigstrenght) {
-    return ((sin(x*scale*0.3 + t*speed)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.7 + t*speed)*0.5 + 0.5)*midstrength + (sin(x*1.5*scale + t*speed)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
+    return 0.7*((sin(x*scale*0.3 + t*speed)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.7 + t*speed)*0.5 + 0.5)*midstrength + (sin(x*1.5*scale + t*speed)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
 }
 
 float ydens(float x, float t, float speed, float scale, float tinystrenght, float midstrength, float bigstrenght) {
-    return ((sin(x*scale*0.25 + t*speed*0.9)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.75 + t*speed*0.9)*0.5 + 0.5)*midstrength + (sin(x*1.45*scale + t*speed*0.9)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
+    return 1.4*((sin(x*scale*0.25 + t*speed*0.9)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.75 + t*speed*0.9)*0.5 + 0.5)*midstrength + (sin(x*1.45*scale + t*speed*0.9)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
 }
 
 float zdens(float x, float t, float speed, float scale, float tinystrenght, float midstrength, float bigstrenght) {
-    return ((sin(x*scale*0.2 + t*speed*1.1)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.8 + t*speed*1.1)*0.5 + 0.5)*midstrength + (sin(x*1.4*scale + t*speed*1.1)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
+    return 0.7*((sin(x*scale*0.2 + t*speed*1.1)*0.5 + 0.5)*bigstrenght + (sin(x*scale*0.8 + t*speed*1.1)*0.5 + 0.5)*midstrength + (sin(x*1.4*scale + t*speed*1.1)*0.5 + 0.5)*tinystrenght)*0.7 + 0.4;
 }
 
 //partial integrals for use in line integrals
@@ -62,64 +62,78 @@ float zint(float x, float t, float speed, float scale, float tinystrenght, float
     return 0.7 * (bigstrenght * (0.5*x - cos(x*scale*0.2 + t*speed*1.1)/(2.0*0.2*scale)) + midstrength * (0.5*x - cos(x*scale*0.8 + t*speed*1.1)/(2.0*0.8*scale)) + tinystrenght * (0.5*x - cos(x*1.4*scale + t*speed*1.1)/(2.0*1.4*scale))) + 0.4*x;
 }
 
-float lineintegral(vec3 start, vec3 end, float time){
-    float Bigstren = 0.4;
-    float Smalstren = 0.04;
-    float Medstren = 0.01;
+float lineintegral(vec3 start, vec3 end, float time, float wiggleStrenMul){
+    float Bigstren = 0.4*wiggleStrenMul;
+    float Smalstren = 0.04*wiggleStrenMul;
+    float Medstren = 0.01*wiggleStrenMul;
     vec3 dir = normalize(end - start);
+    if (length(end-start) < 1e-6) {
+        return 0.0;
+    }
     float xintegral = xint(end.x, time, 1.0, 1.0, Smalstren, Medstren, Bigstren) - xint(start.x, time, 1.0, 1.0, Smalstren, Medstren, Bigstren);
     float yintegral = yint(end.y, time, 1.0, 1.0, Smalstren, Medstren, Bigstren) - yint(start.y, time, 1.0, 1.0, Smalstren, Medstren, Bigstren);
     float zintegral = zint(end.z, time, 1.0, 1.0, Smalstren, Medstren, Bigstren) - zint(start.z, time, 1.0, 1.0, Smalstren, Medstren, Bigstren);
 
-    if (dir.x == 0.0) {
+    if (abs(dir.x) <= 1e-5) {
         xintegral = 0.0;
     } else {
-        xintegral = xintegral / dir.x;
+        float midX = 0.5 * (start.x + end.x);
+        xintegral = xdens(midX, time, 1.0, 1.0, Smalstren, Medstren, Bigstren) * length(end-start);
     }
-    if (dir.y == 0.0) {
-        yintegral = 0.0;
-    } else {
-        yintegral = yintegral / dir.y;
-    }
-    if (dir.z == 0.0) {
-        zintegral = 0.0;
-    }  else {
-        zintegral = zintegral / dir.z;
-    }
+if (abs(dir.y) <= 1e-5) {
+    yintegral = 0.0;
+} else {
+    float midY = 0.5 * (start.y + end.y);
+    yintegral = ydens(midY, time, 1.0, 1.0,
+                      Smalstren, Medstren, Bigstren) * length(end - start);
+}
+
+if (abs(dir.z) <= 1e-5) {
+    zintegral = 0.0;
+} else {
+    float midZ = 0.5 * (start.z + end.z);
+    zintegral = zdens(midZ, time, 1.0, 1.0,
+                      Smalstren, Medstren, Bigstren) * length(end - start);
+}
 
     return xintegral + yintegral + zintegral;
 }
 
+struct floatvec3 {
+    float scalar; 
+    vec3 vector3;
+    };
 
-float tracebox(vec3 start, vec3 direction, tuple box, float maxdist, float time) {
+floatvec3 tracebox(vec3 start, vec3 direction, tuple box, float maxdist, float time, float extinction, float wiggleStrenMul) {
     LineBoxIntersectResult result = lineboxintersect(start, direction, box.a, box.b);
 
     float integral = 0.0;
     float ysmoothintegral = 0.0;
     if(length(result.hitpos-start) > maxdist) {
-        return 0.0;
+        return floatvec3(0.0, vec3(0.0));
     }
     if(!result.hit) {
-        return 0.0;
+        return floatvec3(0.0, vec3(0.0));
     }
+    vec3 loc;
     if(length(result.hitpos - result.exitpos) < length(result.exitpos - start)) {
+        loc = result.hitpos +  0.0001*direction;
         if (length(result.exitpos - start) > maxdist) {
-            integral = lineintegral(result.hitpos, maxdist*direction + start, time);
+            integral = lineintegral(result.hitpos, maxdist*direction + start, time, wiggleStrenMul);
         } else {
-            integral = lineintegral(result.hitpos, result.exitpos, time);
+            integral = lineintegral(result.hitpos, result.exitpos, time, wiggleStrenMul);
         }
   
     } else {
+        loc = start;
         if (length(result.exitpos - start) > maxdist) {
-            integral = lineintegral(start, maxdist*direction + start, time);
+            integral = lineintegral(start, maxdist*direction + start, time, wiggleStrenMul);
         } else {
-            integral = lineintegral(start, result.exitpos, time);
+            integral = lineintegral(start, result.exitpos, time, wiggleStrenMul);
         }
 
     }
-    
 
     // Convert integrated density to exponential scattering opacity.
-    const float extinction = 0.25;
-    return 1.0 - exp(-extinction * (max(abs(integral) - 10.0, 0.0)));
+    return floatvec3(1.0 - exp(-extinction * (max(abs(integral), 0.0))), loc);
 }
