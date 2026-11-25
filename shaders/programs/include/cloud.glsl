@@ -137,3 +137,5 @@ floatvec3 tracebox(vec3 start, vec3 direction, tuple box, float maxdist, float t
     // Convert integrated density to exponential scattering opacity.
     return floatvec3(1.0 - exp(-extinction * (max(abs(integral), 0.0))), loc);
 }
+
+
