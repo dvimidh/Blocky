@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 
 #ifdef BLOOM
@@ -38,4 +38,10 @@ void main() {
 
 }
 
+#else
+uniform sampler2D colortex1;
+void main() {
+    discard;
+}
 #endif
+

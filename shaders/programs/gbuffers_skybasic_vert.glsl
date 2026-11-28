@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 varying vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
 varying vec3 viewpos;

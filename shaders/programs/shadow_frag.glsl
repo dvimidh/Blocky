@@ -2,7 +2,7 @@
 
 
  
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 
 #ifdef SHADOW

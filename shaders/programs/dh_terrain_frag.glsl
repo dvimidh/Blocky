@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 #include "/programs/include/SunColorCalc.glsl"
 mat3 generateSimpleTBN(vec3 normal) {
     // Create an arbitrary tangent vector

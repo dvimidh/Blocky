@@ -10,6 +10,7 @@ screen.SUNLIGHTCOLOR = Sunlight Color
 screen.SKYLIGHTCOLOR = Skylight Color
 screen.BLOCKLIGHTCOLOR = Blocklight Color
 screen.SKYMULTIPLIERS = Sky Color Multipliers
+screen.CLOUDS = Clouds
 
 option.INFO = Blocky v0.6
 value.INFO.0 = by dvimidh
@@ -121,6 +122,19 @@ option.SKY_SATURATION.comment = The strength of colors in the sky.  Higher value
 
 option.SKY_INTENSITY = Sky Intensity
 option.SKY_INTENSITY.comment = The brightness of the sky
+
+option.SHADER_CLOUDS = Shader Clouds
+option.SHADER_CLOUDS.commment = Enables Shader Clouds - Analytically Traced so it should run pretty good
+option.CLOUDS_SCALE = Cloud Scale 
+option.CLOUDS_SCALE.comment = Horizontal scale of the clouds
+option.CLOUDS_WIDTH = Cloud Thickness
+option.CLOUDS_WIDTH.comment = Vertical thickness of the cloud in blocks. Vanilla Clouds are 4 blocks thick
+option.CLOUDS_HEIGHT = Cloud Height
+option.CLOUDS_HEIGHT.commment = Cloud height in blocks
+option.CLOUDS_SPEED = Cloud Speed
+option.CLOUDS_SPEED.comment = Cloud Speed Multiplier
+option.CLOUDS_DISTANCE = Cloud Render Distance
+option.CLOUDS_DISTANCE.comment = Maximum Cloud Render Distance 
 
 option.SATURATION = Saturation
 option.SATURATION.comment = The strength of colors.  Higher values make colors pop more

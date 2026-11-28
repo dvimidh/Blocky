@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 varying vec2 texCoord;
 
@@ -19,6 +19,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex6;
 uniform sampler2D colortex5;
 uniform sampler2D colortex7;
+uniform sampler2D colortex8;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D dhDepthTex0;
@@ -168,7 +169,19 @@ vec3 applyFog( in vec3  col,  // color of pixel
 
 bool calctransparency = true;
 
+#ifdef SHADER_CLOUDS
+bool cloud = true;
+#else 
+bool cloud = false;
+#endif
+
+
+
+
+
 void main() {
+
+
 
 	#ifdef DISTANT_HORIZONS
 	float dhDepth = texture(dhDepthTex0, texCoord).r;
@@ -348,40 +361,67 @@ color.rgb = mix(color.rgb, mix(fogColor, mix(fogColor, vec3(0.0, 0.3, 0.5), 0.5)
 	vec3 eyePlayerPos = (gbufferModelViewInverse*vec4(viewPos2, 1.0)).xyz;
 	vec3 worldPos = eyePlayerPos + eyeCameraPosition; 
 
-	bool cloud = true;
 	
-	float center = 180.0;
-	float thick = 15.0;
-	float scale = 1.0;
+	float center = CLOUDS_HEIGHT;
+	float thick = CLOUDS_WIDTH;
+	float scale = CLOUDS_SCALE;	
 	if (cloud) {
 		vec3 lightDirectionWorld = normalize((gbufferModelViewInverse* vec4(shadowLightPosition, 1.0)).xyz);
-		tuple box = boxify(vec3(0.0, center, 0.0), vec3(100.0, thick, 100.0));
-		floatvec3 dirtrace = tracebox(cameraPosition, normalize(worldPos - cameraPosition), box, length(worldPos - cameraPosition), float(worldTime)/10.0, 0.3, 0.8);
-		floatvec3 ligtrace = tracebox(dirtrace.vector3, lightDirectionWorld, box, 10000000000.0, float(worldTime)/10.0, 0.025, 0.01);
-
-
-		float cloudOpacity = dirtrace.scalar;
+		vec3 cloudRayEndWorld = worldPos;
+		float cloudMaxDist = length(cloudRayEndWorld - cameraPosition);
+		bool hasSceneDepth = depth < 1.0;
+		#ifdef DISTANT_HORIZONS
+		float cloudDhDepth = texture(dhDepthTex0, texCoord).r;
+		if (cloudDhDepth < 1.0) {
+			vec3 cloudDhNdc = vec3(texCoord.xy, cloudDhDepth) * 2.0 - 1.0;
+			vec3 cloudDhViewPos = projectAndDivide(dhProjectionInverse, cloudDhNdc);
+			vec3 cloudDhEyePos = (gbufferModelViewInverse * vec4(cloudDhViewPos, 1.0)).xyz;
+			vec3 cloudDhWorldPos = cloudDhEyePos + eyeCameraPosition;
+			float cloudDhDistance = length(cloudDhWorldPos - cameraPosition);
+			if (!hasSceneDepth || cloudDhDistance < cloudMaxDist) {
+				cloudRayEndWorld = cloudDhWorldPos;
+				cloudMaxDist = cloudDhDistance;
+			}
+			hasSceneDepth = true;
+		}
+		#endif
+		if (!hasSceneDepth) {
+			cloudMaxDist = max(cloudMaxDist, far + 1000000.0);
+		}
+		vec3 cloudRayDirection = normalize(cloudRayEndWorld - cameraPosition);
+		floatvec3 dirtrace = traceClouds(cameraPosition, cloudRayDirection, cloudMaxDist, frameTimeCounter , 0.3/(0.05*thick), center, thick, scale, colortex8, cloudMaxDist);
+		floatvec3 ligtrace;
+		if (dirtrace.scalar > 1E-13) {
+			ligtrace = traceClouds(dirtrace.vector3, lightDirectionWorld, 10000000000.0, frameTimeCounter , 0.025/(0.05*thick), center, thick, scale, colortex8, 10000000000.0);
+		} else {
+			ligtrace = floatvec3(0.0, vec3(0.0));
+		}
+		float fadeEnd = CLOUDS_DISTANCE;   // fully faded by this distance
+		float fadeStart = 0.3 * fadeEnd;
+		float cloudDistance = length(dirtrace.vector3 - cameraPosition);
+		float distanceFade = 1.0 - smoothstep(fadeStart, fadeEnd, cloudDistance);
+		float cloudOpacity = dirtrace.scalar * distanceFade;
 		float edge = 4.0 * cloudOpacity*(1.0 - cloudOpacity);
 		float mid = 0.2*cloudOpacity/(cloudOpacity*0.3 + 1.);
 		float cloudShadow = clamp(pow(ligtrace.scalar +  mid/2.0, 0.5), 0.0, 1.0);
 		vec3 viewDir = normalize(worldPos - cameraPosition);
 
 		float sunDot = pow(max(dot(viewDir, lightDirectionWorld), 0.0), 2.0);
-		vec3 edgeBoost = edge * sunDot * 0.8 * sunColor;
+		vec3 edgeBoost = edge * sunDot * 1.2 * sunColor;
 		cloudShadow = smoothstep(0.01, 0.9, max(cloudShadow/(1.0+.2*pow(sunDot, 8.0)) - (edgeBoost.r + edgeBoost.g + edgeBoost.b)/2.0, 0.0));
 
 		vec3 cloudColor = mix(vec3(increaseSaturation(sunColor, 1.2)*0.7 + pow(sunDot, 4.0)*increaseSaturation(sunColor, 1.2)*0.7 + 0.025) + vec3(increaseSaturation(upSky, 0.3) + vec3(0.05, 0.05, 0.1)), vec3(increaseSaturation(upSky, 0.3) + vec3(0.05, 0.05, 0.1)), cloudShadow);
-		color = mix(color, min(cloudColor*(1.0 - 0.4*rainStrength), 1.0), clamp(cloudOpacity, 0.0, 1.0));
+		color = mix(color, cloudColor*(1.0 - 0.4*rainStrength), clamp(cloudOpacity, 0.0, 1.0));
 	}
 	
 
 
-
 	color = mix(color, colorCloud.rgb, colorCloud.a);
+	
 	color = mix(color, colorParticles.rgb, Particlestransparency);
 	vec3 baseColor = color;
 	float brightness = GetLuminance(baseColor);
-	float bloomThreshold = 0.12;
+	float bloomThreshold = 0.4;
 	float bloom = max(brightness - bloomThreshold, 0.0);
 	color = baseColor * pow(clamp(bloom, 0.0, 1.0), 5.0) * BLOOM_STRENGTH/2.;
 	/*DRAWBUFFERS:01 */

@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 // ...existing code...
 #ifdef BLOOM
@@ -39,5 +39,9 @@ void main() {
     
 	gl_FragData[0] = vec4(outCol, 1.0);
 
+}
+#else
+void main() {
+    discard;
 }
 #endif

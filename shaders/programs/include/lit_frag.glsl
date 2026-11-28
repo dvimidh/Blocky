@@ -1,6 +1,6 @@
 #version 430 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 
 //uniforms  

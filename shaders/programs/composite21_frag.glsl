@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 const bool colortex1MipmapEnabled = true;
 in vec2 texCoord;

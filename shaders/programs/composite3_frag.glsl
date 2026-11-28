@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-#include "/programs/settings.glsl"
+#include "/settings.glsl"
 
 #ifdef BLOOM
 
@@ -36,4 +36,8 @@ void main() {
 
 }
 
+#else
+void main() {
+    discard;
+}
 #endif
