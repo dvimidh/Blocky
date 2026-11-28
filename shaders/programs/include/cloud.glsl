@@ -205,7 +205,7 @@ floatvec3 traceClouds(vec3 pos, vec3 direction, float maxdist, float time, float
         endXZ = bottomXZ;
     }
     
-    vec2 windVelocity = vec2(-1.5*CLOUDS_SPEED, 0.0);
+    vec2 windVelocity = vec2(-0.75*CLOUDS_SPEED, 0.0);
     vec2 cloudOffset = windVelocity * time*scale;
     vec2 gridStartXZ = startXZ - cloudOffset;
     vec2 gridEndXZ = endXZ - cloudOffset;
